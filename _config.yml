@@ -1,0 +1,5 @@
+theme: jekyll-theme-minimal
+title: PWSWatcher
+show_downloads: false
+plugins:
+  - jekyll-sitemap
