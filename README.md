@@ -11,13 +11,22 @@ There was already another application for the same purpose, but no updates have 
   - [Why?](#why)
   - [Table of contents](#table-of-contents)
   - [Getting started](#getting-started)
+    - [Download](#download)
+    - [Usage](#usage)
   - [Other](#other)
     - [Contact](#contact)
     - [Credits](#credits)
 
 ## Getting started
 
-*Coming soon.*
+### Download
+
+You can download the latest release of PWS Watcher [here](https://github.com/GiorgioBertolotti/PWSWatcher/releases).  
+After downloading the *.apk* file, you can install it on your Android device. You may have to allow app installation from ["Unknown Sources"](https://www.applivery.com/docs/troubleshooting/android-unknown-sources).
+
+### Usage
+
+*Coming soon...*
 
 ## Other
 
