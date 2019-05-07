@@ -2,7 +2,7 @@
 
 ## Why?
 
-PWSWatcher is an open-source Android app used to monitor a *PWS* (Public Weather Station) given the link of its real-time updated *.xml* file.  
+PWSWatcher is an open-source Android app used to monitor a *PWS* (Personal Weather Station) given the link of its real-time updated *.xml* file.  
 There was already another application for the same purpose, but no updates have been released since 2013, so I decided to develop one for anyone who wanted to monitor weather stations.
 
 ## Table of contents
