@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'package:pws_watcher/pwsstate.dart';
+import 'package:pws_watcher/pws_state.dart';
 import 'package:pws_watcher/main.dart';
+import 'package:pws_watcher/source.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key, this.url, this.index}) : super(key: key);
 
-  final String title = "PWS Watcher";
   int index = -1;
   String url;
 
@@ -19,6 +19,19 @@ class _SettingsPageState extends State<SettingsPage> {
   final GlobalKey<FormState> _addFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _editFormKey = GlobalKey<FormState>();
 
+  var visibilityWindSpeed = true;
+  var visibilityPressure = true;
+  var visibilityWindDirection = true;
+  var visibilityHumidity = true;
+  var visibilityTemperature = true;
+  var visibilityWindChill = true;
+  var visibilityRain = true;
+  var visibilityDew = true;
+  var visibilitySunrise = true;
+  var visibilitySunset = true;
+  var visibilityMoonrise = true;
+  var visibilityMoonset = true;
+
   List<Source> _sources = new List();
   final addNameController = TextEditingController();
   final addUrlController = TextEditingController();
@@ -28,7 +41,8 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
-    retrieveSources();
+    _setVisibilities();
+    _retrieveSources();
   }
 
   @override
@@ -53,59 +67,325 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Icon(Icons.add),
       ),
       body: Builder(
-        builder: (context) => ListView.builder(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              itemCount: _sources.length,
-              itemBuilder: (context, position) {
-                return Card(
+        builder: (context) => ListView(
+              children: <Widget>[
+                Card(
                   elevation: 2,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              _sources[position].name,
-                              style: TextStyle(fontSize: 20.0),
+                        const ListTile(
+                          title: Text(
+                            'Generic settings',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
-                            Text(
-                              _sources[position].url,
-                              style: TextStyle(fontSize: 12.0),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Wind speed visibility"),
+                            Switch(
+                              value: visibilityWindSpeed,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityWindSpeed = value;
+                                });
+                                PWSStatusPage.updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityWindSpeed", value);
+                              },
+                              activeTrackColor: Colors.lightBlueAccent,
+                              activeColor: Colors.blue,
                             ),
                           ],
                         ),
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
-                            IconButton(
-                              icon: Icon(
-                                Icons.edit,
-                                color: Colors.lightBlue[700],
-                              ),
-                              onPressed: () {
-                                _editSource(position);
+                            Text("Pressure visibility"),
+                            Switch(
+                              value: visibilityPressure,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityPressure = value;
+                                });
+                                PWSStatusPage.updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityPressure", value);
                               },
+                              activeTrackColor: Colors.lightBlueAccent,
+                              activeColor: Colors.blue,
                             ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.delete,
-                                color: Colors.red[700],
-                              ),
-                              onPressed: () {
-                                _deleteSource(position);
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Wind direction visibility"),
+                            Switch(
+                              value: visibilityWindDirection,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityWindDirection = value;
+                                });
+                                PWSStatusPage.updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityWindDirection", value);
                               },
+                              activeTrackColor: Colors.lightBlueAccent,
+                              activeColor: Colors.blue,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Humidity visibility"),
+                            Switch(
+                              value: visibilityHumidity,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityHumidity = value;
+                                });
+                                PWSStatusPage.updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityHumidity", value);
+                              },
+                              activeTrackColor: Colors.lightBlueAccent,
+                              activeColor: Colors.blue,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Temperature (small) visibility"),
+                            Switch(
+                              value: visibilityTemperature,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityTemperature = value;
+                                });
+                                PWSStatusPage.updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityTemperature", value);
+                              },
+                              activeTrackColor: Colors.lightBlueAccent,
+                              activeColor: Colors.blue,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Wind chill visibility"),
+                            Switch(
+                              value: visibilityWindChill,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityWindChill = value;
+                                });
+                                PWSStatusPage.updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityWindChill", value);
+                              },
+                              activeTrackColor: Colors.lightBlueAccent,
+                              activeColor: Colors.blue,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Rain visibility"),
+                            Switch(
+                              value: visibilityRain,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityRain = value;
+                                });
+                                PWSStatusPage.updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityRain", value);
+                              },
+                              activeTrackColor: Colors.lightBlueAccent,
+                              activeColor: Colors.blue,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Dew visibility"),
+                            Switch(
+                              value: visibilityDew,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityDew = value;
+                                });
+                                PWSStatusPage.updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityDew", value);
+                              },
+                              activeTrackColor: Colors.lightBlueAccent,
+                              activeColor: Colors.blue,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Sunrise hour visibility"),
+                            Switch(
+                              value: visibilitySunrise,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilitySunrise = value;
+                                });
+                                PWSStatusPage.updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilitySunrise", value);
+                              },
+                              activeTrackColor: Colors.lightBlueAccent,
+                              activeColor: Colors.blue,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Sunset hour visibility"),
+                            Switch(
+                              value: visibilitySunset,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilitySunset = value;
+                                });
+                                PWSStatusPage.updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilitySunset", value);
+                              },
+                              activeTrackColor: Colors.lightBlueAccent,
+                              activeColor: Colors.blue,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Moonrise hour visibility"),
+                            Switch(
+                              value: visibilityMoonrise,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityMoonrise = value;
+                                });
+                                PWSStatusPage.updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityMoonrise", value);
+                              },
+                              activeTrackColor: Colors.lightBlueAccent,
+                              activeColor: Colors.blue,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Moonset hour visibility"),
+                            Switch(
+                              value: visibilityMoonset,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityMoonset = value;
+                                });
+                                PWSStatusPage.updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityMoonset", value);
+                              },
+                              activeTrackColor: Colors.lightBlueAccent,
+                              activeColor: Colors.blue,
                             ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                );
-              },
+                ),
+                ListView.builder(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  itemCount: _sources.length,
+                  itemBuilder: (context, position) {
+                    return Card(
+                      elevation: 2,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  _sources[position].name,
+                                  style: TextStyle(fontSize: 20.0),
+                                ),
+                                Text(
+                                  _sources[position].url,
+                                  style: TextStyle(fontSize: 12.0),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: <Widget>[
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.edit,
+                                    color: Colors.lightBlue[700],
+                                  ),
+                                  onPressed: () {
+                                    _editSource(position);
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.delete,
+                                    color: Colors.red[700],
+                                  ),
+                                  onPressed: () {
+                                    _deleteSource(position);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
@@ -185,7 +465,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     }
                     prefs.setStringList("sources", sourcesJSON);
                     prefs.setInt("count_id", PWSWatcher.countID);
-                    retrieveSources();
+                    _retrieveSources();
                     Navigator.of(context).pop();
                     PWSStatusPage.updateSources = true;
                   }
@@ -270,7 +550,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       sourcesJSON.add(sourceJSON);
                     }
                     prefs.setStringList("sources", sourcesJSON);
-                    retrieveSources();
+                    _retrieveSources();
                     Navigator.of(context).pop();
                     PWSStatusPage.updateSources = true;
                   }
@@ -306,7 +586,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   sourcesJSON.add(sourceJSON);
                 }
                 prefs.setStringList("sources", sourcesJSON);
-                retrieveSources();
+                _retrieveSources();
                 Navigator.of(context).pop();
                 PWSStatusPage.updateSources = true;
               },
@@ -323,7 +603,37 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  retrieveSources() async {
+  Future<Null> _setVisibilities() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      visibilityWindSpeed = prefs.getBool("visibilityWindSpeed");
+      visibilityPressure = prefs.getBool("visibilityPressure");
+      visibilityWindDirection = prefs.getBool("visibilityWindDirection");
+      visibilityHumidity = prefs.getBool("visibilityHumidity");
+      visibilityTemperature = prefs.getBool("visibilityTemperature");
+      visibilityWindChill = prefs.getBool("visibilityWindChill");
+      visibilityRain = prefs.getBool("visibilityRain");
+      visibilityDew = prefs.getBool("visibilityDew");
+      visibilitySunrise = prefs.getBool("visibilitySunrise");
+      visibilitySunset = prefs.getBool("visibilitySunset");
+      visibilityMoonrise = prefs.getBool("visibilityMoonrise");
+      visibilityMoonset = prefs.getBool("visibilityMoonset");
+      visibilityWindSpeed ??= true;
+      visibilityPressure ??= true;
+      visibilityWindDirection ??= true;
+      visibilityHumidity ??= true;
+      visibilityTemperature ??= true;
+      visibilityWindChill ??= true;
+      visibilityRain ??= true;
+      visibilityDew ??= true;
+      visibilitySunrise ??= true;
+      visibilitySunset ??= true;
+      visibilityMoonrise ??= true;
+      visibilityMoonset ??= true;
+    });
+  }
+
+  _retrieveSources() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       _sources = new List();
@@ -332,27 +642,12 @@ class _SettingsPageState extends State<SettingsPage> {
         for (String sourceJSON in sources) {
           try {
             dynamic source = jsonDecode(sourceJSON);
-            _sources.add(new Source(source["id"], source["name"], source["url"]));
+            _sources
+                .add(new Source(source["id"], source["name"], source["url"]));
           } catch (Exception) {
             prefs.setStringList("sources", null);
           }
         }
     });
-  }
-}
-
-class Source {
-  int id;
-  String name;
-  String url;
-
-  Source(id, name, url) {
-    this.id = id;
-    this.name = name;
-    this.url = url;
-  }
-
-  toJson() {
-    return {'id': id, 'name': this.name, 'url': this.url};
   }
 }

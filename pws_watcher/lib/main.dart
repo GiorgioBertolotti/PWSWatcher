@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluro/fluro.dart';
 import 'package:pws_watcher/splash.dart';
 import 'package:pws_watcher/settings.dart';
-import 'package:pws_watcher/pwsstate.dart';
+import 'package:pws_watcher/pws_state.dart';
 
 void main() => runApp(PWSWatcher());
 
