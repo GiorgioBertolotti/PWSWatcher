@@ -75,7 +75,8 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
         _currentItem = widget.id;
         _getSourceData(widget.id).then((source) {
           widget.source = source;
-          _retrieveData(source.url);
+          if(source != null)
+            _retrieveData(source.url);
         });
       }
     });
@@ -134,7 +135,8 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                     backgroundColor: Colors.white,
                     key: _refreshIndicatorKey,
                     onRefresh: () {
-                      return _retrieveData(widget.source.url);
+                      if (widget.source != null)
+                        return _retrieveData(widget.source.url);
                     },
                     child: ListView(
                       children: <Widget>[
@@ -741,7 +743,12 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<DropdownMenuItem<int>> tmp = new List();
     List<String> sources = prefs.getStringList("sources");
-    if (sources != null)
+    if (sources == null || sources.length == 0) {
+      PWSWatcher.router.navigateTo(
+          context, "/settings",
+          transition: TransitionType.inFromBottom);
+      return;
+    } else
       for (String sourceJSON in sources) {
         dynamic source = jsonDecode(sourceJSON);
         tmp.add(new DropdownMenuItem<int>(
@@ -811,7 +818,8 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
         if (map == null) return;
         _visualizeRealtimeTXT(map);
       });
-    }
+    } else
+      return null;
   }
 
   Future<Map<String, String>> _parseRealtimeXML(String url) async {
@@ -985,7 +993,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
     if (id != null && id != -1) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       List<String> sources = prefs.getStringList("sources");
-      Source source = null;
+      Source source;
       if (sources == null || sources.length < 1)
         source = null;
       else {

@@ -21,6 +21,7 @@ dependencies:
   shared_preferences: ^0.5.2
   fluro: ^1.4.0
   cupertino_icons: ^0.1.2
+  highlighter_coachmark: ^0.0.3
 
 dev_dependencies:
   flutter_test:

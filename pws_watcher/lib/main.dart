@@ -12,7 +12,7 @@ class PWSWatcher extends StatelessWidget {
 
   var pwsHandler =
       Handler(handlerFunc: (BuildContext context, Map<String, dynamic> params) {
-    return PWSStatusPage(id: int.parse(params["index"][0]));
+    return PWSStatusPage(id: int.parse(params["id"][0]));
   });
 
   var settingsHandler =
@@ -22,7 +22,7 @@ class PWSWatcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    router.define("/pws/:index", handler: pwsHandler);
+    router.define("/pws/:id", handler: pwsHandler);
     router.define("/settings", handler: settingsHandler);
     return MaterialApp(
       title: 'PWS Watcher',

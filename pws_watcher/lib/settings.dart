@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'dart:async';
 import 'package:pws_watcher/pws_state.dart';
 import 'package:pws_watcher/main.dart';
 import 'package:pws_watcher/source.dart';
+import 'package:highlighter_coachmark/highlighter_coachmark.dart';
 
 class SettingsPage extends StatefulWidget {
   SettingsPage({Key key, this.url, this.index}) : super(key: key);
@@ -16,6 +18,7 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  final GlobalKey<FormState> _fabKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _addFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _editFormKey = GlobalKey<FormState>();
 
@@ -61,10 +64,12 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         centerTitle: true,
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: _addSource,
         elevation: 2,
-        child: Icon(Icons.add),
+        icon: Icon(Icons.add),
+        label: Text("add"),
+        key: _fabKey,
       ),
       body: Builder(
         builder: (context) => ListView(
@@ -331,63 +336,68 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                 ),
-                ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: _sources.length,
-                  itemBuilder: (context, position) {
-                    return Card(
-                      elevation: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  _sources[position].name,
-                                  style: TextStyle(fontSize: 20.0),
-                                ),
-                                Text(
-                                  _sources[position].url,
-                                  style: TextStyle(fontSize: 12.0),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: <Widget>[
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.edit,
-                                    color: Colors.lightBlue[700],
+                const Divider(),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 65),
+                  child: ListView.builder(
+                    physics: ScrollPhysics(),
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    itemCount: _sources.length,
+                    itemBuilder: (context, position) {
+                      return Card(
+                        elevation: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    _sources[position].name,
+                                    style: TextStyle(fontSize: 20.0),
                                   ),
-                                  onPressed: () {
-                                    _editSource(position);
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.delete,
-                                    color: Colors.red[700],
+                                  Text(
+                                    _sources[position].url,
+                                    style: TextStyle(fontSize: 12.0),
                                   ),
-                                  onPressed: () {
-                                    _deleteSource(position);
-                                  },
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                              Row(
+                                children: <Widget>[
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.edit,
+                                      color: Colors.lightBlue[700],
+                                    ),
+                                    onPressed: () {
+                                      _editSource(position);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.delete,
+                                      color: Colors.red[700],
+                                    ),
+                                    onPressed: () {
+                                      _deleteSource(position);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ],
             ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
     );
   }
 
@@ -451,7 +461,9 @@ class _SettingsPageState extends State<SettingsPage> {
               new FlatButton(
                 child: new Text("Add"),
                 onPressed: () async {
+                  FocusScope.of(context).requestFocus(new FocusNode());
                   if (_addFormKey.currentState.validate()) {
+                    PWSStatusPage.updateSources = true;
                     _addFormKey.currentState.save();
                     Source source = new Source(PWSWatcher.countID++,
                         addNameController.text, addUrlController.text);
@@ -467,7 +479,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     prefs.setInt("count_id", PWSWatcher.countID);
                     _retrieveSources();
                     Navigator.of(context).pop();
-                    PWSStatusPage.updateSources = true;
                   }
                 },
               ),
@@ -539,6 +550,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: new Text("Edit"),
                 onPressed: () async {
                   if (_editFormKey.currentState.validate()) {
+                    PWSStatusPage.updateSources = true;
                     _editFormKey.currentState.save();
                     SharedPreferences prefs =
                         await SharedPreferences.getInstance();
@@ -552,7 +564,6 @@ class _SettingsPageState extends State<SettingsPage> {
                     prefs.setStringList("sources", sourcesJSON);
                     _retrieveSources();
                     Navigator.of(context).pop();
-                    PWSStatusPage.updateSources = true;
                   }
                 },
               ),
@@ -578,9 +589,13 @@ class _SettingsPageState extends State<SettingsPage> {
             new FlatButton(
               child: new Text("Yes"),
               onPressed: () async {
-                _sources.removeAt(position);
+                PWSStatusPage.updateSources = true;
                 SharedPreferences prefs = await SharedPreferences.getInstance();
                 List<String> sourcesJSON = new List();
+                int index = prefs.getInt("last_used_source") ?? -1;
+                if (index == _sources[position].id)
+                  prefs.remove("last_used_source");
+                _sources.removeAt(position);
                 for (Source source in _sources) {
                   String sourceJSON = jsonEncode(source);
                   sourcesJSON.add(sourceJSON);
@@ -588,7 +603,6 @@ class _SettingsPageState extends State<SettingsPage> {
                 prefs.setStringList("sources", sourcesJSON);
                 _retrieveSources();
                 Navigator.of(context).pop();
-                PWSStatusPage.updateSources = true;
               },
             ),
             new FlatButton(
@@ -638,7 +652,9 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() {
       _sources = new List();
       List<String> sources = prefs.getStringList("sources");
-      if (sources != null)
+      if (sources == null || sources.length == 0) {
+        _showCoachMarkFAB();
+      } else
         for (String sourceJSON in sources) {
           try {
             dynamic source = jsonDecode(sourceJSON);
@@ -649,5 +665,34 @@ class _SettingsPageState extends State<SettingsPage> {
           }
         }
     });
+  }
+
+  _showCoachMarkFAB() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (!(prefs.getBool("coach_mark_shown") ?? false)) {
+      CoachMark coachMarkFAB = CoachMark();
+      RenderBox target = _fabKey.currentContext.findRenderObject();
+      Rect markRect = target.localToGlobal(Offset.zero) & target.size;
+      markRect = Rect.fromCircle(
+          center: markRect.center, radius: markRect.longestSide * 0.6);
+      coachMarkFAB.show(
+          targetContext: _fabKey.currentContext,
+          markRect: markRect,
+          children: [
+            Center(
+                child: Text("Tap here\nto add a source",
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 24.0,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.white,
+                    )))
+          ],
+          duration: null,
+          onClose: () async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            prefs.setBool("coach_mark_shown", true);
+          });
+    }
   }
 }
