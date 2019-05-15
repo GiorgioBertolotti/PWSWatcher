@@ -38,7 +38,6 @@ class _SplashPageState extends State<SplashPage> {
 
   _loadPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool("coach_mark_shown", false);
     int index = prefs.getInt("last_used_source") ?? -1;
     PWSWatcher.countID = prefs.getInt("count_id") ?? 0;
     PWSWatcher.router.navigateTo(context, "/pws/" + index.toString(),

@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:pws_watcher/connection_status.dart';
 import 'dart:async';
 import 'package:flare_flutter/flare_actor.dart';
+import 'package:highlighter_coachmark/highlighter_coachmark.dart';
 
 class PWSStatusPage extends StatefulWidget {
   PWSStatusPage({Key key, this.id, this.source}) : super(key: key);
@@ -70,6 +71,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
 
   final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
       new GlobalKey<RefreshIndicatorState>();
+  final GlobalKey _dropdown = GlobalKey();
 
   @override
   void initState() {
@@ -176,6 +178,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                       canvasColor: Colors.blue[900],
                                     ),
                                     child: new DropdownButton<int>(
+                                      key: _dropdown,
                                       iconEnabledColor: Colors.white,
                                       value: _currentItem,
                                       items: _sources,
@@ -204,9 +207,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                 ),
                                 padding: EdgeInsets.all(0),
                                 onPressed: () {
-                                  PWSWatcher.router.navigateTo(
-                                      context, "/settings",
-                                      transition: TransitionType.inFromBottom);
+                                  PWSWatcher.openSettings(context);
                                 },
                               ),
                             ],
@@ -825,10 +826,10 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
     List<DropdownMenuItem<int>> tmp = new List();
     List<String> sources = prefs.getStringList("sources");
     if (sources == null || sources.length == 0) {
-      PWSWatcher.router.navigateTo(context, "/settings",
-          transition: TransitionType.inFromBottom);
+      PWSWatcher.openSettings(context);
       return;
-    } else
+    } else {
+      var counter = 0;
       for (String sourceJSON in sources) {
         dynamic source = jsonDecode(sourceJSON);
         tmp.add(new DropdownMenuItem<int>(
@@ -838,11 +839,43 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
             style: TextStyle(color: Colors.white),
           ),
         ));
+        counter++;
       }
-    setState(() {
-      _sources = tmp;
-      _currentItem = null;
-    });
+      setState(() {
+        _sources = tmp;
+        _currentItem = null;
+      });
+      if (counter > 0 && !PWSWatcher.settingsOpen) {
+        SharedPreferences.getInstance().then((prefs) {
+          if ((prefs.getInt("last_used_source") ?? -1) == -1) {
+            CoachMark coachMarkFAB = CoachMark();
+            RenderBox target = _dropdown.currentContext.findRenderObject();
+            Rect markRect = target.localToGlobal(Offset.zero) & target.size;
+            markRect = Rect.fromCircle(
+                center: markRect.center, radius: markRect.longestSide * 0.6);
+            coachMarkFAB.show(
+                targetContext: _dropdown.currentContext,
+                markRect: markRect,
+                children: [
+                  Center(
+                      child: Text("Tap here\nto select a source",
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 24.0,
+                            fontStyle: FontStyle.italic,
+                            color: Colors.white,
+                          )))
+                ],
+                duration: null,
+                onClose: () async {
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  prefs.setBool("coach_mark_shown", true);
+                });
+          }
+        });
+      }
+    }
   }
 
   void _changedSource(int id) async {
