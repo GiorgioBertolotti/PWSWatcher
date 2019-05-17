@@ -100,6 +100,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: <Widget>[
                   Card(
                     elevation: 2,
+                    margin: new EdgeInsets.symmetric(
+                        horizontal: 10.0, vertical: 6.0),
                     child: Padding(
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
@@ -372,26 +374,24 @@ class _SettingsPageState extends State<SettingsPage> {
                       itemBuilder: (context, position) {
                         return Card(
                           elevation: 2,
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Text(
-                                      _sources[position].name,
-                                      style: TextStyle(fontSize: 20.0),
-                                    ),
-                                    Text(
-                                      _sources[position].url,
-                                      style: TextStyle(fontSize: 12.0),
-                                    ),
-                                  ],
-                                ),
-                                Row(
+                          margin: new EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 6.0),
+                          child: ListTile(
+                              title: Text(
+                                _sources[position].name,
+                                style: TextStyle(fontSize: 20.0),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              subtitle: Text(
+                                _sources[position].url,
+                                style: TextStyle(fontSize: 12.0),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              trailing: Container(
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
                                   children: <Widget>[
                                     IconButton(
                                       icon: Icon(
@@ -413,13 +413,11 @@ class _SettingsPageState extends State<SettingsPage> {
                                     ),
                                   ],
                                 ),
-                              ],
-                            ),
-                          ),
+                              )),
                         );
                       },
                     ),
-                  ),
+                  )
                 ],
               ),
         ),
