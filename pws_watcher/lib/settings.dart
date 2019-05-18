@@ -34,17 +34,19 @@ class _SettingsPageState extends State<SettingsPage> {
   var visibilitySunset = true;
   var visibilityMoonrise = true;
   var visibilityMoonset = true;
+  var refreshInterval = 15;
 
   List<Source> _sources = new List();
   final addNameController = TextEditingController();
   final addUrlController = TextEditingController();
   final editNameController = TextEditingController();
   final editUrlController = TextEditingController();
+  final _refreshRateIntervalController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _setVisibilities();
+    _getSettings();
     _retrieveSources();
   }
 
@@ -359,6 +361,30 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
                             ],
                           ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(
+                                "Widget refresh interval (min)",
+                                maxLines: 2,
+                              ),
+                              new Container(
+                                padding: EdgeInsets.only(right: 10),
+                                width: 60,
+                                child: TextField(
+                                  controller: _refreshRateIntervalController,
+                                  onChanged: (value) async {
+                                    SharedPreferences prefs =
+                                        await SharedPreferences.getInstance();
+                                    prefs.setInt("widget_refresh_interval",
+                                        int.parse(value));
+                                  },
+                                  maxLines: 1,
+                                  keyboardType: TextInputType.number,
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),
@@ -638,7 +664,7 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Future<Null> _setVisibilities() async {
+  Future<Null> _getSettings() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       visibilityWindSpeed = prefs.getBool("visibilityWindSpeed");
@@ -665,6 +691,8 @@ class _SettingsPageState extends State<SettingsPage> {
       visibilitySunset ??= true;
       visibilityMoonrise ??= true;
       visibilityMoonset ??= true;
+      _refreshRateIntervalController.text =
+          prefs.getInt("widget_refresh_interval").toString();
     });
   }
 
