@@ -360,16 +360,30 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
                             ],
                           ),
-                          Text(
-                            "Widget refresh interval (min)",
-                            maxLines: 2,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              Text(
+                                "Widget refresh interval (min):",
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Container(
+                                margin: EdgeInsets.only(
+                                  right: 15,
+                                ),
+                                child: Text(
+                                  '${refreshInterval.toInt()}',
+                                  maxLines: 1,
+                                ),
+                              ),
+                            ],
                           ),
-                          Container(
-                            padding: EdgeInsets.all(10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                Slider(
+                          Row(
+                            children: <Widget>[
+                              Flexible(
+                                flex: 1,
+                                child: Slider(
                                   value: refreshInterval,
                                   activeColor: Colors.lightBlue,
                                   onChanged: (value) async {
@@ -382,12 +396,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                   min: 1,
                                   max: 60,
                                 ),
-                                Text(
-                                  '${refreshInterval.toInt()}',
-                                  maxLines: 1,
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
