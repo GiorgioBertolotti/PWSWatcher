@@ -5,7 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pws_watcher/main.dart';
 import 'package:pws_watcher/source.dart';
-import 'package:fluro/fluro.dart';
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:pws_watcher/connection_status.dart';

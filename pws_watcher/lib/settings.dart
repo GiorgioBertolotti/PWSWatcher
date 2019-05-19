@@ -34,14 +34,13 @@ class _SettingsPageState extends State<SettingsPage> {
   var visibilitySunset = true;
   var visibilityMoonrise = true;
   var visibilityMoonset = true;
-  var refreshInterval = 15;
+  double refreshInterval = 15;
 
   List<Source> _sources = new List();
   final addNameController = TextEditingController();
   final addUrlController = TextEditingController();
   final editNameController = TextEditingController();
   final editUrlController = TextEditingController();
-  final _refreshRateIntervalController = TextEditingController();
 
   @override
   void initState() {
@@ -361,29 +360,34 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
                             ],
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              Text(
-                                "Widget refresh interval (min)",
-                                maxLines: 2,
-                              ),
-                              new Container(
-                                padding: EdgeInsets.only(right: 10),
-                                width: 60,
-                                child: TextField(
-                                  controller: _refreshRateIntervalController,
+                          Text(
+                            "Widget refresh interval (min)",
+                            maxLines: 2,
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(10),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Slider(
+                                  value: refreshInterval,
+                                  activeColor: Colors.lightBlue,
                                   onChanged: (value) async {
+                                    setState(() => refreshInterval = value);
                                     SharedPreferences prefs =
                                         await SharedPreferences.getInstance();
                                     prefs.setInt("widget_refresh_interval",
-                                        int.parse(value));
+                                        value.toInt());
                                   },
-                                  maxLines: 1,
-                                  keyboardType: TextInputType.number,
+                                  min: 1,
+                                  max: 60,
                                 ),
-                              ),
-                            ],
+                                Text(
+                                  '${refreshInterval.toInt()}',
+                                  maxLines: 1,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -691,8 +695,7 @@ class _SettingsPageState extends State<SettingsPage> {
       visibilitySunset ??= true;
       visibilityMoonrise ??= true;
       visibilityMoonset ??= true;
-      _refreshRateIntervalController.text =
-          prefs.getInt("widget_refresh_interval").toString();
+      refreshInterval = prefs.getInt("widget_refresh_interval").toDouble();
     });
   }
 

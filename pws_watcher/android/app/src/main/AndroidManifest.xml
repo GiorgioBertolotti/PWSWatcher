@@ -15,7 +15,8 @@
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:icon="@drawable/icon"
-        android:label="PWS Watcher">
+        android:label="PWS Watcher"
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density"
@@ -23,10 +24,6 @@
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
             android:windowSoftInputMode="adjustResize">
-            <!-- This keeps the window background of the activity showing
-                 until Flutter renders its first frame. It can be removed if
-                 there is no splash screen (such as the default splash screen
-                 defined in @style/LaunchTheme). -->
             <meta-data
                 android:name="io.flutter.app.android.SplashScreenUntilFirstFrame"
                 android:value="true" />
@@ -37,12 +34,18 @@
         </activity>
         <receiver android:name=".Widget">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
 
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/widget_info"/>
+                android:resource="@xml/widget_info" />
         </receiver>
+        <service android:name=".WidgetUpdateService" />
+        <activity android:name=".WidgetConfigurationActivity">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
