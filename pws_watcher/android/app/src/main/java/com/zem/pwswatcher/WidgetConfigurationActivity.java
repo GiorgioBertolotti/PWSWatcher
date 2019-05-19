@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Base64;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,27 +57,26 @@ public class WidgetConfigurationActivity extends Activity {
             finish();
             return;
         }
-        SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        final SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         String stringValue = sharedPref.getString("flutter.sources", null);
-        System.out.println(stringValue);
-        if (stringValue == null)
-            return;
-        List<String> sourcesJSON = null;
-        if (stringValue.startsWith(LIST_IDENTIFIER)) {
-            try {
-                sourcesJSON = decodeList(stringValue.substring(LIST_IDENTIFIER.length()));
-            } catch (IOException ignored) {
-            }
-        }
-        if (sourcesJSON == null) {
-            sourcesJSON = new ArrayList<>();
-        }
         List<Source> sources = new ArrayList<>();
-        for (String sourceJSON : sourcesJSON) {
-            try {
-                JSONObject obj = new JSONObject(sourceJSON);
-                sources.add(new Source(obj.getInt("id"), obj.getString("name"), obj.getString("url")));
-            } catch (JSONException e) {
+        if (stringValue != null) {
+            List<String> sourcesJSON = null;
+            if (stringValue.startsWith(LIST_IDENTIFIER)) {
+                try {
+                    sourcesJSON = decodeList(stringValue.substring(LIST_IDENTIFIER.length()));
+                } catch (IOException ignored) {
+                }
+            }
+            if (sourcesJSON == null) {
+                sourcesJSON = new ArrayList<>();
+            }
+            for (String sourceJSON : sourcesJSON) {
+                try {
+                    JSONObject obj = new JSONObject(sourceJSON);
+                    sources.add(new Source(obj.getInt("id"), obj.getString("name"), obj.getString("url")));
+                } catch (JSONException e) {
+                }
             }
         }
         this.rAdapter = new SourcesListAdapter(getApplicationContext(), sources);
@@ -94,7 +94,13 @@ public class WidgetConfigurationActivity extends Activity {
                 service = PendingIntent.getService(getApplicationContext(), 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
             }
             SharedPreferences sharedPrefs = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-            int refreshRate = sharedPrefs.getInt("widget_refresh_interval", 1);
+            try {
+                sharedPrefs.edit().putString("widget_" + mAppWidgetId, source.toJSON()).apply();
+                Log.d("PWSWatcher", "Added Widget #" + mAppWidgetId);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            long refreshRate = sharedPrefs.getLong("flutter.widget_refresh_interval", 15);
             manager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), refreshRate * 60000, service);
             WidgetUpdateService.DataElaborator dataElaborator = new WidgetUpdateService.DataElaborator(getApplicationContext(), source, mAppWidgetId);
             dataElaborator.execute();

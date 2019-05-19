@@ -102,7 +102,7 @@ public class WidgetConfigurationActivity extends Activity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            int refreshRate = sharedPrefs.getInt("flutter.widget_refresh_interval", 1);
+            long refreshRate = sharedPrefs.getLong("flutter.widget_refresh_interval", 1);
             manager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), refreshRate * 60000, service);
             WidgetUpdateService.DataElaborator dataElaborator = new WidgetUpdateService.DataElaborator(getApplicationContext(), source, mAppWidgetId);
             dataElaborator.execute();

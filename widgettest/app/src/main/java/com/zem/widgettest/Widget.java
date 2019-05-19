@@ -47,7 +47,7 @@ public class Widget extends AppWidgetProvider {
                         } catch (JSONException e) {
                         }
                         PendingIntent service = PendingIntent.getService(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
-                        int refreshRate = sharedPrefs.getInt("flutter.widget_refresh_interval", 1);
+                        long refreshRate = sharedPrefs.getLong("flutter.widget_refresh_interval", 1);
                         manager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), refreshRate * 60000, service);
                         WidgetUpdateService.DataElaborator dataElaborator = new WidgetUpdateService.DataElaborator(context, source, id);
                         dataElaborator.execute();
