@@ -7,8 +7,10 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
+import android.util.TypedValue;
 import android.widget.RemoteViews;
 
 import com.zem.pwswatcher.model.Source;
@@ -24,8 +26,35 @@ import static com.zem.pwswatcher.WidgetConfigurationActivity.SHARED_PREFERENCES_
 public class Widget extends AppWidgetProvider {
     private List<Integer> services = new ArrayList<>();
 
+    private void updateWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle widgetInfo) {
+        int minWidth = widgetInfo.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
+        int width = widgetInfo.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
+        int minHeight = widgetInfo.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
+        int height = widgetInfo.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
+        int wCells = (int) ((minWidth + width) / 120);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
+        if (wCells > 2) {
+            double prop = wCells / 3.0;
+            views.setTextViewTextSize(R.id.tv_location, TypedValue.COMPLEX_UNIT_SP, (float) (14 * prop));
+            views.setTextViewTextSize(R.id.tv_temperature, TypedValue.COMPLEX_UNIT_SP, (float) (18 * prop));
+            views.setTextViewTextSize(R.id.tv_datetime, TypedValue.COMPLEX_UNIT_SP, (float) (14 * prop));
+        } else {
+            views.setTextViewTextSize(R.id.tv_location, TypedValue.COMPLEX_UNIT_SP, 14f);
+            views.setTextViewTextSize(R.id.tv_temperature, TypedValue.COMPLEX_UNIT_SP, 18f);
+            views.setTextViewTextSize(R.id.tv_datetime, TypedValue.COMPLEX_UNIT_SP, 14f);
+        }
+        appWidgetManager.updateAppWidget(appWidgetId, views);
+    }
+
+    @Override
+    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle widgetInfo) {
+        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, widgetInfo);
+        updateWidget(context, appWidgetManager, appWidgetId, widgetInfo);
+    }
+
     @Override
     public void onUpdate(Context context, AppWidgetManager widgetManager, int[] appWidgetIds) {
+        super.onUpdate(context, widgetManager, appWidgetIds);
         for (int id : appWidgetIds) {
             if (!services.contains(id)) {
                 services.add(id);
@@ -62,6 +91,7 @@ public class Widget extends AppWidgetProvider {
 
     @Override
     public void onDeleted(Context context, int[] appWidgetIds) {
+        super.onDeleted(context, appWidgetIds);
         SharedPreferences sharedPrefs = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPrefs.edit();
         for (int id : appWidgetIds) {

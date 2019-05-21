@@ -34,14 +34,14 @@ public class WidgetUpdateService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Source source = null;
-        if (intent.getStringExtra("SOURCE") != null) {
+        Integer id = -1;
+        if (intent != null && intent.getStringExtra("SOURCE") != null) {
             try {
                 source = Source.fromJSON(intent.getStringExtra("SOURCE"));
-            } catch (JSONException e) {
-                source = null;
+                id = intent.getIntExtra("ID", -1);
+            } catch (Exception ignored) {
             }
         }
-        Integer id = intent.getIntExtra("ID", -1);
         if (source != null && id != -1) {
             DataElaborator dataElaborator = new DataElaborator(this, source, id);
             dataElaborator.execute();
