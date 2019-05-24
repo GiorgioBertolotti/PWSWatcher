@@ -46,7 +46,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
   var windunit = "km/h";
   var rainunit = "mm";
   var barunit = "mb";
-  var tempunit = "C°";
+  var tempunit = "°C";
   var degunit = "°";
   var humunit = "%";
 
@@ -222,7 +222,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                       "You are offline.",
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                          fontSize: 18, color: Colors.white70),
+                                          fontSize: 20, color: Colors.white70),
                                     ),
                                     Container(
                                       height:
@@ -252,8 +252,8 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                           "$location",
                                           maxLines: 1,
                                           style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w100,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.normal,
                                             color: Colors.white70,
                                           ),
                                         ),
@@ -267,8 +267,8 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                           "$date $time",
                                           maxLines: 1,
                                           style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w100,
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.normal,
                                             color: Colors.white70,
                                           ),
                                         ),
@@ -286,7 +286,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                             maxLines: 1,
                                             style: TextStyle(
                                               fontSize: 72,
-                                              fontWeight: FontWeight.w100,
+                                              fontWeight: FontWeight.bold,
                                               color: Colors.white,
                                             ),
                                           ),
@@ -321,9 +321,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$windspeed",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 18,
+                                                        fontSize: 20,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -331,9 +331,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$windunit",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 14,
+                                                        fontSize: 16,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -351,9 +351,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$bar",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 18,
+                                                        fontSize: 20,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -361,9 +361,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$barunit",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 14,
+                                                        fontSize: 16,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -412,9 +412,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$winddir",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 18,
+                                                        fontSize: 20,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -432,9 +432,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$humidity",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 18,
+                                                        fontSize: 20,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -442,9 +442,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$humunit",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 14,
+                                                        fontSize: 16,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -493,9 +493,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$temperature",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 18,
+                                                        fontSize: 20,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -503,9 +503,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$tempunit",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 14,
+                                                        fontSize: 16,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -523,9 +523,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$windchill",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 18,
+                                                        fontSize: 20,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -533,9 +533,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$degunit",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 14,
+                                                        fontSize: 16,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -584,9 +584,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$rain",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 18,
+                                                        fontSize: 20,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -594,9 +594,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$rainunit",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 14,
+                                                        fontSize: 16,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -614,9 +614,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$dew",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 18,
+                                                        fontSize: 20,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -624,9 +624,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       "$degunit",
                                                       maxLines: 1,
                                                       style: TextStyle(
-                                                        fontSize: 14,
+                                                        fontSize: 16,
                                                         fontWeight:
-                                                            FontWeight.w100,
+                                                            FontWeight.normal,
                                                         color: Colors.white70,
                                                       ),
                                                     ),
@@ -673,9 +673,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                     "$sunrise",
                                                     maxLines: 1,
                                                     style: TextStyle(
-                                                      fontSize: 18,
+                                                      fontSize: 20,
                                                       fontWeight:
-                                                          FontWeight.w100,
+                                                          FontWeight.normal,
                                                       color: Colors.white70,
                                                     ),
                                                   ),
@@ -704,9 +704,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                     "$sunset",
                                                     maxLines: 1,
                                                     style: TextStyle(
-                                                      fontSize: 18,
+                                                      fontSize: 20,
                                                       fontWeight:
-                                                          FontWeight.w100,
+                                                          FontWeight.normal,
                                                       color: Colors.white70,
                                                     ),
                                                   ),
@@ -735,9 +735,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                     "$moonrise",
                                                     maxLines: 1,
                                                     style: TextStyle(
-                                                      fontSize: 18,
+                                                      fontSize: 20,
                                                       fontWeight:
-                                                          FontWeight.w100,
+                                                          FontWeight.normal,
                                                       color: Colors.white70,
                                                     ),
                                                   ),
@@ -766,9 +766,9 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                     "$moonset",
                                                     maxLines: 1,
                                                     style: TextStyle(
-                                                      fontSize: 18,
+                                                      fontSize: 20,
                                                       fontWeight:
-                                                          FontWeight.w100,
+                                                          FontWeight.normal,
                                                       color: Colors.white70,
                                                     ),
                                                   ),
@@ -911,7 +911,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
       windunit = "km/h";
       rainunit = "mm";
       barunit = "mb";
-      tempunit = "C°";
+      tempunit = "°C";
       degunit = "°";
       humunit = "%";
     });
@@ -931,8 +931,10 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
         if (map == null) return;
         _visualizeRealtimeTXT(map);
       });
-    } else
-      return null;
+    } else {
+      _retrieveData(url + "/realtime.xml");
+      return _retrieveData(url + "/realtime.txt");
+    }
   }
 
   Future<Map<String, String>> _parseRealtimeXML(String url) async {
@@ -955,7 +957,13 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
         var variable;
         try {
           variable = elem.attributes
-              .firstWhere((attr) => attr.name.toString() == "realtime")
+              .firstWhere((attr) => [
+                    "misc",
+                    "realtime",
+                    "today",
+                    "yesterday",
+                    "record",
+                  ].contains(attr.name.toString()))
               .value;
         } catch (Exception) {}
         if (variable != null) {
@@ -1047,58 +1055,99 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
 
   _visualizeRealtimeXML(map) {
     setState(() {
-      location = (map.containsKey("station_location")
-          ? map["station_location"]
-          : ((widget.source != null) ? widget.source.name : "Location"));
-      date = (map.containsKey("station_date")
-          ? map["station_date"]
-          : "--/--/----");
-      time =
-          (map.containsKey("station_time") ? map["station_time"] : "--:--:--");
-      windspeed = (map.containsKey("windspeed") ? map["windspeed"] : "-");
-      bar = (map.containsKey("barometer") ? map["barometer"] : "-");
-      winddir = (map.containsKey("winddir") ? map["winddir"] : "-");
-      humidity = (map.containsKey("hum") ? map["hum"] : "-");
-      temperature = (map.containsKey("temp") ? map["temp"] : "-");
-      windchill = (map.containsKey("windchill") ? map["windchill"] : "-");
-      rain = (map.containsKey("todaysrain") ? map["todaysrain"] : "-");
-      dew = (map.containsKey("dew") ? map["dew"] : "-");
-      sunrise = (map.containsKey("sunrise") ? map["sunrise"] : "--:--");
-      sunset = (map.containsKey("sunset") ? map["sunset"] : "--:--");
-      moonrise = (map.containsKey("moonrise") ? map["moonrise"] : "--:--");
-      moonset = (map.containsKey("moonset") ? map["moonset"] : "--:--");
-      windunit = (map.containsKey("windunit") ? map["windunit"] : "km/h");
-      rainunit = (map.containsKey("rainunit") ? map["rainunit"] : "mm");
-      barunit = (map.containsKey("barunit") ? map["barunit"] : "mb");
-      tempunit = (map.containsKey("tempunit") ? map["tempunit"] : "C°");
-      humunit = (map.containsKey("humunit") ? map["humunit"] : "%");
+      if (map.containsKey("station_location"))
+        location = map["station_location"];
+      else if (map.containsKey("location"))
+        location = map["location"];
+      else if (widget.source != null) location = widget.source.name;
+      if (map.containsKey("station_date"))
+        date = map["station_date"];
+      else if (map.containsKey("refresh_time"))
+        date = map["refresh_time"].substring(0, 10);
+      if (map.containsKey("station_time"))
+        time = map["station_time"];
+      else if (map.containsKey("refresh_time"))
+        time = map["refresh_time"].substring(12);
+      if (map.containsKey("windspeed"))
+        windspeed = map["windspeed"];
+      else if (map.containsKey("avg_windspeed"))
+        windspeed = map["avg_windspeed"];
+      if (map.containsKey("barometer"))
+        bar = map["barometer"];
+      else if (map.containsKey("press")) bar = map["press"];
+      if (map.containsKey("winddir")) winddir = map["winddir"];
+      if (map.containsKey("hum")) humidity = map["hum"];
+      if (map.containsKey("temp")) temperature = map["temp"];
+      if (map.containsKey("windchill"))
+        windchill = map["windchill"];
+      else if (map.containsKey("wchill")) windchill = map["wchill"];
+      if (map.containsKey("todaysrain"))
+        rain = map["todaysrain"];
+      else if (map.containsKey("today_rainfall")) rain = map["today_rainfall"];
+      if (map.containsKey("dew")) dew = map["dew"];
+      if (map.containsKey("sunrise")) sunrise = map["sunrise"];
+      if (map.containsKey("sunset")) sunset = map["sunset"];
+      if (map.containsKey("moonrise")) moonrise = map["moonrise"];
+      if (map.containsKey("moonset")) moonset = map["moonset"];
+      if (_isNumeric(windspeed)) {
+        if (map.containsKey("windunit")) windunit = map["windunit"];
+      } else
+        windunit = "";
+      if (_isNumeric(rain)) {
+        if (map.containsKey("rainunit")) rainunit = map["rainunit"];
+      } else
+        rainunit = "";
+      if (_isNumeric(bar)) {
+        if (map.containsKey("barunit")) barunit = map["barunit"];
+      } else
+        barunit = "";
+      if (_isNumeric(temperature)) {
+        if (map.containsKey("tempunit")) tempunit = map["tempunit"];
+      } else
+        tempunit = "";
+      if (_isNumeric(humidity)) {
+        if (map.containsKey("humunit")) humunit = map["humunit"];
+      } else
+        humunit = "";
+      degunit = (_isNumeric(dew) ? "°" : "");
     });
   }
 
   _visualizeRealtimeTXT(map) {
     setState(() {
-      location = ((widget.source != null) ? widget.source.name : "Location");
-      date = (map.containsKey("date") ? map["date"] : "--/--/----");
-      time = (map.containsKey("timehhmmss") ? map["timehhmmss"] : "--:--:--");
-      windspeed = (map.containsKey("wspeed") ? map["wspeed"] : "-");
-      bar = (map.containsKey("press") ? map["press"] : "-");
-      winddir = (map.containsKey("currentwdir") ? map["currentwdir"] : "-");
-      humidity = (map.containsKey("hum") ? map["hum"] : "-");
-      temperature = (map.containsKey("temp") ? map["temp"] : "-");
-      windchill = (map.containsKey("wchill") ? map["wchill"] : "-");
-      rain = (map.containsKey("rfall") ? map["rfall"] : "-");
-      dew = (map.containsKey("dew") ? map["dew"] : "-");
-      // these four properties cannot be retrieved from realtime.txt
-      sunrise = "--:--";
-      sunset = "--:--";
-      moonrise = "--:--";
-      moonset = "--:--";
-      windunit = (map.containsKey("windunit") ? map["windunit"] : "km/h");
-      rainunit = (map.containsKey("rainunit") ? map["rainunit"] : "mm");
-      barunit = (map.containsKey("pressunit") ? map["pressunit"] : "mb");
-      tempunit =
-          (map.containsKey("tempunitnodeg") ? map["tempunitnodeg"] : "C°");
-      humunit = (map.containsKey("humunit") ? map["humunit"] : "%");
+      if (widget.source != null) location = widget.source.name;
+      if (map.containsKey("date")) date = map["date"];
+      if (map.containsKey("timehhmmss")) time = map["timehhmmss"];
+      if (map.containsKey("wspeed")) windspeed = map["wspeed"];
+      if (map.containsKey("press")) bar = map["press"];
+      if (map.containsKey("currentwdir")) winddir = map["currentwdir"];
+      if (map.containsKey("hum")) humidity = map["hum"];
+      if (map.containsKey("temp")) temperature = map["temp"];
+      if (map.containsKey("wchill")) windchill = map["wchill"];
+      if (map.containsKey("rfall")) rain = map["rfall"];
+      if (map.containsKey("dew")) dew = map["dew"];
+      // data about sunrise, sunset, moonrise and moonset cannot be retrieved from realtime.txt
+      if (_isNumeric(windspeed)) {
+        if (map.containsKey("windunit")) windunit = map["windunit"];
+      } else
+        windunit = "";
+      if (_isNumeric(rain)) {
+        if (map.containsKey("rainunit")) rainunit = map["rainunit"];
+      } else
+        rainunit = "";
+      if (_isNumeric(bar)) {
+        if (map.containsKey("pressunit")) barunit = map["pressunit"];
+      } else
+        barunit = "";
+      if (_isNumeric(temperature)) {
+        if (map.containsKey("tempunitnodeg")) tempunit = map["tempunitnodeg"];
+      } else
+        tempunit = "";
+      if (_isNumeric(humidity)) {
+        if (map.containsKey("humunit")) humunit = map["humunit"];
+      } else
+        humunit = "";
+      degunit = (_isNumeric(dew) ? "°" : "");
     });
   }
 
@@ -1121,5 +1170,12 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
       return source;
     } else
       return null;
+  }
+
+  bool _isNumeric(String str) {
+    if (str == null) {
+      return false;
+    }
+    return double.tryParse(str) != null;
   }
 }

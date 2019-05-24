@@ -102,8 +102,18 @@ public class WidgetConfigurationActivity extends Activity {
             }
             long refreshRate = sharedPrefs.getLong("flutter.widget_refresh_interval", 15);
             manager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), refreshRate * 60000, service);
-            WidgetUpdateService.DataElaborator dataElaborator = new WidgetUpdateService.DataElaborator(getApplicationContext(), source, mAppWidgetId);
-            dataElaborator.execute();
+            if(source.getUrl().endsWith(".txt") || source.getUrl().endsWith(".xml")) {
+                WidgetUpdateService.DataElaborator dataElaborator = new WidgetUpdateService.DataElaborator(getApplicationContext(), source, mAppWidgetId);
+                dataElaborator.execute();
+            } else {
+                String originalSource = source.getUrl();
+                source.setUrl(originalSource + "/realtime.txt");
+                WidgetUpdateService.DataElaborator dataElaborator = new WidgetUpdateService.DataElaborator(getApplicationContext(), source, mAppWidgetId);
+                dataElaborator.execute();
+                source.setUrl(originalSource + "/realtime.xml");
+                dataElaborator = new WidgetUpdateService.DataElaborator(getApplicationContext(), source, mAppWidgetId);
+                dataElaborator.execute();
+            }
             widgetManager.updateAppWidget(mAppWidgetId, views);
             Intent resultValue = new Intent();
             resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);

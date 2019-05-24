@@ -508,7 +508,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           return "You must set a source url.";
                       },
                       decoration: InputDecoration.collapsed(
-                          hintText: "URL", border: UnderlineInputBorder()),
+                          hintText: "Realtime file URL",
+                          border: UnderlineInputBorder()),
                       maxLines: 1,
                     ),
                   ),
@@ -595,7 +596,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           return "You must set a source url.";
                       },
                       decoration: InputDecoration.collapsed(
-                          hintText: "URL", border: UnderlineInputBorder()),
+                        hintText: "Realtime file URL",
+                        border: UnderlineInputBorder(),
+                      ),
                       maxLines: 1,
                     ),
                   ),

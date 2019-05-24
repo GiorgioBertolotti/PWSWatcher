@@ -78,8 +78,18 @@ public class Widget extends AppWidgetProvider {
                         PendingIntent service = PendingIntent.getService(context, 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
                         long refreshRate = sharedPrefs.getLong("flutter.widget_refresh_interval", 15);
                         manager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), refreshRate * 60000, service);
-                        WidgetUpdateService.DataElaborator dataElaborator = new WidgetUpdateService.DataElaborator(context, source, id);
-                        dataElaborator.execute();
+                        if(source.getUrl().endsWith(".txt") || source.getUrl().endsWith(".xml")) {
+                            WidgetUpdateService.DataElaborator dataElaborator = new WidgetUpdateService.DataElaborator(context, source, id);
+                            dataElaborator.execute();
+                        } else {
+                            String originalSource = source.getUrl();
+                            source.setUrl(originalSource + "/realtime.txt");
+                            WidgetUpdateService.DataElaborator dataElaborator = new WidgetUpdateService.DataElaborator(context, source, id);
+                            dataElaborator.execute();
+                            source.setUrl(originalSource + "/realtime.xml");
+                            dataElaborator = new WidgetUpdateService.DataElaborator(context, source, id);
+                            dataElaborator.execute();
+                        }
                         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
                         widgetManager.updateAppWidget(id, views);
                         Log.d("PWSWatcher", "Started Widget #" + id);

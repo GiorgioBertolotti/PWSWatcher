@@ -18,6 +18,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Arrays;
 
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
@@ -43,8 +44,18 @@ public class WidgetUpdateService extends Service {
             }
         }
         if (source != null && id != -1) {
-            DataElaborator dataElaborator = new DataElaborator(this, source, id);
-            dataElaborator.execute();
+            if(source.getUrl().endsWith(".txt") || source.getUrl().endsWith(".xml")) {
+                DataElaborator dataElaborator = new DataElaborator(this, source, id);
+                dataElaborator.execute();
+            } else {
+                String originalSource = source.getUrl();
+                source.setUrl(originalSource + "/realtime.txt");
+                DataElaborator dataElaborator = new DataElaborator(this, source, id);
+                dataElaborator.execute();
+                source.setUrl(originalSource + "/realtime.xml");
+                dataElaborator = new DataElaborator(this, source, id);
+                dataElaborator.execute();
+            }
         }
         return super.onStartCommand(intent, flags, startId);
     }
@@ -62,12 +73,12 @@ public class WidgetUpdateService extends Service {
 
         @Override
         protected String doInBackground(String... params) {
-            OkHttpClient client = new OkHttpClient.Builder().build();
-            Request request = new Request.Builder()
-                    .url(this.source.getUrl())
-                    .build();
-            Call call = client.newCall(request);
             try {
+                OkHttpClient client = new OkHttpClient.Builder().build();
+                Request request = new Request.Builder()
+                        .url(this.source.getUrl())
+                        .build();
+                Call call = client.newCall(request);
                 Response response = call.execute();
                 return response.body().string();
             } catch (IOException e) {
@@ -81,59 +92,85 @@ public class WidgetUpdateService extends Service {
             if (resp == null)
                 return;
             RemoteViews view = new RemoteViews(context.getPackageName(), R.layout.widget);
+            boolean done = false;
             try {
                 if (this.source.getUrl().endsWith(".txt")) {
-                    String[] values = resp.split(" ");
-                    view.setTextViewText(R.id.tv_location, this.source.getName());
-                    view.setTextViewText(R.id.tv_temperature, values[2] + values[14]);
-                    view.setTextViewText(R.id.tv_datetime, values[0] + " " + values[1]);
+                    done = visualizeRealtimeTXT(resp, view);
                 } else if (this.source.getUrl().endsWith(".xml")) {
-                    XmlPullParserFactory parserFactory;
-                    parserFactory = XmlPullParserFactory.newInstance();
-                    XmlPullParser parser = parserFactory.newPullParser();
-                    parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-                    parser.setInput(new StringReader(resp));
-                    int eventType = parser.getEventType();
-                    String date = null, time = null, temp = null, tempunit = null;
-                    while (eventType != XmlPullParser.END_DOCUMENT) {
-                        String eltName = null;
-                        switch (eventType) {
-                            case XmlPullParser.START_TAG:
-                                eltName = parser.getName();
-                                if ("misc".equals(eltName)) {
-                                    for (int i = 0; i < parser.getAttributeCount(); i++) {
-                                        if (parser.getAttributeName(i).equals("data") && parser.getAttributeValue(i).equals("station_location")) {
-                                            view.setTextViewText(R.id.tv_location, parser.getText());
-                                        }
-                                    }
-                                }
-                                if ("data".equals(eltName)) {
-                                    for (int i = 0; i < parser.getAttributeCount(); i++) {
-                                        if (parser.getAttributeName(i).equals("realtime")) {
-                                            if (parser.getAttributeValue(i).equals("temp")) {
-                                                temp = parser.getText();
-                                            } else if (parser.getAttributeValue(i).equals("tempunit")) {
-                                                tempunit = parser.getText();
-                                            } else if (parser.getAttributeValue(i).equals("station_date")) {
-                                                date = parser.getText();
-                                            } else if (parser.getAttributeValue(i).equals("station_time")) {
-                                                time = parser.getText();
-                                            }
-                                        }
-                                    }
-                                }
-                                break;
-                        }
-                        eventType = parser.next();
-                    }
-                    view.setTextViewText(R.id.tv_temperature, ((temp != null) ? temp : "") + ((tempunit != null) ? tempunit : ""));
-                    view.setTextViewText(R.id.tv_datetime, ((date != null) ? date + " " : "") + ((time != null) ? time : ""));
+                    done = visualizeRealtimeXML(resp, view);
                 }
-            } catch (XmlPullParserException e) {
-            } catch (IOException e) {
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            AppWidgetManager manager = AppWidgetManager.getInstance(context);
-            manager.updateAppWidget(this.id, view);
+            if(done) {
+                AppWidgetManager manager = AppWidgetManager.getInstance(context);
+                manager.updateAppWidget(this.id, view);
+            }
+        }
+
+        private boolean visualizeRealtimeTXT(String resp, RemoteViews view) {
+            try {
+                String[] values = resp.split(" ");
+                view.setTextViewText(R.id.tv_location, this.source.getName());
+                view.setTextViewText(R.id.tv_temperature, values[2] + values[14]);
+                view.setTextViewText(R.id.tv_datetime, values[0] + " " + values[1]);
+                return true;
+            } catch(Exception ignored) {}
+            return false;
+        }
+
+        private boolean visualizeRealtimeXML(String resp, RemoteViews view) {
+            try {
+                XmlPullParserFactory parserFactory;
+                parserFactory = XmlPullParserFactory.newInstance();
+                XmlPullParser parser = parserFactory.newPullParser();
+                parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
+                parser.setInput(new StringReader(resp));
+                int eventType = parser.getEventType();
+                String date = null, time = null, temp = null, tempunit = null;
+                String[] attributes = {"misc","realtime","today","yesterday","record"};
+                while (eventType != XmlPullParser.END_DOCUMENT) {
+                    String eltName = null;
+                    switch (eventType) {
+                        case XmlPullParser.START_TAG:
+                            eltName = parser.getName();
+                            if ("misc".equals(eltName)) {
+                                for (int i = 0; i < parser.getAttributeCount(); i++) {
+                                    if (parser.getAttributeName(i).equals("data") && parser.getAttributeValue(i).equals("station_location")) {
+                                        view.setTextViewText(R.id.tv_location, parser.nextText());
+                                    }
+                                }
+                            }
+                            if ("data".equals(eltName)) {
+                                for (int i = 0; i < parser.getAttributeCount(); i++) {
+                                    if (Arrays.asList(attributes).contains(parser.getAttributeName(i))) {
+                                        if (parser.getAttributeValue(i).equals("temp")) {
+                                            temp = parser.nextText();
+                                        } else if (parser.getAttributeValue(i).equals("tempunit")) {
+                                            tempunit = parser.nextText();
+                                        } else if (parser.getAttributeValue(i).equals("station_date")) {
+                                            date = parser.nextText();
+                                        } else if (parser.getAttributeValue(i).equals("station_time")) {
+                                            time = parser.nextText();
+                                        } else if (parser.getAttributeValue(i).equals("location")) {
+                                            view.setTextViewText(R.id.tv_location, parser.nextText());
+                                        } else if (parser.getAttributeValue(i).equals("refresh_time")) {
+                                            date = parser.nextText();
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                    }
+                    eventType = parser.next();
+                }
+                view.setTextViewText(R.id.tv_temperature, ((temp != null) ? temp : "") + ((tempunit != null) ? tempunit : ""));
+                view.setTextViewText(R.id.tv_datetime, ((date != null) ? date + " " : "") + ((time != null) ? time : ""));
+                return true;
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+            return false;
         }
     }
 }

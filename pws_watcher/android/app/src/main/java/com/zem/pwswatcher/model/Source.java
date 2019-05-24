@@ -26,6 +26,10 @@ public class Source {
         return url;
     }
 
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
     public String toJSON() throws JSONException {
         JSONObject root = new JSONObject();
         root.put("id", this.id);
