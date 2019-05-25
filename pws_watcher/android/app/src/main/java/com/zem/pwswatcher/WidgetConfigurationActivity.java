@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import android.content.ComponentName;
 
 public class WidgetConfigurationActivity extends Activity {
     public static final String SHARED_PREFERENCES_NAME = "FlutterSharedPreferences";
@@ -83,16 +84,6 @@ public class WidgetConfigurationActivity extends Activity {
         this.lvSources.setAdapter(this.rAdapter);
         this.lvSources.setOnItemClickListener((adapter, v, position, id) -> {
             Source source = rAdapter.getItem(position);
-            final AlarmManager manager = (AlarmManager) getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-            final Intent i = new Intent(getApplicationContext(), WidgetUpdateService.class);
-            try {
-                i.putExtra("SOURCE", ((source != null) ? source.toJSON() : null));
-                i.putExtra("ID", mAppWidgetId);
-            } catch (JSONException e) {
-            }
-            if (service == null) {
-                service = PendingIntent.getService(getApplicationContext(), 0, i, PendingIntent.FLAG_CANCEL_CURRENT);
-            }
             SharedPreferences sharedPrefs = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
             try {
                 sharedPrefs.edit().putString("widget_" + mAppWidgetId, source.toJSON()).apply();
@@ -100,21 +91,11 @@ public class WidgetConfigurationActivity extends Activity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            long refreshRate = sharedPrefs.getLong("flutter.widget_refresh_interval", 15);
-            manager.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), refreshRate * 60000, service);
-            if(source.getUrl().endsWith(".txt") || source.getUrl().endsWith(".xml")) {
-                WidgetUpdateService.DataElaborator dataElaborator = new WidgetUpdateService.DataElaborator(getApplicationContext(), source, mAppWidgetId);
-                dataElaborator.execute();
-            } else {
-                String originalSource = source.getUrl();
-                source.setUrl(originalSource + "/realtime.txt");
-                WidgetUpdateService.DataElaborator dataElaborator = new WidgetUpdateService.DataElaborator(getApplicationContext(), source, mAppWidgetId);
-                dataElaborator.execute();
-                source.setUrl(originalSource + "/realtime.xml");
-                dataElaborator = new WidgetUpdateService.DataElaborator(getApplicationContext(), source, mAppWidgetId);
-                dataElaborator.execute();
-            }
-            widgetManager.updateAppWidget(mAppWidgetId, views);
+            Intent updateIntent = new Intent(getApplicationContext(), Widget.class);
+            updateIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+            int[] ids = widgetManager.getAppWidgetIds(new ComponentName(getApplicationContext(), Widget.class));
+            updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+            getApplicationContext().sendBroadcast(updateIntent);
             Intent resultValue = new Intent();
             resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
             setResult(RESULT_OK, resultValue);

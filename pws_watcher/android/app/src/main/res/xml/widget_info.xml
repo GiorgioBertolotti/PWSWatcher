@@ -7,5 +7,5 @@
     android:minHeight="120dp"
     android:previewImage="@drawable/icon"
     android:resizeMode="horizontal|vertical"
-    android:updatePeriodMillis="0"
+    android:updatePeriodMillis="1000"
     android:widgetCategory="home_screen" />
