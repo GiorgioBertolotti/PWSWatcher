@@ -222,7 +222,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                       "You are offline.",
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
-                                          fontSize: 20, color: Colors.white70),
+                                          fontSize: 20, color: Colors.white),
                                     ),
                                     Container(
                                       height:
@@ -254,7 +254,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                           style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.normal,
-                                            color: Colors.white70,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ],
@@ -269,7 +269,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.normal,
-                                            color: Colors.white70,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ],
@@ -311,7 +311,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                           right: 10),
                                                       child: SvgPicture.asset(
                                                           'assets/images/windspeed.svg',
-                                                          color: Colors.white70,
+                                                          color: Colors.white,
                                                           width: 20,
                                                           height: 20,
                                                           semanticsLabel:
@@ -324,7 +324,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 20,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                     Text(
@@ -334,7 +334,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 16,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                   ],
@@ -354,7 +354,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 20,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                     Text(
@@ -364,7 +364,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 16,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                     Padding(
@@ -372,7 +372,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                           left: 10),
                                                       child: SvgPicture.asset(
                                                           'assets/images/barometer.svg',
-                                                          color: Colors.white70,
+                                                          color: Colors.white,
                                                           width: 20,
                                                           height: 20,
                                                           semanticsLabel:
@@ -402,7 +402,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                           right: 10),
                                                       child: SvgPicture.asset(
                                                           'assets/images/winddir.svg',
-                                                          color: Colors.white70,
+                                                          color: Colors.white,
                                                           width: 20,
                                                           height: 20,
                                                           semanticsLabel:
@@ -415,7 +415,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 20,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                   ],
@@ -435,7 +435,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 20,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                     Text(
@@ -445,7 +445,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 16,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                     Padding(
@@ -453,7 +453,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                           left: 10),
                                                       child: SvgPicture.asset(
                                                           'assets/images/humidity.svg',
-                                                          color: Colors.white70,
+                                                          color: Colors.white,
                                                           width: 20,
                                                           height: 20,
                                                           semanticsLabel:
@@ -483,7 +483,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                           right: 10),
                                                       child: SvgPicture.asset(
                                                           'assets/images/temperature.svg',
-                                                          color: Colors.white70,
+                                                          color: Colors.white,
                                                           width: 20,
                                                           height: 20,
                                                           semanticsLabel:
@@ -496,7 +496,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 20,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                     Text(
@@ -506,7 +506,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 16,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                   ],
@@ -526,7 +526,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 20,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                     Text(
@@ -536,7 +536,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 16,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                     Padding(
@@ -544,7 +544,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                           left: 10),
                                                       child: SvgPicture.asset(
                                                           'assets/images/windchill.svg',
-                                                          color: Colors.white70,
+                                                          color: Colors.white,
                                                           width: 20,
                                                           height: 20,
                                                           semanticsLabel:
@@ -574,7 +574,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                           right: 10),
                                                       child: SvgPicture.asset(
                                                           'assets/images/rain.svg',
-                                                          color: Colors.white70,
+                                                          color: Colors.white,
                                                           width: 20,
                                                           height: 20,
                                                           semanticsLabel:
@@ -587,7 +587,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 20,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                     Text(
@@ -597,7 +597,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 16,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                   ],
@@ -617,7 +617,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 20,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                     Text(
@@ -627,7 +627,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         fontSize: 16,
                                                         fontWeight:
                                                             FontWeight.normal,
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                       ),
                                                     ),
                                                     Padding(
@@ -635,7 +635,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                           left: 10),
                                                       child: SvgPicture.asset(
                                                           'assets/images/dew.svg',
-                                                          color: Colors.white70,
+                                                          color: Colors.white,
                                                           width: 20,
                                                           height: 20,
                                                           semanticsLabel:
@@ -663,7 +663,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         right: 10),
                                                     child: SvgPicture.asset(
                                                         'assets/images/sunrise.svg',
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                         width: 18,
                                                         height: 18,
                                                         semanticsLabel:
@@ -676,7 +676,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       fontSize: 20,
                                                       fontWeight:
                                                           FontWeight.normal,
-                                                      color: Colors.white70,
+                                                      color: Colors.white,
                                                     ),
                                                   ),
                                                 ],
@@ -694,7 +694,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         right: 10),
                                                     child: SvgPicture.asset(
                                                         'assets/images/sunset.svg',
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                         width: 18,
                                                         height: 18,
                                                         semanticsLabel:
@@ -707,7 +707,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       fontSize: 20,
                                                       fontWeight:
                                                           FontWeight.normal,
-                                                      color: Colors.white70,
+                                                      color: Colors.white,
                                                     ),
                                                   ),
                                                 ],
@@ -725,7 +725,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         right: 10),
                                                     child: SvgPicture.asset(
                                                         'assets/images/moonrise.svg',
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                         width: 18,
                                                         height: 18,
                                                         semanticsLabel:
@@ -738,7 +738,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       fontSize: 20,
                                                       fontWeight:
                                                           FontWeight.normal,
-                                                      color: Colors.white70,
+                                                      color: Colors.white,
                                                     ),
                                                   ),
                                                 ],
@@ -756,7 +756,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                         right: 10),
                                                     child: SvgPicture.asset(
                                                         'assets/images/moonset.svg',
-                                                        color: Colors.white70,
+                                                        color: Colors.white,
                                                         width: 18,
                                                         height: 18,
                                                         semanticsLabel:
@@ -769,7 +769,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                                       fontSize: 20,
                                                       fontWeight:
                                                           FontWeight.normal,
-                                                      color: Colors.white70,
+                                                      color: Colors.white,
                                                     ),
                                                   ),
                                                 ],

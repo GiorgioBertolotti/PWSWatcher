@@ -32,6 +32,7 @@ import java.util.List;
 import android.content.ComponentName;
 
 public class WidgetConfigurationActivity extends Activity {
+    public static final String UPDATE_FILTER = "com.zem.pwswatcher.UPDATE";
     public static final String SHARED_PREFERENCES_NAME = "FlutterSharedPreferences";
     private static final String LIST_IDENTIFIER = "VGhpcyBpcyB0aGUgcHJlZml4IGZvciBhIGxpc3Qu";
     int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
@@ -92,7 +93,7 @@ public class WidgetConfigurationActivity extends Activity {
                 e.printStackTrace();
             }
             Intent updateIntent = new Intent(getApplicationContext(), Widget.class);
-            updateIntent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+            updateIntent.setAction(UPDATE_FILTER);
             int[] ids = widgetManager.getAppWidgetIds(new ComponentName(getApplicationContext(), Widget.class));
             updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
             getApplicationContext().sendBroadcast(updateIntent);
