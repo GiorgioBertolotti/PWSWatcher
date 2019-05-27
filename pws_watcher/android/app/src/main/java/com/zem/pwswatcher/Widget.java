@@ -16,30 +16,35 @@ import android.util.TypedValue;
 import android.widget.RemoteViews;
 
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import com.zem.pwswatcher.model.Source;
 
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.zem.pwswatcher.WidgetConfigurationActivity.SHARED_PREFERENCES_NAME;
 
-import java.util.Calendar;
 
 public class Widget extends AppWidgetProvider {
     static final String UPDATE_FILTER = "com.zem.pwswatcher.UPDATE";
@@ -185,7 +190,22 @@ public class Widget extends AppWidgetProvider {
                 String[] values = resp.split(" ");
                 view.setTextViewText(R.id.tv_location, this.source.getName());
                 view.setTextViewText(R.id.tv_temperature, values[2] + values[14]);
-                view.setTextViewText(R.id.tv_datetime, values[0] + " " + values[1]);
+                String stringDate = null;
+                try {
+                    String date = values[0] + " " + values[1];
+                    date = date.trim().replace("/", "-").replace(".", "-");
+                    int year = Calendar.getInstance().get(Calendar.YEAR);
+                    date = date.substring(0, 6) +
+                            Integer.toString(year).substring(0, 2) +
+                            date.substring(6);
+                    date = date.substring(6, 10) + "-" + date.substring(3, 5) + "-" + date.substring(0, 2) + " " + date.substring(11);
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    Date newDate = format.parse(date);
+                    stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                } catch (Exception e) {
+                    stringDate = values[0].trim() + " " + values[1].trim();
+                }
+                view.setTextViewText(R.id.tv_datetime, stringDate);
                 return true;
             } catch (Exception ignored) {
             }
@@ -200,7 +220,7 @@ public class Widget extends AppWidgetProvider {
                 parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
                 parser.setInput(new StringReader(resp));
                 int eventType = parser.getEventType();
-                String date = null, time = null, temp = null, tempunit = null;
+                String location = null, date = null, time = null, temp = null, tempunit = null;
                 String[] attributes = {"misc", "realtime", "today", "yesterday", "record"};
                 while (eventType != XmlPullParser.END_DOCUMENT) {
                     String eltName = null;
@@ -226,9 +246,11 @@ public class Widget extends AppWidgetProvider {
                                         } else if (parser.getAttributeValue(i).equals("station_time")) {
                                             time = parser.nextText();
                                         } else if (parser.getAttributeValue(i).equals("location")) {
-                                            view.setTextViewText(R.id.tv_location, parser.nextText());
+                                            location = parser.nextText();
                                         } else if (parser.getAttributeValue(i).equals("refresh_time")) {
-                                            date = parser.nextText();
+                                            String tmpDatetime = parser.nextText();
+                                            date = tmpDatetime.substring(0, 10);
+                                            time = tmpDatetime.substring(12);
                                         }
                                     }
                                 }
@@ -237,8 +259,19 @@ public class Widget extends AppWidgetProvider {
                     }
                     eventType = parser.next();
                 }
+                view.setTextViewText(R.id.tv_location, (location != null) ? location : this.source.getName());
                 view.setTextViewText(R.id.tv_temperature, ((temp != null) ? temp : "") + ((tempunit != null) ? tempunit : ""));
-                view.setTextViewText(R.id.tv_datetime, ((date != null) ? date + " " : "") + ((time != null) ? time : ""));
+                String stringDate = null;
+                try {
+                    String tmpDatetime = date.trim() + " " + time.trim();
+                    tmpDatetime = tmpDatetime.trim().replace("/", "-").replace(".", "-");
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    Date newDate = format.parse(tmpDatetime);
+                    stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                } catch (Exception e) {
+                    stringDate = ((date != null) ? (date.trim() + " ") : "") + ((time != null) ? time.trim() : "");
+                }
+                view.setTextViewText(R.id.tv_datetime, stringDate);
                 return true;
             } catch (Exception e) {
                 e.printStackTrace();

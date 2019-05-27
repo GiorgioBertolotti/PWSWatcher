@@ -27,8 +27,7 @@ class PWSStatusPage extends StatefulWidget {
 
 class _PWSStatusPageState extends State<PWSStatusPage> {
   var location = "Location";
-  var date = "--/--/----";
-  var time = "--:--:--";
+  var datetime = "--/--/---- --:--:--";
 
   var windspeed = "-";
   var bar = "-";
@@ -157,11 +156,11 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                     color: Colors.lightBlue,
                     backgroundColor: Colors.white,
                     key: _refreshIndicatorKey,
-                    onRefresh: () {
+                    onRefresh: () async {
                       if (widget.source != null)
-                        return _retrieveData(widget.source.url);
+                        return await _retrieveData(widget.source.url);
                       else
-                        return _retrieveData(null);
+                        return await _retrieveData(null);
                     },
                     child: ListView(
                       children: <Widget>[
@@ -264,7 +263,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
                                           MainAxisAlignment.center,
                                       children: <Widget>[
                                         Text(
-                                          "$date $time",
+                                          "$datetime",
                                           maxLines: 1,
                                           style: TextStyle(
                                             fontSize: 16,
@@ -894,8 +893,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
   _cleanData() {
     setState(() {
       location = (widget.source != null) ? widget.source.name : "Location";
-      date = "--/--/----";
-      time = "--:--:--";
+      datetime = "--/--/---- --:--:--";
       windspeed = "-";
       bar = "-";
       winddir = "-";
@@ -1060,14 +1058,36 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
       else if (map.containsKey("location"))
         location = map["location"];
       else if (widget.source != null) location = widget.source.name;
-      if (map.containsKey("station_date"))
-        date = map["station_date"];
-      else if (map.containsKey("refresh_time"))
-        date = map["refresh_time"].substring(0, 10);
-      if (map.containsKey("station_time"))
-        time = map["station_time"];
-      else if (map.containsKey("refresh_time"))
-        time = map["refresh_time"].substring(12);
+      try {
+        var tmpDatetime = "";
+        if (map.containsKey("station_date"))
+          tmpDatetime += " " + map["station_date"];
+        else if (map.containsKey("refresh_time"))
+          tmpDatetime += " " + map["refresh_time"].substring(0, 10);
+        if (map.containsKey("station_time"))
+          tmpDatetime = " " + map["station_time"];
+        else if (map.containsKey("refresh_time"))
+          tmpDatetime = " " + map["refresh_time"].substring(12);
+        tmpDatetime =
+            tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
+        datetime = DateTime.parse(tmpDatetime)
+            .toLocal()
+            .toString()
+            .replaceAll(".000", "");
+      } catch (Exception) {
+        datetime = (((map.containsKey("station_date"))
+                    ? map["station_date"].trim() + " "
+                    : ((map.containsKey("refresh_time"))
+                        ? map["refresh_time"].substring(0, 10).trim() + " "
+                        : "--/--/-- ")) +
+                ((map.containsKey("station_time"))
+                    ? map["station_time"].trim()
+                    : ((map.containsKey("refresh_time"))
+                        ? map["refresh_time"].substring(12).trim()
+                        : "--:--:--")))
+            .replaceAll("/", "-")
+            .replaceAll(".", "-");
+      }
       if (map.containsKey("windspeed"))
         windspeed = map["windspeed"];
       else if (map.containsKey("avg_windspeed"))
@@ -1116,8 +1136,37 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
   _visualizeRealtimeTXT(map) {
     setState(() {
       if (widget.source != null) location = widget.source.name;
-      if (map.containsKey("date")) date = map["date"];
-      if (map.containsKey("timehhmmss")) time = map["timehhmmss"];
+      try {
+        var tmpDatetime = "";
+        if (map.containsKey("date")) tmpDatetime += " " + map["date"];
+        if (map.containsKey("timehhmmss"))
+          tmpDatetime += " " + map["timehhmmss"];
+        tmpDatetime =
+            tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
+        tmpDatetime = tmpDatetime.substring(0, 6) +
+            DateTime.now().year.toString().substring(0, 2) +
+            tmpDatetime.substring(6);
+        tmpDatetime = tmpDatetime.substring(6, 10) +
+            "-" +
+            tmpDatetime.substring(3, 5) +
+            "-" +
+            tmpDatetime.substring(0, 2) +
+            " " +
+            tmpDatetime.substring(11);
+        datetime = DateTime.parse(tmpDatetime)
+            .toLocal()
+            .toString()
+            .replaceAll(".000", "");
+      } catch (Exception) {
+        datetime = (((map.containsKey("date"))
+                    ? map["date"].trim() + " "
+                    : "--/--/-- ") +
+                ((map.containsKey("timehhmmss"))
+                    ? map["timehhmmss"].trim()
+                    : "--:--:--"))
+            .replaceAll("/", "-")
+            .replaceAll(".", "-");
+      }
       if (map.containsKey("wspeed")) windspeed = map["wspeed"];
       if (map.containsKey("press")) bar = map["press"];
       if (map.containsKey("currentwdir")) winddir = map["currentwdir"];
