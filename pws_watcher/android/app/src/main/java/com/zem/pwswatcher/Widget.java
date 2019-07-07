@@ -189,7 +189,11 @@ public class Widget extends AppWidgetProvider {
             try {
                 String[] values = resp.split(" ");
                 view.setTextViewText(R.id.tv_location, this.source.getName());
-                view.setTextViewText(R.id.tv_temperature, values[2] + values[14]);
+                view.setTextViewText(R.id.tv_temperature, values[2] + (values[14].contains("°") ? "" : "°") + values[14]);
+                view.setTextViewText(R.id.tv_humidity, values[3] + "%");
+                view.setTextViewText(R.id.tv_pressure, values[10] + " " +values[15]);
+                view.setTextViewText(R.id.tv_rain, values[9] + " " + values[16]);
+                view.setTextViewText(R.id.tv_windspeed, values[5] + " " + values[13]);
                 String stringDate = null;
                 try {
                     String date = values[0] + " " + values[1];
@@ -220,7 +224,8 @@ public class Widget extends AppWidgetProvider {
                 parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
                 parser.setInput(new StringReader(resp));
                 int eventType = parser.getEventType();
-                String location = null, date = null, time = null, temp = null, tempunit = null;
+                String location = null, date = null, time = null, temp = null, tempunit = null, hum = null,
+                    press = null, pressunit = null, rain = null, rainunit = null, wind = null, windunit = null;
                 String[] attributes = {"misc", "realtime", "today", "yesterday", "record"};
                 while (eventType != XmlPullParser.END_DOCUMENT) {
                     String eltName = null;
@@ -241,6 +246,20 @@ public class Widget extends AppWidgetProvider {
                                             temp = parser.nextText();
                                         } else if (parser.getAttributeValue(i).equals("tempunit")) {
                                             tempunit = parser.nextText();
+                                        } else if (parser.getAttributeValue(i).equals("hum")) {
+                                            hum = parser.nextText();
+                                        } else if (parser.getAttributeValue(i).equals("press") || parser.getAttributeValue(i).equals("barometer")) {
+                                            press = parser.nextText();
+                                        } else if (parser.getAttributeValue(i).equals("barunit")) {
+                                            pressunit = parser.nextText();
+                                        } else if (parser.getAttributeValue(i).equals("todaysrain") || parser.getAttributeValue(i).equals("today_rainfall")) {
+                                            rain = parser.nextText();
+                                        } else if (parser.getAttributeValue(i).equals("rainunit")) {
+                                            rainunit = parser.nextText();
+                                        } else if (parser.getAttributeValue(i).equals("windspeed") || parser.getAttributeValue(i).equals("avg_windspeed")) {
+                                            wind = parser.nextText();
+                                        } else if (parser.getAttributeValue(i).equals("windunit")) {
+                                            windunit = parser.nextText();
                                         } else if (parser.getAttributeValue(i).equals("station_date")) {
                                             date = parser.nextText();
                                         } else if (parser.getAttributeValue(i).equals("station_time")) {
@@ -260,7 +279,11 @@ public class Widget extends AppWidgetProvider {
                     eventType = parser.next();
                 }
                 view.setTextViewText(R.id.tv_location, (location != null) ? location : this.source.getName());
-                view.setTextViewText(R.id.tv_temperature, ((temp != null) ? temp : "") + ((tempunit != null) ? tempunit : ""));
+                view.setTextViewText(R.id.tv_temperature, ((temp != null) ? temp : "") + ((tempunit != null) ? (tempunit.contains("°") ? tempunit : "°" + tempunit) : ""));
+                view.setTextViewText(R.id.tv_humidity, ((hum != null) ? (hum.contains("%") ? hum : hum + "%") : "-"));
+                view.setTextViewText(R.id.tv_pressure, ((press != null) ? press : "-") + " " + ((pressunit != null) ? pressunit : ""));
+                view.setTextViewText(R.id.tv_rain, ((rain != null) ? rain : "-") + " " + ((rainunit != null) ? rainunit : ""));
+                view.setTextViewText(R.id.tv_windspeed, ((wind != null) ? wind : "-") + " " + ((windunit != null) ? windunit : ""));
                 String stringDate = null;
                 try {
                     String tmpDatetime = date.trim() + " " + time.trim();
