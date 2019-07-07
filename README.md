@@ -7,15 +7,15 @@ There was already another application for the same purpose, but no updates have 
 
 ## Table of contents
 
-- [PWSWatcher](#pwswatcher)
-  - [Why?](#why)
-  - [Table of contents](#table-of-contents)
-  - [Getting started](#getting-started)
-    - [Download](#download)
-    - [Usage](#usage)
-  - [Other](#other)
-    - [Contact](#contact)
-    - [Credits](#credits)
+- [PWSWatcher](#PWSWatcher)
+  - [Why?](#Why)
+  - [Table of contents](#Table-of-contents)
+  - [Getting started](#Getting-started)
+    - [Download](#Download)
+    - [Usage](#Usage)
+  - [Other](#Other)
+    - [Contact](#Contact)
+    - [Credits](#Credits)
 
 ## Getting started
 
@@ -28,7 +28,17 @@ There was already another application for the same purpose, but no updates have 
 
 ### Usage
 
-*Coming soon...*
+Monitor source from app
+
+| **Head into settings<br />and add a new source** | **Check if the source<br />has been added** | **Select the source<br />from main page** |
+| ------------- | ------------- | ------------- |
+| ![Add source](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/1.jpg) | ![Source added](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/2.jpg) | ![Select source](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/3.jpg) |
+
+Add a new widget
+
+| **Find the widget<br />and place it** | **Select a source<br />to monitor** | **Resize the widget** |
+| ------------- | ------------- | ------------- |
+| ![Place the widget](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/4.jpg) | ![Select source](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/5.jpg) | ![Resize widget](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/6.jpg) |
 
 ## Other
 

@@ -42,5 +42,7 @@ class _SplashPageState extends State<SplashPage> {
     PWSWatcher.countID = prefs.getInt("count_id") ?? 0;
     PWSWatcher.router.navigateTo(context, "/pws/" + index.toString(),
         transition: TransitionType.fadeIn);
+    prefs.getInt("widget_refresh_interval") ??
+        prefs.setInt("widget_refresh_interval", 15);
   }
 }
