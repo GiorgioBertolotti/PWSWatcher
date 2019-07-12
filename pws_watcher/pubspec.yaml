@@ -13,11 +13,11 @@ dependencies:
   http: any
   flutter_svg: any
   shared_preferences: any
-  fluro: any
   cupertino_icons: any
   highlighter_coachmark: any
   flare_flutter: any
   connectivity: any
+  provider: any
 
 dev_dependencies:
   flutter_test:

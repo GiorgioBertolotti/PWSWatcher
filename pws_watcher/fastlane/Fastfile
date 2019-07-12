@@ -1,0 +1,18 @@
+default_platform(:android)
+lane :release do
+  supply(
+    track: ENV["TRACK"],
+    apk: "../build/app/outputs/apk/release/app-release.apk",
+    json_key_data: ENV["GOOGLE_CREDENTIALS"],
+    validate_only: true
+  )
+end
+lane :promote do
+  supply(
+    track: ENV["TRAVIS_PULL_REQUEST_BRANCH"],
+    track_promote_to: ENV["TRACK"],
+    apk: "../build/app/outputs/apk/release/app-release.apk",
+    json_key_data: ENV['GOOGLE_CREDENTIALS'],
+    validate_only: true
+  )
+end

@@ -53,12 +53,20 @@ android {
             storeFile file(keystoreProperties['storeFile'])
             storePassword keystoreProperties['storePassword']
         }
+
+        releaseCI {
+            storeFile file("key.jks")
+            storePassword System.getenv("UPLOAD_KEY_PASSWORD")
+            keyAlias "key"
+            keyPassword System.getenv("UPLOAD_KEY_PASSWORD")
+        }
     }
 
     buildTypes {
         release {
             //signingConfig signingConfigs.debug
-            signingConfig signingConfigs.release
+            //signingConfig signingConfigs.release
+            signingConfig signingConfigs.releaseCI
         }
     }
 }

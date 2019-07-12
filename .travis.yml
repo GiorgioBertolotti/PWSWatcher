@@ -1,0 +1,105 @@
+os: linux
+language: generic
+dist: xenial
+addons:
+  apt:
+    packages:
+      - lib32stdc++6
+jdk: oraclejdk8
+sudo: false
+
+before_install:
+  - cd $TRAVIS_BUILD_DIR/pws_watcher
+
+install:
+  - git clone https://github.com/flutter/flutter.git -b stable --depth 1
+  - export PATH="$PATH:`pwd`/flutter/bin/cache/dart-sdk/bin"
+  - export PATH="$PATH:`pwd`/flutter/bin"
+  - flutter doctor -v
+  - flutter packages get
+
+static_analysis: &static_analysis
+  name: "Static analysis"
+  script: flutter analyze --no-pub --no-current-package $TRAVIS_BUILD_DIR/pws_watcher/lib $TRAVIS_BUILD_DIR/pws_watcher/test
+
+#unit_tests: &unit_tests
+#  name: "Unit tests"
+#  script: flutter test --no-pub $TRAVIS_BUILD_DIR/pws_watcher/test/
+
+widget_tests: &widget_tests
+  name: "Widget tests"
+  script: flutter test --no-pub $TRAVIS_BUILD_DIR/pws_watcher/test/widget_test.dart
+
+#integration_tests: &integration_tests
+#  name: "Integration tests"
+#  script: flutter drive --target=test_driver/main.dart
+
+build: &build
+  name: "Build APK"
+  language: android
+  jdk:
+    - oraclejdk8
+  android:
+    components:
+      - tools
+      - tools
+      - platform-tools
+      - build-tools-28.0.3
+      - android-28
+      - android-27
+  before_script:
+    - export BUILD_NAME=$TRAVIS_TAG
+    - export BUILD_NUMBER=$TRAVIS_BUILD_NUMBER
+  script:
+    - if [[ $TRAVIS_TAG == "" ]]; then flutter build apk; else flutter build apk --build-name $BUILD_NAME --build-number $BUILD_NUMBER; fi
+  deploy:
+    - provider: releases
+      api_key: $GITHUB_TOKEN
+      file: build/app/outputs/apk/release/app-release.apk
+      skip_cleanup: true
+      name: $TRAVIS_TAG
+      on:
+        tags: true
+
+google_play: &google_play
+  name: "Google Play"
+  install:
+    - bundle install --retry=3 --gemfile=$TRAVIS_BUILD_DIR/pws_watcher/android/Gemfile
+    - echo "$PLAY_STORE_UPLOAD_KEY" | base64 --decode > $TRAVIS_BUILD_DIR/pws_watcher/android/app/key.jks
+  before_script:
+    - cd $TRAVIS_BUILD_DIR/pws_watcher
+    - chmod +x get_build_artifacts.sh
+    - export TRACK=$TRAVIS_BRANCH
+    - if [[ $TRAVIS_BRANCH == "prod" ]]; then export TRACK=production; fi
+    - mkdir -p "$TRAVIS_BUILD_DIR/pws_watcher/build/app/outputs/apk/release" && cd "$_"
+    - $TRAVIS_BUILD_DIR/pws_watcher/get_build_artifacts.sh
+    - cd $TRAVIS_BUILD_DIR/pws_watcher/android
+  script:
+    - if [[ $TRAVIS_PULL_REQUEST_BRANCH == beta || $TRAVIS_PULL_REQUEST_BRANCH = alpha || $TRAVIS_PULL_REQUEST_BRANCH = internal ]]; then
+        bundle exec fastlane promote;
+      else
+        bundle exec fastlane release;
+      fi
+
+jobs:
+  include:
+  - <<: *static_analysis
+#  - <<: *unit_tests
+  - <<: *widget_tests
+#  - <<: *integration_tests
+  - stage: build
+    <<: *build
+  - stage: deploy
+    <<: *google_play
+    
+stages:
+  - name: test
+    if: (NOT branch =~ /^\d*\.\d*\.\d*$/) OR (NOT branch IN (internal, alpha, beta, prod))
+  - name: build
+    if: (NOT branch =~ /^\d*\.\d*\.\d*$/) OR (NOT branch IN (internal, alpha, beta, prod))
+  - name: deploy
+    if: (type = push) AND (branch IN (internal, alpha, beta, prod))
+
+cache:
+  directories:
+  - "$HOME/.pub-cache"
