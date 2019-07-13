@@ -11,11 +11,11 @@ dependencies:
     sdk: flutter
   xml: any
   http: any
-  flutter_svg: any
+  flutter_svg: ^0.13.1
   shared_preferences: any
   cupertino_icons: any
   highlighter_coachmark: any
-  flare_flutter: any
+  flare_flutter: ^1.5.4
   connectivity: any
   provider: any
 

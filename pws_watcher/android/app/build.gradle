@@ -48,13 +48,12 @@ android {
 
     signingConfigs {
         release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file(keystoreProperties['storeFile'])
-            storePassword keystoreProperties['storePassword']
-        }
-
-        releaseCI {
+            /*
+            keyAlias keystoreProperties != null ? keystoreProperties['keyAlias'] : null
+            keyPassword keystoreProperties != null ? keystoreProperties['keyPassword'] : null
+            storeFile keystoreProperties != null ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties != null ? keystoreProperties['storePassword'] : null
+            */
             storeFile file("key.jks")
             storePassword System.getenv("UPLOAD_KEY_PASSWORD")
             keyAlias "key"
@@ -65,8 +64,7 @@ android {
     buildTypes {
         release {
             //signingConfig signingConfigs.debug
-            //signingConfig signingConfigs.release
-            signingConfig signingConfigs.releaseCI
+            signingConfig signingConfigs.release
         }
     }
 }
