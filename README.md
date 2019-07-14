@@ -1,5 +1,7 @@
 # PWSWatcher
 
+[![Build Status](https://travis-ci.com/GiorgioBertolotti/PWSWatcher.svg?branch=master)](https://travis-ci.com/GiorgioBertolotti/PWSWatcher)
+
 ## Why?
 
 PWSWatcher is an open-source Android app used to monitor a *PWS* (Personal Weather Station) given the link of its real-time updated *.xml* file.  
