@@ -80,13 +80,14 @@ google_play: &google_play
     - export PATH="$PATH:`pwd`/flutter/bin"
     - flutter doctor -v
     - flutter packages get
+    - ruby-install --binary -M https://rubies.travis-ci.org/ ruby 2.3.7
     - gem update --system
     - gem install bundler
     - cd $TRAVIS_BUILD_DIR/pws_watcher/android
     - bundler update --bundler
     - bundle install --retry=3 --gemfile=$TRAVIS_BUILD_DIR/pws_watcher/android/Gemfile
-    - echo "$PLAY_STORE_UPLOAD_KEY" | base64 --decode > $TRAVIS_BUILD_DIR/pws_watcher/key.jks
   before_script:
+    - echo "$PLAY_STORE_UPLOAD_KEY" | base64 --decode > $TRAVIS_BUILD_DIR/pws_watcher/key.jks
     - flutter build appbundle --release
     - cd $TRAVIS_BUILD_DIR/pws_watcher
     - export TRACK=$TRAVIS_BRANCH
