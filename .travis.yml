@@ -34,7 +34,7 @@ widget_tests: &widget_tests
 #  name: "Integration tests"
 #  script: flutter drive --target=test_driver/main.dart
 
-build: &build
+build: &build_apk
   name: "Build APK"
   language: android
   jdk:
@@ -48,12 +48,10 @@ build: &build
       - android-28
       - android-27
   before_script:
-    - export BUILD_NAME=$TRAVIS_TAG
-    - export BUILD_NUMBER=$TRAVIS_BUILD_NUMBER
-    - echo "$PLAY_STORE_UPLOAD_KEY" | base64 --decode > $TRAVIS_BUILD_DIR/pws_watcher/android/app/key.jks
+    - echo "$PLAY_STORE_UPLOAD_KEY" | base64 --decode > $TRAVIS_BUILD_DIR/pws_watcher/key.jks
     - cd $TRAVIS_BUILD_DIR/pws_watcher
   script:
-    - if [[ $TRAVIS_TAG == "" ]]; then flutter build apk; else flutter build apk --build-name $BUILD_NAME --build-number $BUILD_NUMBER; fi
+    - flutter build apk --release
   deploy:
     - provider: releases
       api_key: $GITHUB_TOKEN
@@ -65,16 +63,30 @@ build: &build
 
 google_play: &google_play
   name: "Google Play"
+  language: android
+  jdk:
+    - oraclejdk8
+  android:
+    components:
+      - tools
+      - tools
+      - platform-tools
+      - build-tools-28.0.3
+      - android-28
+      - android-27
   install:
+    - git clone https://github.com/flutter/flutter.git -b stable --depth 1
+    - export PATH="$PATH:`pwd`/flutter/bin/cache/dart-sdk/bin"
+    - export PATH="$PATH:`pwd`/flutter/bin"
+    - flutter doctor -v
+    - flutter packages get
     - bundle install --retry=3 --gemfile=$TRAVIS_BUILD_DIR/pws_watcher/android/Gemfile
-    - echo "$PLAY_STORE_UPLOAD_KEY" | base64 --decode > $TRAVIS_BUILD_DIR/pws_watcher/android/app/key.jks
+    - echo "$PLAY_STORE_UPLOAD_KEY" | base64 --decode > $TRAVIS_BUILD_DIR/pws_watcher/key.jks
   before_script:
+    - flutter build appbundle --release
     - cd $TRAVIS_BUILD_DIR/pws_watcher
-    - chmod +x get_build_artifacts.sh
     - export TRACK=$TRAVIS_BRANCH
     - if [[ $TRAVIS_BRANCH == "prod" ]]; then export TRACK=production; fi
-    - mkdir -p "$TRAVIS_BUILD_DIR/pws_watcher/build/app/outputs/apk/release" && cd "$_"
-    - $TRAVIS_BUILD_DIR/pws_watcher/get_build_artifacts.sh
     - cd $TRAVIS_BUILD_DIR/pws_watcher/android
   script:
     - if [[ $TRAVIS_PULL_REQUEST_BRANCH == beta || $TRAVIS_PULL_REQUEST_BRANCH = alpha || $TRAVIS_PULL_REQUEST_BRANCH = internal ]]; then
@@ -90,7 +102,7 @@ jobs:
   - <<: *widget_tests
 #  - <<: *integration_tests
   - stage: build
-    <<: *build
+    <<: *build_apk
   - stage: deploy
     <<: *google_play
     

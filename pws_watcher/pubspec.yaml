@@ -1,7 +1,7 @@
 name: pws_watcher
 description: Public Weather Station Watcher flutter application.
 
-version: 1.2.0+9
+version: 1.2.0+10
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
