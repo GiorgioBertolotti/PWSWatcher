@@ -80,6 +80,10 @@ google_play: &google_play
     - export PATH="$PATH:`pwd`/flutter/bin"
     - flutter doctor -v
     - flutter packages get
+    - gem update --system
+    - gem install bundler
+    - cd $TRAVIS_BUILD_DIR/pws_watcher/android
+    - bundler update --bundler
     - bundle install --retry=3 --gemfile=$TRAVIS_BUILD_DIR/pws_watcher/android/Gemfile
     - echo "$PLAY_STORE_UPLOAD_KEY" | base64 --decode > $TRAVIS_BUILD_DIR/pws_watcher/key.jks
   before_script:
