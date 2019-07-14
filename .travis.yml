@@ -80,7 +80,9 @@ google_play: &google_play
     - export PATH="$PATH:`pwd`/flutter/bin"
     - flutter doctor -v
     - flutter packages get
-    - ruby-install --binary -M https://rubies.travis-ci.org/ ruby 2.3.7
+    - curl -sSL https://get.rvm.io | bash -s stable
+    - rvm install 2.3.7
+    - rvm use 2.3.7
     - gem update --system
     - gem install bundler
     - cd $TRAVIS_BUILD_DIR/pws_watcher/android
