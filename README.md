@@ -32,14 +32,14 @@ There was already another application for the same purpose, but no updates have 
 
 Monitor source from app
 
-| **Head into settings<br />and add a new source** | **Check if the source<br />has been added** | **Select the source<br />from main page** |
-| ------------- | ------------- | ------------- |
+| **Head into settings<br />and add a new source**                                                       | **Check if the source<br />has been added**                                                              | **Select the source<br />from main page**                                                                 |
+| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | ![Add source](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/1.jpg) | ![Source added](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/2.jpg) | ![Select source](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/3.jpg) |
 
 Add a new widget
 
-| **Find the widget<br />and place it** | **Select a source<br />to monitor** | **Resize the widget** |
-| ------------- | ------------- | ------------- |
+| **Find the widget<br />and place it**                                                                        | **Select a source<br />to monitor**                                                                       | **Resize the widget**                                                                                     |
+| ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | ![Place the widget](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/4.jpg) | ![Select source](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/5.jpg) | ![Resize widget](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/6.jpg) |
 
 ## Other
