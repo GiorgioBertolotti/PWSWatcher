@@ -80,6 +80,7 @@ google_play: &google_play
     - export PATH="$PATH:`pwd`/flutter/bin"
     - flutter doctor -v
     - flutter packages get
+    - gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3
     - rvm get stable --auto-dotfiles
     - rvm install 2.3.7
     - rvm use 2.3.7
@@ -104,12 +105,12 @@ google_play: &google_play
 
 jobs:
   include:
-  - <<: *static_analysis
+#  - <<: *static_analysis
 #  - <<: *unit_tests
-  - <<: *widget_tests
+#  - <<: *widget_tests
 #  - <<: *integration_tests
-  - stage: build
-    <<: *build_apk
+#  - stage: build
+#    <<: *build_apk
   - stage: deploy
     <<: *google_play
     
