@@ -91,6 +91,7 @@ google_play: &google_play
     - bundler update --bundler
     - bundle install --retry=3 --gemfile=$TRAVIS_BUILD_DIR/pws_watcher/android/Gemfile
   before_script:
+    - cd $TRAVIS_BUILD_DIR/pws_watcher
     - echo "$PLAY_STORE_UPLOAD_KEY" | base64 --decode > $TRAVIS_BUILD_DIR/pws_watcher/key.jks
     - flutter build appbundle --release
     - cd $TRAVIS_BUILD_DIR/pws_watcher
@@ -106,12 +107,12 @@ google_play: &google_play
 
 jobs:
   include:
-#  - <<: *static_analysis
+  - <<: *static_analysis
 #  - <<: *unit_tests
-#  - <<: *widget_tests
+  - <<: *widget_tests
 #  - <<: *integration_tests
-#  - stage: build
-#    <<: *build_apk
+  - stage: build
+    <<: *build_apk
   - stage: deploy
     <<: *google_play
     
