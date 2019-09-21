@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:pws_watcher/resources/dots_indicator.dart';
 import 'package:pws_watcher/resources/state.dart';
+import 'package:pws_watcher/ui/detail.dart';
 import 'package:pws_watcher/ui/settings.dart';
 import 'package:xml/xml.dart' as xml;
 import 'package:http/http.dart' as http;
@@ -14,18 +16,17 @@ import 'dart:async';
 import 'package:flare_flutter/flare_actor.dart';
 import 'package:highlighter_coachmark/highlighter_coachmark.dart';
 
-class PWSStatusPage extends StatefulWidget {
-  PWSStatusPage({Key key, this.id = -1}) : super(key: key);
+class PWSStatePage extends StatefulWidget {
+  PWSStatePage(this.source);
 
-  final String title = "PWS Watcher";
-  final int id;
+  final Source source;
 
   @override
-  _PWSStatusPageState createState() => _PWSStatusPageState();
+  _PWSStatePageState createState() => _PWSStatePageState();
 }
 
-class _PWSStatusPageState extends State<PWSStatusPage> {
-  Source _source;
+class _PWSStatePageState extends State<PWSStatePage> {
+  Map<String, String> _sourceData;
 
   var location = "Location";
   var datetime = "--/--/---- --:--:--";
@@ -63,745 +64,567 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
   var visibilityMoonrise = true;
   var visibilityMoonset = true;
 
-  List<DropdownMenuItem<int>> _sources;
-  int _currentItem;
-  StreamSubscription _connectionChangeStream;
-  bool isOffline = false;
-
-  final GlobalKey<RefreshIndicatorState> _refreshIndicatorKey =
-      new GlobalKey<RefreshIndicatorState>();
-  final GlobalKey _dropdown = GlobalKey();
-
   @override
   void initState() {
     super.initState();
     _setVisibilities();
-    _populateSources().then((nada) {
-      if (widget.id != null && widget.id != -1) {
-        _currentItem = widget.id;
-        _getSourceData(widget.id).then((source) {
-          _source = source;
-          if (source != null) _retrieveData(source.url);
-        });
-      }
-    });
-    ConnectionStatusSingleton connectionStatus =
-        ConnectionStatusSingleton.getInstance();
-    setState(() {
-      isOffline = !connectionStatus.hasConnection;
-    });
-    _connectionChangeStream =
-        connectionStatus.connectionChange.listen(connectionChanged);
-  }
-
-  void connectionChanged(dynamic hasConnection) {
-    setState(() {
-      isOffline = !hasConnection;
-    });
-    if (hasConnection && _currentItem != null)
-      _getSourceData(_currentItem).then((source) {
-        _source = source;
-        if (source != null) _retrieveData(source.url);
-      });
+    _retrieveData(widget.source.url);
   }
 
   @override
   void dispose() {
     super.dispose();
-    _connectionChangeStream.cancel();
-  }
-
-  Future<bool> _onWillPop() {
-    return showDialog(
-          context: context,
-          builder: (context) => new AlertDialog(
-            title: new Text('Are you sure?'),
-            content: new Text('Do you want to close the app?'),
-            actions: <Widget>[
-              new FlatButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: new Text('No'),
-              ),
-              new FlatButton(
-                onPressed: () =>
-                    SystemChannels.platform.invokeMethod('SystemNavigator.pop'),
-                child: new Text('Yes'),
-              ),
-            ],
-          ),
-        ) ??
-        false;
   }
 
   @override
   Widget build(BuildContext context) {
-    if (Provider.of<ApplicationState>(context).updateSources) {
-      Provider.of<ApplicationState>(context).updateSources = false;
-      _cleanData();
-      _populateSources().then((nada) {
-        if (_currentItem != null && _currentItem != -1) {
-          _getSourceData(_currentItem).then((source) {
-            _source = source;
-            _retrieveData(source.url);
-          });
-        }
-      });
-    }
     if (Provider.of<ApplicationState>(context).updateVisibilities) {
       Provider.of<ApplicationState>(context).updateVisibilities = false;
       _setVisibilities();
     }
-    return new WillPopScope(
-      onWillPop: _onWillPop,
-      child: Scaffold(
-        backgroundColor: Colors.lightBlue,
-        body: Builder(
-          builder: (context) => Provider<ApplicationState>.value(
-            value: Provider.of<ApplicationState>(context),
-            child: SafeArea(
-              child: Center(
-                child: RefreshIndicator(
-                  color: Colors.lightBlue,
-                  backgroundColor: Colors.white,
-                  key: _refreshIndicatorKey,
-                  onRefresh: () async {
-                    if (_source != null)
-                      return await _retrieveData(_source.url);
-                    else
-                      return await _retrieveData(null);
-                  },
-                  child: ListView(
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.only(left: 10, top: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Column(
-                              children: <Widget>[
-                                new Theme(
-                                  data: Theme.of(context).copyWith(
-                                    canvasColor: Colors.blue[900],
-                                  ),
-                                  child: new DropdownButton<int>(
-                                    key: _dropdown,
-                                    iconEnabledColor: Colors.white,
-                                    value: _currentItem,
-                                    items: _sources,
-                                    onChanged: _changedSource,
-                                    elevation: 2,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      decorationColor: Colors.white,
-                                      fontSize: 22,
-                                    ),
-                                    hint: Text(
-                                      "Pick a source...",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        decorationColor: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.settings,
-                                color: Colors.white,
-                              ),
-                              padding: EdgeInsets.all(0),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (ctx) =>
-                                        Provider<ApplicationState>.value(
-                                      value: Provider.of<ApplicationState>(
-                                          context),
-                                      child: SettingsPage(),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                      isOffline
-                          ? Padding(
-                              padding: EdgeInsets.all(20),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Text(
-                                    "You are offline.",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                        fontSize: 20, color: Colors.white),
-                                  ),
-                                  Container(
-                                    height:
-                                        (MediaQuery.of(context).size.height) -
-                                            200,
-                                    width: MediaQuery.of(context).size.width,
-                                    child: FlareActor(
-                                      "assets/flare/offline.flr",
-                                      alignment: Alignment.center,
-                                      fit: BoxFit.contain,
-                                      animation: "go",
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : Padding(
-                              padding: EdgeInsets.all(20),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Text(
-                                        "$location",
-                                        maxLines: 1,
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.normal,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Text(
-                                        "$datetime",
-                                        maxLines: 1,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.normal,
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Padding(
-                                    padding:
-                                        EdgeInsets.only(top: 50, bottom: 50),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: <Widget>[
-                                        Text(
-                                          "$temperature$tempunit",
-                                          maxLines: 1,
-                                          style: TextStyle(
-                                            fontSize: 72,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.only(bottom: 10),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        visibilityWindSpeed
-                                            ? Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: <Widget>[
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        right: 10),
-                                                    child: SvgPicture.asset(
-                                                        'assets/images/windspeed.svg',
-                                                        color: Colors.white,
-                                                        width: 20,
-                                                        height: 20,
-                                                        semanticsLabel:
-                                                            'Wind speed'),
-                                                  ),
-                                                  Text(
-                                                    "$windspeed",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "$windunit",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            : new Container(),
-                                        visibilityPressure
-                                            ? Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: <Widget>[
-                                                  Text(
-                                                    "$bar",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "$barunit",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 10),
-                                                    child: SvgPicture.asset(
-                                                        'assets/images/barometer.svg',
-                                                        color: Colors.white,
-                                                        width: 20,
-                                                        height: 20,
-                                                        semanticsLabel:
-                                                            'Barometer'),
-                                                  ),
-                                                ],
-                                              )
-                                            : new Container(),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.only(bottom: 10),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        visibilityWindDirection
-                                            ? Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: <Widget>[
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        right: 10),
-                                                    child: SvgPicture.asset(
-                                                        'assets/images/winddir.svg',
-                                                        color: Colors.white,
-                                                        width: 20,
-                                                        height: 20,
-                                                        semanticsLabel:
-                                                            'Wind dir'),
-                                                  ),
-                                                  Text(
-                                                    "$winddir",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            : new Container(),
-                                        visibilityHumidity
-                                            ? Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: <Widget>[
-                                                  Text(
-                                                    "$humidity",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "$humunit",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 10),
-                                                    child: SvgPicture.asset(
-                                                        'assets/images/humidity.svg',
-                                                        color: Colors.white,
-                                                        width: 20,
-                                                        height: 20,
-                                                        semanticsLabel:
-                                                            'Humidity'),
-                                                  ),
-                                                ],
-                                              )
-                                            : new Container(),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.only(bottom: 10),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        visibilityTemperature
-                                            ? Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: <Widget>[
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        right: 10),
-                                                    child: SvgPicture.asset(
-                                                        'assets/images/temperature.svg',
-                                                        color: Colors.white,
-                                                        width: 20,
-                                                        height: 20,
-                                                        semanticsLabel:
-                                                            'Temperature'),
-                                                  ),
-                                                  Text(
-                                                    "$temperature",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "$tempunit",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            : new Container(),
-                                        visibilityWindChill
-                                            ? Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: <Widget>[
-                                                  Text(
-                                                    "$windchill",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "$degunit",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 10),
-                                                    child: SvgPicture.asset(
-                                                        'assets/images/windchill.svg',
-                                                        color: Colors.white,
-                                                        width: 20,
-                                                        height: 20,
-                                                        semanticsLabel:
-                                                            'Wind chill'),
-                                                  ),
-                                                ],
-                                              )
-                                            : new Container(),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.only(bottom: 30),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: <Widget>[
-                                        visibilityRain
-                                            ? Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: <Widget>[
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        right: 10),
-                                                    child: SvgPicture.asset(
-                                                        'assets/images/rain.svg',
-                                                        color: Colors.white,
-                                                        width: 20,
-                                                        height: 20,
-                                                        semanticsLabel: 'Rain'),
-                                                  ),
-                                                  Text(
-                                                    "$rain",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "$rainunit",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            : new Container(),
-                                        visibilityDew
-                                            ? Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: <Widget>[
-                                                  Text(
-                                                    "$dew",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 20,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    "$degunit",
-                                                    maxLines: 1,
-                                                    style: TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.normal,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 10),
-                                                    child: SvgPicture.asset(
-                                                        'assets/images/dew.svg',
-                                                        color: Colors.white,
-                                                        width: 20,
-                                                        height: 20,
-                                                        semanticsLabel:
-                                                            'Dew point'),
-                                                  ),
-                                                ],
-                                              )
-                                            : new Container(),
-                                      ],
-                                    ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-                                      visibilitySunrise
-                                          ? Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: <Widget>[
-                                                Padding(
-                                                  padding: EdgeInsets.only(
-                                                      right: 10),
-                                                  child: SvgPicture.asset(
-                                                      'assets/images/sunrise.svg',
-                                                      color: Colors.white,
-                                                      width: 18,
-                                                      height: 18,
-                                                      semanticsLabel:
-                                                          'Sunrise'),
-                                                ),
-                                                Text(
-                                                  "$sunrise",
-                                                  maxLines: 1,
-                                                  style: TextStyle(
-                                                    fontSize: 20,
-                                                    fontWeight:
-                                                        FontWeight.normal,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          : new Container(),
-                                      visibilitySunset
-                                          ? Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: <Widget>[
-                                                Padding(
-                                                  padding: EdgeInsets.only(
-                                                      right: 10),
-                                                  child: SvgPicture.asset(
-                                                      'assets/images/sunset.svg',
-                                                      color: Colors.white,
-                                                      width: 18,
-                                                      height: 18,
-                                                      semanticsLabel: 'Sunset'),
-                                                ),
-                                                Text(
-                                                  "$sunset",
-                                                  maxLines: 1,
-                                                  style: TextStyle(
-                                                    fontSize: 20,
-                                                    fontWeight:
-                                                        FontWeight.normal,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          : new Container(),
-                                      visibilityMoonrise
-                                          ? Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: <Widget>[
-                                                Padding(
-                                                  padding: EdgeInsets.only(
-                                                      right: 10),
-                                                  child: SvgPicture.asset(
-                                                      'assets/images/moonrise.svg',
-                                                      color: Colors.white,
-                                                      width: 18,
-                                                      height: 18,
-                                                      semanticsLabel:
-                                                          'Moonrise'),
-                                                ),
-                                                Text(
-                                                  "$moonrise",
-                                                  maxLines: 1,
-                                                  style: TextStyle(
-                                                    fontSize: 20,
-                                                    fontWeight:
-                                                        FontWeight.normal,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          : new Container(),
-                                      visibilityMoonset
-                                          ? Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.start,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.end,
-                                              children: <Widget>[
-                                                Padding(
-                                                  padding: EdgeInsets.only(
-                                                      right: 10),
-                                                  child: SvgPicture.asset(
-                                                      'assets/images/moonset.svg',
-                                                      color: Colors.white,
-                                                      width: 18,
-                                                      height: 18,
-                                                      semanticsLabel:
-                                                          'Moonset'),
-                                                ),
-                                                Text(
-                                                  "$moonset",
-                                                  maxLines: 1,
-                                                  style: TextStyle(
-                                                    fontSize: 20,
-                                                    fontWeight:
-                                                        FontWeight.normal,
-                                                    color: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          : new Container(),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            )
-                    ],
+    return Container(
+      padding: EdgeInsets.all(20),
+      child: Stack(
+        children: <Widget>[
+          Positioned(
+            top: 50.0,
+            right: 0.0,
+            left: 0.0,
+            child: Column(
+              children: <Widget>[
+                Text(
+                  "$location",
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 40,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
                   ),
                 ),
-              ),
+                Text(
+                  "$datetime",
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
-        ), // This trailing comma makes auto-formatting nicer for build methods.
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    "$temperature$tempunit",
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 72,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 50.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Tooltip(
+                    message: "Wind speed",
+                    child: visibilityWindSpeed
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: SvgPicture.asset(
+                                    'assets/images/windspeed.svg',
+                                    color: Colors.white,
+                                    width: 30,
+                                    height: 30,
+                                    semanticsLabel: 'Wind speed'),
+                              ),
+                              Text(
+                                "$windspeed",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                "$windunit",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ),
+                  Tooltip(
+                    message: "Pressure",
+                    child: visibilityPressure
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                "$bar",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                "$barunit",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 10),
+                                child: SvgPicture.asset(
+                                    'assets/images/barometer.svg',
+                                    color: Colors.white,
+                                    width: 30,
+                                    height: 30,
+                                    semanticsLabel: 'Barometer'),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Tooltip(
+                    message: "Wind direction",
+                    child: visibilityWindDirection
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: SvgPicture.asset(
+                                    'assets/images/winddir.svg',
+                                    color: Colors.white,
+                                    width: 30,
+                                    height: 30,
+                                    semanticsLabel: 'Wind dir'),
+                              ),
+                              Text(
+                                "$winddir",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ),
+                  Tooltip(
+                    message: "Humidity",
+                    child: visibilityHumidity
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                "$humidity",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                "$humunit",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 10),
+                                child: SvgPicture.asset(
+                                    'assets/images/humidity.svg',
+                                    color: Colors.white,
+                                    width: 30,
+                                    height: 30,
+                                    semanticsLabel: 'Humidity'),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Tooltip(
+                    message: "Temperature",
+                    child: visibilityTemperature
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: SvgPicture.asset(
+                                    'assets/images/temperature.svg',
+                                    color: Colors.white,
+                                    width: 30,
+                                    height: 30,
+                                    semanticsLabel: 'Temperature'),
+                              ),
+                              Text(
+                                "$temperature",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                "$tempunit",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ),
+                  Tooltip(
+                    message: "Wind chill",
+                    child: visibilityWindChill
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                "$windchill",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                "$degunit",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 10),
+                                child: SvgPicture.asset(
+                                    'assets/images/windchill.svg',
+                                    color: Colors.white,
+                                    width: 30,
+                                    height: 30,
+                                    semanticsLabel: 'Wind chill'),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Tooltip(
+                    message: "Rain",
+                    child: visibilityRain
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: SvgPicture.asset(
+                                    'assets/images/rain.svg',
+                                    color: Colors.white,
+                                    width: 30,
+                                    height: 30,
+                                    semanticsLabel: 'Rain'),
+                              ),
+                              Text(
+                                "$rain",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                "$rainunit",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ),
+                  Tooltip(
+                    message: "Dew",
+                    child: visibilityDew
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                "$dew",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                "$degunit",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 10),
+                                child: SvgPicture.asset('assets/images/dew.svg',
+                                    color: Colors.white,
+                                    width: 30,
+                                    height: 30,
+                                    semanticsLabel: 'Dew point'),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Tooltip(
+                    message: "Sunrise",
+                    child: visibilitySunrise
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: SvgPicture.asset(
+                                    'assets/images/sunrise.svg',
+                                    color: Colors.white,
+                                    width: 30,
+                                    height: 30,
+                                    semanticsLabel: 'Sunrise'),
+                              ),
+                              Text(
+                                "$sunrise",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ),
+                  Tooltip(
+                    message: "Moonrise",
+                    child: visibilityMoonrise
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: SvgPicture.asset(
+                                    'assets/images/moonrise.svg',
+                                    color: Colors.white,
+                                    width: 30,
+                                    height: 30,
+                                    semanticsLabel: 'Moonrise'),
+                              ),
+                              Text(
+                                "$moonrise",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Tooltip(
+                    message: "Sunset",
+                    child: visibilitySunset
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: SvgPicture.asset(
+                                    'assets/images/sunset.svg',
+                                    color: Colors.white,
+                                    width: 30,
+                                    height: 30,
+                                    semanticsLabel: 'Sunset'),
+                              ),
+                              Text(
+                                "$sunset",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ),
+                  Tooltip(
+                    message: "Moonset",
+                    child: visibilityMoonset
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: SvgPicture.asset(
+                                    'assets/images/moonset.svg',
+                                    color: Colors.white,
+                                    width: 30,
+                                    height: 30,
+                                    semanticsLabel: 'Moonset'),
+                              ),
+                              Text(
+                                "$moonset",
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Container(),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          Positioned(
+            bottom: 10.0,
+            right: 0.0,
+            left: 0.0,
+            child: Column(
+              children: <Widget>[
+                Text(
+                  "More info",
+                  maxLines: 1,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Colors.white,
+                  ),
+                  onPressed: _openDetailPage,
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  _openDetailPage() async {
+    if (_sourceData != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (ctx) => Provider<ApplicationState>.value(
+            value: Provider.of<ApplicationState>(context),
+            child: DetailPage(_sourceData),
+          ),
+        ),
+      );
+    } else {
+      showDialog(
+          context: context,
+          builder: (ctx) {
+            return AlertDialog(
+              title: Text("Error"),
+              content: Text("Can't show more informations."),
+              actions: <Widget>[
+                FlatButton(
+                  textColor: Colors.deepOrange,
+                  child: Text("Close"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            );
+          });
+    }
   }
 
   Future<Null> _setVisibilities() async {
@@ -834,125 +657,18 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
     });
   }
 
-  Future<Null> _populateSources() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<DropdownMenuItem<int>> tmp = new List();
-    List<String> sources = prefs.getStringList("sources");
-    if (sources == null || sources.length == 0) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (ctx) => Provider<ApplicationState>.value(
-            value: Provider.of<ApplicationState>(context),
-            child: SettingsPage(),
-          ),
-        ),
-      );
-      return;
-    } else {
-      var counter = 0;
-      for (String sourceJSON in sources) {
-        dynamic source = jsonDecode(sourceJSON);
-        tmp.add(new DropdownMenuItem<int>(
-          value: source["id"],
-          child: new Text(
-            source["name"],
-            style: TextStyle(color: Colors.white),
-          ),
-        ));
-        counter++;
-      }
-      setState(() {
-        _sources = tmp;
-      });
-      if (counter > 0 && !Provider.of<ApplicationState>(context).settingsOpen) {
-        SharedPreferences.getInstance().then((prefs) {
-          if ((prefs.getInt("last_used_source") ?? -1) == -1) {
-            CoachMark coachMarkFAB = CoachMark();
-            RenderBox target = _dropdown.currentContext.findRenderObject();
-            Rect markRect = target.localToGlobal(Offset.zero) & target.size;
-            markRect = Rect.fromCircle(
-                center: markRect.center, radius: markRect.longestSide * 0.6);
-            coachMarkFAB.show(
-                targetContext: _dropdown.currentContext,
-                markRect: markRect,
-                children: [
-                  Center(
-                    child: Text(
-                      "Tap here\nto select a source",
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 24.0,
-                        fontStyle: FontStyle.italic,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-                duration: null,
-                onClose: () async {
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  prefs.setBool("coach_mark_shown", true);
-                });
-          }
-        });
-      }
-    }
-  }
-
-  void _changedSource(int id) async {
-    _cleanData();
-    setState(() {
-      _currentItem = id;
-    });
-    _getSourceData(id).then((source) {
-      _source = source;
-      _retrieveData(source.url);
-    });
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setInt("last_used_source", id);
-  }
-
-  _cleanData() {
-    setState(() {
-      location = (_source != null) ? _source.name : "Location";
-      datetime = "--/--/---- --:--:--";
-      windspeed = "-";
-      bar = "-";
-      winddir = "-";
-      humidity = "-";
-      temperature = "-";
-      windchill = "-";
-      rain = "-";
-      dew = "-";
-      sunrise = "--:--";
-      sunset = "--:--";
-      moonrise = "--:--";
-      moonset = "--:--";
-      windunit = "km/h";
-      rainunit = "mm";
-      barunit = "mb";
-      tempunit = "°C";
-      degunit = "°";
-      humunit = "%";
-    });
-  }
-
-  Future<Null> _retrieveData(String url) {
+  Future<Null> _retrieveData(String url) async {
     if (url == null) return null;
     if (url.endsWith("xml")) {
       // parsing and variables assignment with realtime.xml
-      return _parseRealtimeXML(url).then((map) {
-        if (map == null) return;
-        _visualizeRealtimeXML(map);
-      });
+      _sourceData = await _parseRealtimeXML(url);
+      if (_sourceData == null) return null;
+      _visualizeRealtimeXML(_sourceData);
     } else if (url.endsWith("txt")) {
       // parsing and variables assignment with realtime.txt
-      return _parseRealtimeTXT(url).then((map) {
-        if (map == null) return;
-        _visualizeRealtimeTXT(map);
-      });
+      _sourceData = await _parseRealtimeTXT(url);
+      if (_sourceData == null) return null;
+      _visualizeRealtimeTXT(_sourceData);
     } else {
       _retrieveData(url + "/realtime.xml");
       return _retrieveData(url + "/realtime.txt");
@@ -1081,7 +797,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
         location = map["station_location"];
       else if (map.containsKey("location"))
         location = map["location"];
-      else if (_source != null) location = _source.name;
+      else if (widget.source != null) location = widget.source.name;
       try {
         var tmpDatetime = "";
         if (map.containsKey("station_date"))
@@ -1159,7 +875,7 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
 
   _visualizeRealtimeTXT(map) {
     setState(() {
-      if (_source != null) location = _source.name;
+      if (widget.source != null) location = widget.source.name;
       try {
         var tmpDatetime = "";
         if (map.containsKey("date")) tmpDatetime += " " + map["date"];
@@ -1222,27 +938,6 @@ class _PWSStatusPageState extends State<PWSStatusPage> {
         humunit = "";
       degunit = (_isNumeric(dew) ? "°" : "");
     });
-  }
-
-  Future<Source> _getSourceData(int id) async {
-    if (id != null && id != -1) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> sources = prefs.getStringList("sources");
-      Source source;
-      if (sources == null || sources.length < 1)
-        source = null;
-      else {
-        for (String sourceJSON in sources) {
-          dynamic parsed = jsonDecode(sourceJSON);
-          if (parsed["id"] == id) {
-            source = new Source(parsed["id"], parsed["name"], parsed["url"]);
-            break;
-          }
-        }
-      }
-      return source;
-    } else
-      return null;
   }
 
   bool _isNumeric(String str) {

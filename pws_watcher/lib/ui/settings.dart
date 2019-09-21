@@ -33,11 +33,12 @@ class _SettingsPageState extends State<SettingsPage> {
   var visibilityMoonset = true;
   double refreshInterval = 15;
 
-  List<Source> _sources = new List();
+  List<Source> _sources = List();
   final addNameController = TextEditingController();
   final addUrlController = TextEditingController();
   final editNameController = TextEditingController();
   final editUrlController = TextEditingController();
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   @override
   void initState() {
@@ -48,6 +49,13 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<bool> _onWillPop() async {
     //triggered on device's back button click
+    if (_sources.length == 0) {
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text(
+            "You should add a source in order to navigate to the home page."),
+      ));
+      return false;
+    }
     Provider.of<ApplicationState>(context).settingsOpen = false;
     setState(() {
       Provider.of<ApplicationState>(context).updateSources = true;
@@ -56,6 +64,13 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void closeSettings() {
+    if (_sources.length == 0) {
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Text(
+            "You should add a source in order to navigate to the home page."),
+      ));
+      return;
+    }
     //triggered on AppBar back button click
     Provider.of<ApplicationState>(context).settingsOpen = false;
     Navigator.of(context).pop(false);
@@ -66,12 +81,13 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new WillPopScope(
+    return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
+        key: _scaffoldKey,
         appBar: AppBar(
-          leading: new IconButton(
-            icon: new Icon(Icons.arrow_back, color: Colors.white),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => closeSettings(),
           ),
           backgroundColor: Colors.lightBlue,
@@ -98,8 +114,7 @@ class _SettingsPageState extends State<SettingsPage> {
             children: <Widget>[
               Card(
                 elevation: 2,
-                margin:
-                    new EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+                margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -422,8 +437,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   itemBuilder: (context, position) {
                     return Card(
                       elevation: 2,
-                      margin: new EdgeInsets.symmetric(
-                          horizontal: 10.0, vertical: 6.0),
+                      margin:
+                          EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
                       child: ListTile(
                           title: Text(
                             _sources[position].name,
@@ -479,7 +494,7 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (ctx) => Provider<ApplicationState>.value(
         value: Provider.of<ApplicationState>(context),
         child: AlertDialog(
-          title: Text("Add new source"),
+          title: Text("Add source"),
           content: Form(
             key: _addFormKey,
             child: Column(
@@ -528,26 +543,26 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
           actions: <Widget>[
-            new FlatButton(
-              child: new Text("Close"),
+            FlatButton(
+              child: Text("Close"),
               onPressed: () {
                 Navigator.of(ctx).pop();
               },
             ),
-            new FlatButton(
-              child: new Text("Add"),
+            FlatButton(
+              child: Text("Add"),
               onPressed: () async {
-                FocusScope.of(ctx).requestFocus(new FocusNode());
+                FocusScope.of(ctx).requestFocus(FocusNode());
                 if (_addFormKey.currentState.validate()) {
                   _addFormKey.currentState.save();
-                  Source source = new Source(
+                  Source source = Source(
                       Provider.of<ApplicationState>(context).countID++,
                       addNameController.text,
                       addUrlController.text);
                   SharedPreferences prefs =
                       await SharedPreferences.getInstance();
                   _sources.add(source);
-                  List<String> sourcesJSON = new List();
+                  List<String> sourcesJSON = List();
                   for (Source source in _sources) {
                     String sourceJSON = jsonEncode(source);
                     sourcesJSON.add(sourceJSON);
@@ -623,14 +638,14 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             ),
             actions: <Widget>[
-              new FlatButton(
-                child: new Text("Close"),
+              FlatButton(
+                child: Text("Close"),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
-              new FlatButton(
-                child: new Text("Edit"),
+              FlatButton(
+                child: Text("Edit"),
                 onPressed: () async {
                   if (_editFormKey.currentState.validate()) {
                     _editFormKey.currentState.save();
@@ -638,7 +653,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         await SharedPreferences.getInstance();
                     _sources[position].name = editNameController.text;
                     _sources[position].url = editUrlController.text;
-                    List<String> sourcesJSON = new List();
+                    List<String> sourcesJSON = List();
                     for (Source source in _sources) {
                       String sourceJSON = jsonEncode(source);
                       sourcesJSON.add(sourceJSON);
@@ -664,15 +679,15 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (BuildContext context) {
         // return object of type Dialog
         return AlertDialog(
-          title: new Text("Delete " + _sources[position].name + "?"),
-          content: new Text(
+          title: Text("Delete " + _sources[position].name + "?"),
+          content: Text(
               "This operation is irreversible, if you press Yes this source will be deleted. You really want to delete it?"),
           actions: <Widget>[
-            new FlatButton(
-              child: new Text("Yes"),
+            FlatButton(
+              child: Text("Yes"),
               onPressed: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
-                List<String> sourcesJSON = new List();
+                List<String> sourcesJSON = List();
                 int index = prefs.getInt("last_used_source") ?? -1;
                 if (index == _sources[position].id)
                   prefs.remove("last_used_source");
@@ -686,8 +701,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 Navigator.of(context).pop();
               },
             ),
-            new FlatButton(
-              child: new Text("Close"),
+            FlatButton(
+              child: Text("Close"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -732,7 +747,7 @@ class _SettingsPageState extends State<SettingsPage> {
   _retrieveSources() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      _sources = new List();
+      _sources = List();
       List<String> sources = prefs.getStringList("sources");
       if (sources == null || sources.length == 0) {
         _showCoachMarkFAB();
@@ -740,8 +755,7 @@ class _SettingsPageState extends State<SettingsPage> {
         for (String sourceJSON in sources) {
           try {
             dynamic source = jsonDecode(sourceJSON);
-            _sources
-                .add(new Source(source["id"], source["name"], source["url"]));
+            _sources.add(Source(source["id"], source["name"], source["url"]));
           } catch (Exception) {
             prefs.setStringList("sources", null);
           }
