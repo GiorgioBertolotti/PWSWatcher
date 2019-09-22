@@ -11,7 +11,6 @@ import 'package:flutter/services.dart';
 import 'package:pws_watcher/resources/connection_status.dart';
 import 'dart:async';
 import 'package:flare_flutter/flare_actor.dart';
-import 'package:highlighter_coachmark/highlighter_coachmark.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key key}) : super(key: key);
@@ -100,8 +99,8 @@ class _HomePageState extends State<HomePage> {
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
             colors: [
-              Colors.lightBlue[800],
-              Colors.lightBlue,
+              Provider.of<ApplicationState>(context).mainColorDark,
+              Provider.of<ApplicationState>(context).mainColor,
             ],
           ),
         ),
@@ -172,7 +171,7 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                     ),
-                    _pages.length > 1
+                    _pages.length > 1 && !isOffline
                         ? Positioned(
                             top: 20.0,
                             right: 0.0,
@@ -220,55 +219,14 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     } else {
-      var counter = 0;
       toReturn = List();
       for (String sourceJSON in sources) {
         try {
           dynamic source = jsonDecode(sourceJSON);
           toReturn.add(await _getSourceData(source["id"]));
-          counter++;
         } catch (e) {
           print(e);
         }
-      }
-      try {
-        if (counter > 0 &&
-            !Provider.of<ApplicationState>(context).settingsOpen) {
-          SharedPreferences.getInstance().then((prefs) {
-            if ((prefs.getInt("last_used_source") ?? -1) == -1) {
-              CoachMark coachMarkFAB = CoachMark();
-              RenderBox target =
-                  _dotsIndicator.currentContext.findRenderObject();
-              Rect markRect = target.localToGlobal(Offset.zero) & target.size;
-              markRect = Rect.fromCircle(
-                  center: markRect.center, radius: markRect.longestSide * 0.6);
-              coachMarkFAB.show(
-                  targetContext: _dotsIndicator.currentContext,
-                  markRect: markRect,
-                  children: [
-                    Center(
-                      child: Text(
-                        "Swipe to see other sources",
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 24.0,
-                          fontStyle: FontStyle.italic,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                  duration: null,
-                  onClose: () async {
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    prefs.setBool("coach_mark_shown", true);
-                  });
-            }
-          });
-        }
-      } catch (e) {
-        print(e);
       }
     }
     return toReturn;

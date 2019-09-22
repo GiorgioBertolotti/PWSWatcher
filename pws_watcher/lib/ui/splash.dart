@@ -39,14 +39,41 @@ class _SplashPageState extends State<SplashPage> {
 
   _loadPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    ApplicationState appState =
-        new ApplicationState(countID: prefs.getInt("count_id") ?? 0);
+    String themeStr = prefs.getString("theme") ?? "Day";
+    PWSTheme theme;
+    switch (themeStr) {
+      case "Day":
+        theme = PWSTheme.Day;
+        break;
+      case "Evening":
+        theme = PWSTheme.Evening;
+        break;
+      case "Night":
+        theme = PWSTheme.Night;
+        break;
+      case "Grey":
+        theme = PWSTheme.Grey;
+        break;
+      case "Blacked":
+        theme = PWSTheme.Blacked;
+        break;
+      default:
+        theme = PWSTheme.Day;
+        break;
+    }
+    ApplicationState appState = ApplicationState(
+      countID: prefs.getInt("count_id") ?? 0,
+      theme: theme,
+    );
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (ctx) => Provider<ApplicationState>.value(
           value: appState,
-          child: HomePage(),
+          child: Theme(
+            data: ThemeData(primarySwatch: appState.mainColor),
+            child: HomePage(),
+          ),
         ),
       ),
     );

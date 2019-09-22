@@ -32,6 +32,7 @@ class _SettingsPageState extends State<SettingsPage> {
   var visibilityMoonrise = true;
   var visibilityMoonset = true;
   double refreshInterval = 15;
+  bool _first = true;
 
   List<Source> _sources = List();
   final addNameController = TextEditingController();
@@ -39,6 +40,7 @@ class _SettingsPageState extends State<SettingsPage> {
   final editNameController = TextEditingController();
   final editUrlController = TextEditingController();
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+  var _themeSelection = [true, false, false, false, false];
 
   @override
   void initState() {
@@ -81,408 +83,581 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: _onWillPop,
-      child: Scaffold(
-        key: _scaffoldKey,
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => closeSettings(),
-          ),
-          backgroundColor: Colors.lightBlue,
-          title: Text(
-            "Settings",
-            maxLines: 1,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
+    if (_first) {
+      _first = false;
+      setState(() {
+        _themeSelection = [
+          Provider.of<ApplicationState>(context).theme == PWSTheme.Day,
+          Provider.of<ApplicationState>(context).theme == PWSTheme.Evening,
+          Provider.of<ApplicationState>(context).theme == PWSTheme.Night,
+          Provider.of<ApplicationState>(context).theme == PWSTheme.Grey,
+          Provider.of<ApplicationState>(context).theme == PWSTheme.Blacked,
+        ];
+      });
+    }
+    return Theme(
+      data: ThemeData(
+          primarySwatch: Provider.of<ApplicationState>(context).mainColor),
+      child: WillPopScope(
+        onWillPop: _onWillPop,
+        child: Scaffold(
+          key: _scaffoldKey,
+          backgroundColor: Provider.of<ApplicationState>(context).mainColorDark,
+          appBar: AppBar(
+            brightness: Brightness.dark,
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => closeSettings(),
             ),
+            backgroundColor: Provider.of<ApplicationState>(context).mainColor,
+            title: Text(
+              "Settings",
+              maxLines: 1,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            centerTitle: true,
           ),
-          centerTitle: true,
-        ),
-        floatingActionButton: FloatingActionButton.extended(
-          onPressed: _addSource,
-          elevation: 2,
-          icon: Icon(Icons.add),
-          label: Text("add"),
-          key: _fabKey,
-        ),
-        body: Builder(
-          builder: (context) => ListView(
-            children: <Widget>[
-              Card(
-                elevation: 2,
-                margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      const ListTile(
-                        title: Text(
-                          'Generic settings',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+          floatingActionButton: FloatingActionButton.extended(
+            backgroundColor:
+                Provider.of<ApplicationState>(context).theme == PWSTheme.Blacked
+                    ? Colors.white
+                    : Provider.of<ApplicationState>(context).mainColor,
+            onPressed: _addSource,
+            elevation: 2,
+            icon: Icon(
+              Icons.add,
+              color: Provider.of<ApplicationState>(context).theme ==
+                      PWSTheme.Blacked
+                  ? Colors.black
+                  : Colors.white,
+            ),
+            label: Text(
+              "add",
+              style: TextStyle(
+                color: Provider.of<ApplicationState>(context).theme ==
+                        PWSTheme.Blacked
+                    ? Colors.black
+                    : Colors.white,
+              ),
+            ),
+            key: _fabKey,
+          ),
+          body: Builder(
+            builder: (context) => ListView(
+              children: <Widget>[
+                Card(
+                  elevation: 2,
+                  margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        const ListTile(
+                          title: Text(
+                            'Theme settings',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text("Wind speed visibility"),
-                          Switch(
-                            value: visibilityWindSpeed,
-                            onChanged: (value) async {
-                              setState(() {
-                                visibilityWindSpeed = value;
-                              });
-                              Provider.of<ApplicationState>(context)
-                                  .updateVisibilities = true;
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              prefs.setBool("visibilityWindSpeed", value);
-                            },
-                            activeTrackColor: Colors.lightBlueAccent,
-                            activeColor: Colors.blue,
+                        Container(
+                          height: 60,
+                          child: ListView(
+                            scrollDirection: Axis.horizontal,
+                            children: <Widget>[
+                              ToggleButtons(
+                                children: [
+                                  _toggleButton("Day", Colors.lightBlue),
+                                  _toggleButton("Evening", Colors.deepOrange),
+                                  _toggleButton("Night", Colors.deepPurple),
+                                  _toggleButton("Grey", Colors.blueGrey),
+                                  _toggleButton("Blacked", Colors.black),
+                                ],
+                                onPressed: (int index) async {
+                                  for (int buttonIndex = 0;
+                                      buttonIndex < _themeSelection.length;
+                                      buttonIndex++) {
+                                    if (buttonIndex == index) {
+                                      _themeSelection[buttonIndex] = true;
+                                    } else {
+                                      _themeSelection[buttonIndex] = false;
+                                    }
+                                  }
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  switch (index) {
+                                    case 0:
+                                      Provider.of<ApplicationState>(context)
+                                          .setTheme(PWSTheme.Day);
+                                      prefs.setString("theme", "Day");
+                                      break;
+                                    case 1:
+                                      Provider.of<ApplicationState>(context)
+                                          .setTheme(PWSTheme.Evening);
+                                      prefs.setString("theme", "Evening");
+                                      break;
+                                    case 2:
+                                      Provider.of<ApplicationState>(context)
+                                          .setTheme(PWSTheme.Night);
+                                      prefs.setString("theme", "Night");
+                                      break;
+                                    case 3:
+                                      Provider.of<ApplicationState>(context)
+                                          .setTheme(PWSTheme.Grey);
+                                      prefs.setString("theme", "Grey");
+                                      break;
+                                    case 4:
+                                      Provider.of<ApplicationState>(context)
+                                          .setTheme(PWSTheme.Blacked);
+                                      prefs.setString("theme", "Blacked");
+                                      break;
+                                  }
+                                  setState(() {});
+                                },
+                                isSelected: _themeSelection,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text("Pressure visibility"),
-                          Switch(
-                            value: visibilityPressure,
-                            onChanged: (value) async {
-                              setState(() {
-                                visibilityPressure = value;
-                              });
-                              Provider.of<ApplicationState>(context)
-                                  .updateVisibilities = true;
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              prefs.setBool("visibilityPressure", value);
-                            },
-                            activeTrackColor: Colors.lightBlueAccent,
-                            activeColor: Colors.blue,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text("Wind direction visibility"),
-                          Switch(
-                            value: visibilityWindDirection,
-                            onChanged: (value) async {
-                              setState(() {
-                                visibilityWindDirection = value;
-                              });
-                              Provider.of<ApplicationState>(context)
-                                  .updateVisibilities = true;
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              prefs.setBool("visibilityWindDirection", value);
-                            },
-                            activeTrackColor: Colors.lightBlueAccent,
-                            activeColor: Colors.blue,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text("Humidity visibility"),
-                          Switch(
-                            value: visibilityHumidity,
-                            onChanged: (value) async {
-                              setState(() {
-                                visibilityHumidity = value;
-                              });
-                              Provider.of<ApplicationState>(context)
-                                  .updateVisibilities = true;
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              prefs.setBool("visibilityHumidity", value);
-                            },
-                            activeTrackColor: Colors.lightBlueAccent,
-                            activeColor: Colors.blue,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text("Temperature (small) visibility"),
-                          Switch(
-                            value: visibilityTemperature,
-                            onChanged: (value) async {
-                              setState(() {
-                                visibilityTemperature = value;
-                              });
-                              Provider.of<ApplicationState>(context)
-                                  .updateVisibilities = true;
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              prefs.setBool("visibilityTemperature", value);
-                            },
-                            activeTrackColor: Colors.lightBlueAccent,
-                            activeColor: Colors.blue,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text("Wind chill visibility"),
-                          Switch(
-                            value: visibilityWindChill,
-                            onChanged: (value) async {
-                              setState(() {
-                                visibilityWindChill = value;
-                              });
-                              Provider.of<ApplicationState>(context)
-                                  .updateVisibilities = true;
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              prefs.setBool("visibilityWindChill", value);
-                            },
-                            activeTrackColor: Colors.lightBlueAccent,
-                            activeColor: Colors.blue,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text("Rain visibility"),
-                          Switch(
-                            value: visibilityRain,
-                            onChanged: (value) async {
-                              setState(() {
-                                visibilityRain = value;
-                              });
-                              Provider.of<ApplicationState>(context)
-                                  .updateVisibilities = true;
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              prefs.setBool("visibilityRain", value);
-                            },
-                            activeTrackColor: Colors.lightBlueAccent,
-                            activeColor: Colors.blue,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text("Dew visibility"),
-                          Switch(
-                            value: visibilityDew,
-                            onChanged: (value) async {
-                              setState(() {
-                                visibilityDew = value;
-                              });
-                              Provider.of<ApplicationState>(context)
-                                  .updateVisibilities = true;
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              prefs.setBool("visibilityDew", value);
-                            },
-                            activeTrackColor: Colors.lightBlueAccent,
-                            activeColor: Colors.blue,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text("Sunrise hour visibility"),
-                          Switch(
-                            value: visibilitySunrise,
-                            onChanged: (value) async {
-                              setState(() {
-                                visibilitySunrise = value;
-                              });
-                              Provider.of<ApplicationState>(context)
-                                  .updateVisibilities = true;
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              prefs.setBool("visibilitySunrise", value);
-                            },
-                            activeTrackColor: Colors.lightBlueAccent,
-                            activeColor: Colors.blue,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text("Sunset hour visibility"),
-                          Switch(
-                            value: visibilitySunset,
-                            onChanged: (value) async {
-                              setState(() {
-                                visibilitySunset = value;
-                              });
-                              Provider.of<ApplicationState>(context)
-                                  .updateVisibilities = true;
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              prefs.setBool("visibilitySunset", value);
-                            },
-                            activeTrackColor: Colors.lightBlueAccent,
-                            activeColor: Colors.blue,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text("Moonrise hour visibility"),
-                          Switch(
-                            value: visibilityMoonrise,
-                            onChanged: (value) async {
-                              setState(() {
-                                visibilityMoonrise = value;
-                              });
-                              Provider.of<ApplicationState>(context)
-                                  .updateVisibilities = true;
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              prefs.setBool("visibilityMoonrise", value);
-                            },
-                            activeTrackColor: Colors.lightBlueAccent,
-                            activeColor: Colors.blue,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text("Moonset hour visibility"),
-                          Switch(
-                            value: visibilityMoonset,
-                            onChanged: (value) async {
-                              setState(() {
-                                visibilityMoonset = value;
-                              });
-                              Provider.of<ApplicationState>(context)
-                                  .updateVisibilities = true;
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
-                              prefs.setBool("visibilityMoonset", value);
-                            },
-                            activeTrackColor: Colors.lightBlueAccent,
-                            activeColor: Colors.blue,
-                          ),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text(
-                            "Widget refresh interval (min):",
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(
-                              right: 15,
-                            ),
-                            child: Text(
-                              '${refreshInterval.toInt()}',
-                              maxLines: 1,
+                        ),
+                        const ListTile(
+                          title: Text(
+                            'Generic settings',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                        ],
-                      ),
-                      Row(
-                        children: <Widget>[
-                          Flexible(
-                            flex: 1,
-                            child: Slider(
-                              value: refreshInterval,
-                              activeColor: Colors.lightBlue,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Wind speed visibility"),
+                            Switch(
+                              value: visibilityWindSpeed,
                               onChanged: (value) async {
-                                setState(() => refreshInterval = value);
+                                setState(() {
+                                  visibilityWindSpeed = value;
+                                });
+                                Provider.of<ApplicationState>(context)
+                                    .updateVisibilities = true;
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
-                                prefs.setInt(
-                                    "widget_refresh_interval", value.toInt());
+                                prefs.setBool("visibilityWindSpeed", value);
                               },
-                              min: 1,
-                              max: 60,
+                              activeTrackColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                              activeColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Pressure visibility"),
+                            Switch(
+                              value: visibilityPressure,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityPressure = value;
+                                });
+                                Provider.of<ApplicationState>(context)
+                                    .updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityPressure", value);
+                              },
+                              activeTrackColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                              activeColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Wind direction visibility"),
+                            Switch(
+                              value: visibilityWindDirection,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityWindDirection = value;
+                                });
+                                Provider.of<ApplicationState>(context)
+                                    .updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityWindDirection", value);
+                              },
+                              activeTrackColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                              activeColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Humidity visibility"),
+                            Switch(
+                              value: visibilityHumidity,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityHumidity = value;
+                                });
+                                Provider.of<ApplicationState>(context)
+                                    .updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityHumidity", value);
+                              },
+                              activeTrackColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                              activeColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Temperature (small) visibility"),
+                            Switch(
+                              value: visibilityTemperature,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityTemperature = value;
+                                });
+                                Provider.of<ApplicationState>(context)
+                                    .updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityTemperature", value);
+                              },
+                              activeTrackColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                              activeColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Wind chill visibility"),
+                            Switch(
+                              value: visibilityWindChill,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityWindChill = value;
+                                });
+                                Provider.of<ApplicationState>(context)
+                                    .updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityWindChill", value);
+                              },
+                              activeTrackColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                              activeColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Rain visibility"),
+                            Switch(
+                              value: visibilityRain,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityRain = value;
+                                });
+                                Provider.of<ApplicationState>(context)
+                                    .updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityRain", value);
+                              },
+                              activeTrackColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                              activeColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Dew visibility"),
+                            Switch(
+                              value: visibilityDew,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityDew = value;
+                                });
+                                Provider.of<ApplicationState>(context)
+                                    .updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityDew", value);
+                              },
+                              activeTrackColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                              activeColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Sunrise hour visibility"),
+                            Switch(
+                              value: visibilitySunrise,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilitySunrise = value;
+                                });
+                                Provider.of<ApplicationState>(context)
+                                    .updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilitySunrise", value);
+                              },
+                              activeTrackColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                              activeColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Sunset hour visibility"),
+                            Switch(
+                              value: visibilitySunset,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilitySunset = value;
+                                });
+                                Provider.of<ApplicationState>(context)
+                                    .updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilitySunset", value);
+                              },
+                              activeTrackColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                              activeColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Moonrise hour visibility"),
+                            Switch(
+                              value: visibilityMoonrise,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityMoonrise = value;
+                                });
+                                Provider.of<ApplicationState>(context)
+                                    .updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityMoonrise", value);
+                              },
+                              activeTrackColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                              activeColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Moonset hour visibility"),
+                            Switch(
+                              value: visibilityMoonset,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityMoonset = value;
+                                });
+                                Provider.of<ApplicationState>(context)
+                                    .updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityMoonset", value);
+                              },
+                              activeTrackColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                              activeColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 15.0),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text(
+                              "Widget refresh interval (min):",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            Container(
+                              margin: EdgeInsets.only(
+                                right: 15,
+                              ),
+                              child: Text(
+                                '${refreshInterval.toInt()}',
+                                maxLines: 1,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Flexible(
+                              flex: 1,
+                              child: Slider(
+                                value: refreshInterval,
+                                activeColor:
+                                    Provider.of<ApplicationState>(context)
+                                        .mainColor,
+                                onChanged: (value) async {
+                                  setState(() => refreshInterval = value);
+                                  SharedPreferences prefs =
+                                      await SharedPreferences.getInstance();
+                                  prefs.setInt(
+                                      "widget_refresh_interval", value.toInt());
+                                },
+                                min: 1,
+                                max: 60,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const Divider(),
-              Padding(
-                padding: EdgeInsets.only(bottom: 65),
-                child: ListView.builder(
-                  physics: ScrollPhysics(),
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: _sources.length,
-                  itemBuilder: (context, position) {
-                    return Card(
-                      elevation: 2,
-                      margin:
-                          EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
-                      child: ListTile(
-                          title: Text(
-                            _sources[position].name,
-                            style: TextStyle(fontSize: 20.0),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          subtitle: Text(
-                            _sources[position].url,
-                            style: TextStyle(fontSize: 12.0),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          trailing: Container(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.edit,
-                                    color: Colors.lightBlue[700],
-                                  ),
-                                  onPressed: () {
-                                    _editSource(position);
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.delete,
-                                    color: Colors.red[700],
-                                  ),
-                                  onPressed: () {
-                                    _deleteSource(position);
-                                  },
-                                ),
-                              ],
+                const Divider(),
+                Padding(
+                  padding: EdgeInsets.only(bottom: 65),
+                  child: ListView.builder(
+                    physics: ScrollPhysics(),
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    itemCount: _sources.length,
+                    itemBuilder: (context, position) {
+                      return Card(
+                        elevation: 2,
+                        margin: EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 6.0),
+                        child: ListTile(
+                            title: Text(
+                              _sources[position].name,
+                              style: TextStyle(fontSize: 20.0),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          )),
-                    );
-                  },
-                ),
-              )
-            ],
+                            subtitle: Text(
+                              _sources[position].url,
+                              style: TextStyle(fontSize: 12.0),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: Container(
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.edit,
+                                      color:
+                                          Provider.of<ApplicationState>(context)
+                                              .mainColorDark,
+                                    ),
+                                    onPressed: () {
+                                      _editSource(position);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.delete,
+                                      color: Colors.red[700],
+                                    ),
+                                    onPressed: () {
+                                      _deleteSource(position);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            )),
+                      );
+                    },
+                  ),
+                )
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _toggleButton(String tooltip, Color color) {
+    return Tooltip(
+      message: tooltip,
+      child: Container(
+        margin: EdgeInsets.all(8.0),
+        width: 30.0,
+        height: 30.0,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
         ),
       ),
     );
