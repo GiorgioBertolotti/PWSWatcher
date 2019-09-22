@@ -3,7 +3,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:pws_watcher/resources/state.dart';
 import 'package:pws_watcher/ui/home.dart';
-import 'package:pws_watcher/ui/pws_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends StatefulWidget {

@@ -1,20 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:pws_watcher/resources/dots_indicator.dart';
 import 'package:pws_watcher/resources/state.dart';
 import 'package:pws_watcher/ui/detail.dart';
-import 'package:pws_watcher/ui/settings.dart';
 import 'package:xml/xml.dart' as xml;
 import 'package:http/http.dart' as http;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pws_watcher/model/source.dart';
-import 'dart:convert';
-import 'package:flutter/services.dart';
-import 'package:pws_watcher/resources/connection_status.dart';
 import 'dart:async';
-import 'package:flare_flutter/flare_actor.dart';
-import 'package:highlighter_coachmark/highlighter_coachmark.dart';
 
 class PWSStatePage extends StatefulWidget {
   PWSStatePage(this.source);
