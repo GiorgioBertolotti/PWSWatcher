@@ -1015,7 +1015,9 @@ class _SettingsPageState extends State<SettingsPage>
           try {
             dynamic source = jsonDecode(sourceJSON);
             _sources.add(Source(source["id"], source["name"], source["url"],
-                autoUpdateInterval: source["autoUpdateInterval"]));
+                autoUpdateInterval: (source["autoUpdateInterval"] != null)
+                    ? source["autoUpdateInterval"]
+                    : 0));
           } catch (Exception) {
             prefs.setStringList("sources", null);
           }

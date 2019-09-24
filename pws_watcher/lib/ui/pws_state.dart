@@ -67,7 +67,7 @@ class _PWSStatePageState extends State<PWSStatePage>
     _source = widget.source;
     _setVisibilities();
     _retrieveData(_source.url);
-    if (_source.autoUpdateInterval != 0) {
+    if (_source.autoUpdateInterval != null && _source.autoUpdateInterval != 0) {
       startTimer();
     }
   }
@@ -116,13 +116,14 @@ class _PWSStatePageState extends State<PWSStatePage>
     }
     if (!this._source.isEqual(widget.source)) {
       this._source = widget.source;
-      if (this._source.autoUpdateInterval != 0) {
+      if (this._source.autoUpdateInterval != null &&
+          this._source.autoUpdateInterval != 0) {
         restartTimer();
       }
     }
     return Stack(
       children: <Widget>[
-        (_source.autoUpdateInterval == 0)
+        (_source.autoUpdateInterval != null && _source.autoUpdateInterval == 0)
             ? Positioned(
                 top: 0.0,
                 left: 0.0,
