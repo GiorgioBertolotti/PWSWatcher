@@ -2,14 +2,23 @@ class Source {
   int id;
   String name;
   String url;
+  int autoUpdateInterval;
 
-  Source(id, name, url) {
-    this.id = id;
-    this.name = name;
-    this.url = url;
-  }
+  Source(this.id, this.name, this.url, {this.autoUpdateInterval = 0});
 
   toJson() {
-    return {'id': id, 'name': this.name, 'url': this.url};
+    return {
+      'id': this.id,
+      'name': this.name,
+      'url': this.url,
+      'autoUpdateInterval': this.autoUpdateInterval
+    };
+  }
+
+  bool isEqual(Source other) {
+    return this.id == other.id &&
+        this.name == other.name &&
+        this.url == other.url &&
+        this.autoUpdateInterval == other.autoUpdateInterval;
   }
 }

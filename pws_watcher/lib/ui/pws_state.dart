@@ -18,8 +18,11 @@ class PWSStatePage extends StatefulWidget {
   _PWSStatePageState createState() => _PWSStatePageState();
 }
 
-class _PWSStatePageState extends State<PWSStatePage> {
+class _PWSStatePageState extends State<PWSStatePage>
+    with TickerProviderStateMixin {
   Map<String, String> _sourceData;
+  AnimationController _controller;
+  Source _source;
 
   var location = "Location";
   var datetime = "--/--/---- --:--:--";
@@ -44,6 +47,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
   var degunit = "°";
   var humunit = "%";
 
+  var visibilityUpdateTimer = true;
   var visibilityWindSpeed = true;
   var visibilityPressure = true;
   var visibilityWindDirection = true;
@@ -60,12 +64,47 @@ class _PWSStatePageState extends State<PWSStatePage> {
   @override
   void initState() {
     super.initState();
+    _source = widget.source;
     _setVisibilities();
-    _retrieveData(widget.source.url);
+    _retrieveData(_source.url);
+    if (_source.autoUpdateInterval != 0) {
+      startTimer();
+    }
+  }
+
+  void startTimer() {
+    _controller = AnimationController(
+      duration: Duration(seconds: _source.autoUpdateInterval),
+      vsync: this,
+    );
+    _controller.addListener(() {
+      if (_controller.value > 0.99) {
+        _retrieveData(_source.url);
+      }
+    });
+    _controller.repeat();
+  }
+
+  void restartTimer() {
+    if (_controller != null) {
+      _controller.stop();
+      _controller.dispose();
+    }
+    _controller = AnimationController(
+      duration: Duration(seconds: _source.autoUpdateInterval),
+      vsync: this,
+    );
+    _controller.addListener(() {
+      if (_controller.value > 0.99) {
+        _retrieveData(_source.url);
+      }
+    });
+    _controller.repeat();
   }
 
   @override
   void dispose() {
+    if (_controller != null) _controller.dispose();
     super.dispose();
   }
 
@@ -75,38 +114,83 @@ class _PWSStatePageState extends State<PWSStatePage> {
       Provider.of<ApplicationState>(context).updateVisibilities = false;
       _setVisibilities();
     }
-    return Container(
-      padding: EdgeInsets.all(20),
-      child: Stack(
-        children: <Widget>[
-          Positioned(
-            top: 50.0,
-            right: 0.0,
-            left: 0.0,
-            child: Column(
-              children: <Widget>[
-                Text(
-                  "$location",
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.w900,
+    if (!this._source.isEqual(widget.source)) {
+      this._source = widget.source;
+      if (this._source.autoUpdateInterval != 0) {
+        restartTimer();
+      }
+    }
+    return Stack(
+      children: <Widget>[
+        (_source.autoUpdateInterval == 0)
+            ? Positioned(
+                top: 0.0,
+                left: 0.0,
+                child: IconButton(
+                  tooltip: "Update",
+                  icon: Icon(
+                    Icons.refresh,
                     color: Colors.white,
                   ),
+                  padding: EdgeInsets.all(0),
+                  onPressed: () {
+                    _retrieveData(_source.url);
+                  },
                 ),
-                Text(
-                  "$datetime",
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.normal,
-                    color: Colors.white,
-                  ),
+              )
+            : visibilityUpdateTimer
+                ? Positioned(
+                    top: 0.0,
+                    left: 0.0,
+                    child: Tooltip(
+                      message: "Update timer",
+                      child: Container(
+                        margin: EdgeInsets.all(16.0),
+                        width: 16.0,
+                        height: 16.0,
+                        child: AnimatedBuilder(
+                            animation: _controller,
+                            builder: (context, snapshot) {
+                              return CircularProgressIndicator(
+                                value: _controller.value,
+                                strokeWidth: 2.5,
+                                backgroundColor: Colors.white,
+                              );
+                            }),
+                      ),
+                    ),
+                  )
+                : Container(),
+        Positioned(
+          top: 50.0,
+          right: 0.0,
+          left: 0.0,
+          child: Column(
+            children: <Widget>[
+              Text(
+                "$location",
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 40,
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
                 ),
-              ],
-            ),
+              ),
+              Text(
+                "$datetime",
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.white,
+                ),
+              ),
+            ],
           ),
-          Center(
+        ),
+        Container(
+          padding: EdgeInsets.all(20),
+          child: Center(
             child: ListView(
               physics: BouncingScrollPhysics(),
               shrinkWrap: true,
@@ -563,10 +647,13 @@ class _PWSStatePageState extends State<PWSStatePage> {
               ],
             ),
           ),
-          Positioned(
-            bottom: 10.0,
-            right: 0.0,
-            left: 0.0,
+        ),
+        Positioned(
+          bottom: 10.0,
+          right: 0.0,
+          left: 0.0,
+          child: Container(
+            padding: EdgeInsets.all(20),
             child: Column(
               children: <Widget>[
                 Text(
@@ -587,8 +674,8 @@ class _PWSStatePageState extends State<PWSStatePage> {
               ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -627,6 +714,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
   Future<Null> _setVisibilities() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
+      visibilityUpdateTimer = prefs.getBool("visibilityUpdateTimer");
       visibilityWindSpeed = prefs.getBool("visibilityWindSpeed");
       visibilityPressure = prefs.getBool("visibilityPressure");
       visibilityWindDirection = prefs.getBool("visibilityWindDirection");
@@ -639,6 +727,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
       visibilitySunset = prefs.getBool("visibilitySunset");
       visibilityMoonrise = prefs.getBool("visibilityMoonrise");
       visibilityMoonset = prefs.getBool("visibilityMoonset");
+      visibilityUpdateTimer ??= true;
       visibilityWindSpeed ??= true;
       visibilityPressure ??= true;
       visibilityWindDirection ??= true;
@@ -654,22 +743,33 @@ class _PWSStatePageState extends State<PWSStatePage> {
     });
   }
 
-  Future<Null> _retrieveData(String url) async {
+  bool _isRetrieving = false;
+
+  Future<Null> _retrieveData(String url, {bool force = false}) async {
+    if (!force && _isRetrieving) return null;
+    _isRetrieving = true;
     if (url == null) return null;
     if (url.endsWith("xml")) {
       // parsing and variables assignment with realtime.xml
       _sourceData = await _parseRealtimeXML(url);
-      if (_sourceData == null) return null;
+      if (_sourceData == null) {
+        _isRetrieving = false;
+        return null;
+      }
       _visualizeRealtimeXML(_sourceData);
     } else if (url.endsWith("txt")) {
       // parsing and variables assignment with realtime.txt
       _sourceData = await _parseRealtimeTXT(url);
-      if (_sourceData == null) return null;
+      if (_sourceData == null) {
+        _isRetrieving = false;
+        return null;
+      }
       _visualizeRealtimeTXT(_sourceData);
     } else {
       _retrieveData(url + "/realtime.xml");
-      return _retrieveData(url + "/realtime.txt");
+      return _retrieveData(url + "/realtime.txt", force: true);
     }
+    _isRetrieving = false;
   }
 
   Future<Map<String, String>> _parseRealtimeXML(String url) async {
@@ -795,7 +895,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
           location = map["station_location"];
         else if (map.containsKey("location"))
           location = map["location"];
-        else if (widget.source != null) location = widget.source.name;
+        else if (_source != null) location = _source.name;
         try {
           var tmpDatetime = "";
           if (map.containsKey("station_date"))
@@ -876,7 +976,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
   _visualizeRealtimeTXT(map) {
     try {
       setState(() {
-        if (widget.source != null) location = widget.source.name;
+        if (_source != null) location = _source.name;
         try {
           var tmpDatetime = "";
           if (map.containsKey("date")) tmpDatetime += " " + map["date"];

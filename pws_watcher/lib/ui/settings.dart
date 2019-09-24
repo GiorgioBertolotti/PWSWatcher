@@ -14,11 +14,13 @@ class SettingsPage extends StatefulWidget {
   _SettingsPageState createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends State<SettingsPage>
+    with TickerProviderStateMixin {
   final GlobalKey<FormState> _fabKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _addFormKey = GlobalKey<FormState>();
   final GlobalKey<FormState> _editFormKey = GlobalKey<FormState>();
 
+  var visibilityUpdateTimer = true;
   var visibilityWindSpeed = true;
   var visibilityPressure = true;
   var visibilityWindDirection = true;
@@ -35,10 +37,12 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _first = true;
 
   List<Source> _sources = List();
-  final addNameController = TextEditingController();
-  final addUrlController = TextEditingController();
-  final editNameController = TextEditingController();
-  final editUrlController = TextEditingController();
+  final _addNameController = TextEditingController();
+  final _addUrlController = TextEditingController();
+  final _addIntervalController = TextEditingController();
+  final _editNameController = TextEditingController();
+  final _editUrlController = TextEditingController();
+  final _editIntervalController = TextEditingController();
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   var _themeSelection = [true, false, false, false, false];
 
@@ -236,6 +240,31 @@ class _SettingsPageState extends State<SettingsPage> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: <Widget>[
+                            Text("Update timer visibility"),
+                            Switch(
+                              value: visibilityUpdateTimer,
+                              onChanged: (value) async {
+                                setState(() {
+                                  visibilityUpdateTimer = value;
+                                });
+                                Provider.of<ApplicationState>(context)
+                                    .updateVisibilities = true;
+                                SharedPreferences prefs =
+                                    await SharedPreferences.getInstance();
+                                prefs.setBool("visibilityUpdateTimer", value);
+                              },
+                              activeTrackColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                              activeColor:
+                                  Provider.of<ApplicationState>(context)
+                                      .mainColor,
+                            ),
+                          ],
                         ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -678,7 +707,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 Padding(
                   padding: EdgeInsets.all(8.0),
                   child: TextFormField(
-                    controller: addNameController,
+                    controller: _addNameController,
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 18,
@@ -698,7 +727,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   padding: EdgeInsets.all(8.0),
                   child: TextFormField(
                     keyboardType: TextInputType.url,
-                    controller: addUrlController,
+                    controller: _addUrlController,
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 18,
@@ -710,6 +739,29 @@ class _SettingsPageState extends State<SettingsPage> {
                     },
                     decoration: InputDecoration.collapsed(
                         hintText: "Realtime file URL",
+                        border: UnderlineInputBorder()),
+                    maxLines: 1,
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: TextFormField(
+                    keyboardType: TextInputType.number,
+                    controller: _addIntervalController,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                    ),
+                    validator: (value) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          int.tryParse(value) == null ||
+                          int.tryParse(value) < 0)
+                        return "Please set a valid interval.";
+                      return null;
+                    },
+                    decoration: InputDecoration.collapsed(
+                        hintText: "Refresh interval (sec).",
                         border: UnderlineInputBorder()),
                     maxLines: 1,
                   ),
@@ -732,8 +784,10 @@ class _SettingsPageState extends State<SettingsPage> {
                   _addFormKey.currentState.save();
                   Source source = Source(
                       Provider.of<ApplicationState>(context).countID++,
-                      addNameController.text,
-                      addUrlController.text);
+                      _addNameController.text,
+                      _addUrlController.text,
+                      autoUpdateInterval:
+                          int.parse(_addIntervalController.text));
                   SharedPreferences prefs =
                       await SharedPreferences.getInstance();
                   _sources.add(source);
@@ -754,8 +808,9 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
       ),
     );
-    addNameController.text = "";
-    addUrlController.text = "";
+    _addNameController.text = "";
+    _addUrlController.text = "";
+    _addIntervalController.text = "";
   }
 
   _editSource(int position) {
@@ -772,7 +827,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   Padding(
                     padding: EdgeInsets.all(8.0),
                     child: TextFormField(
-                      controller: editNameController,
+                      controller: _editNameController,
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 18,
@@ -792,7 +847,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     padding: EdgeInsets.all(8.0),
                     child: TextFormField(
                       keyboardType: TextInputType.url,
-                      controller: editUrlController,
+                      controller: _editUrlController,
                       style: TextStyle(
                         color: Colors.black,
                         fontSize: 18,
@@ -806,6 +861,29 @@ class _SettingsPageState extends State<SettingsPage> {
                         hintText: "Realtime file URL",
                         border: UnderlineInputBorder(),
                       ),
+                      maxLines: 1,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: TextFormField(
+                      keyboardType: TextInputType.number,
+                      controller: _editIntervalController,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                      ),
+                      validator: (value) {
+                        if (value == null ||
+                            value.isEmpty ||
+                            int.tryParse(value) == null ||
+                            int.tryParse(value) < 0)
+                          return "Please set a valid interval.";
+                        return null;
+                      },
+                      decoration: InputDecoration.collapsed(
+                          hintText: "Refresh interval (sec).",
+                          border: UnderlineInputBorder()),
                       maxLines: 1,
                     ),
                   ),
@@ -826,8 +904,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     _editFormKey.currentState.save();
                     SharedPreferences prefs =
                         await SharedPreferences.getInstance();
-                    _sources[position].name = editNameController.text;
-                    _sources[position].url = editUrlController.text;
+                    _sources[position].name = _editNameController.text;
+                    _sources[position].url = _editUrlController.text;
+                    _sources[position].autoUpdateInterval =
+                        int.parse(_editIntervalController.text);
                     List<String> sourcesJSON = List();
                     for (Source source in _sources) {
                       String sourceJSON = jsonEncode(source);
@@ -843,8 +923,10 @@ class _SettingsPageState extends State<SettingsPage> {
           );
         });
     setState(() {
-      editNameController.text = _sources[position].name;
-      editUrlController.text = _sources[position].url;
+      _editNameController.text = _sources[position].name;
+      _editUrlController.text = _sources[position].url;
+      _editIntervalController.text =
+          _sources[position].autoUpdateInterval.toString();
     });
   }
 
@@ -891,6 +973,7 @@ class _SettingsPageState extends State<SettingsPage> {
   Future<Null> _getSettings() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
+      visibilityUpdateTimer = prefs.getBool("visibilityUpdateTimer");
       visibilityWindSpeed = prefs.getBool("visibilityWindSpeed");
       visibilityPressure = prefs.getBool("visibilityPressure");
       visibilityWindDirection = prefs.getBool("visibilityWindDirection");
@@ -903,6 +986,7 @@ class _SettingsPageState extends State<SettingsPage> {
       visibilitySunset = prefs.getBool("visibilitySunset");
       visibilityMoonrise = prefs.getBool("visibilityMoonrise");
       visibilityMoonset = prefs.getBool("visibilityMoonset");
+      visibilityUpdateTimer ??= true;
       visibilityWindSpeed ??= true;
       visibilityPressure ??= true;
       visibilityWindDirection ??= true;
@@ -930,7 +1014,8 @@ class _SettingsPageState extends State<SettingsPage> {
         for (String sourceJSON in sources) {
           try {
             dynamic source = jsonDecode(sourceJSON);
-            _sources.add(Source(source["id"], source["name"], source["url"]));
+            _sources.add(Source(source["id"], source["name"], source["url"],
+                autoUpdateInterval: source["autoUpdateInterval"]));
           } catch (Exception) {
             prefs.setStringList("sources", null);
           }

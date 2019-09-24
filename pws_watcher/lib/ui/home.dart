@@ -243,7 +243,8 @@ class _HomePageState extends State<HomePage> {
         for (String sourceJSON in sources) {
           dynamic parsed = jsonDecode(sourceJSON);
           if (parsed["id"] == id) {
-            source = Source(parsed["id"], parsed["name"], parsed["url"]);
+            source = Source(parsed["id"], parsed["name"], parsed["url"],
+                autoUpdateInterval: parsed["autoUpdateInterval"]);
             break;
           }
         }
