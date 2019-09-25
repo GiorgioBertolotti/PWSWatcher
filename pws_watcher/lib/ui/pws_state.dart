@@ -152,10 +152,17 @@ class _PWSStatePageState extends State<PWSStatePage>
                         child: AnimatedBuilder(
                             animation: _controller,
                             builder: (context, snapshot) {
-                              return CircularProgressIndicator(
-                                value: _controller.value,
-                                strokeWidth: 2.5,
-                                backgroundColor: Colors.white,
+                              return Theme(
+                                data: ThemeData(
+                                  primarySwatch:
+                                      Provider.of<ApplicationState>(context)
+                                          .mainColor,
+                                ),
+                                child: CircularProgressIndicator(
+                                  value: _controller.value,
+                                  strokeWidth: 2.5,
+                                  backgroundColor: Colors.white,
+                                ),
                               );
                             }),
                       ),
