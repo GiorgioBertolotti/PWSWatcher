@@ -1,6 +1,11 @@
+<p align="center"><a href="https://bertolotti.dev/PWSWatcher"><img height="125px" width="125px" src="./pws_watcher/assets/images/icon.svg" alt="PWSWatcher"/></a></p>
+
 # PWSWatcher
 
 [![Build Status](https://travis-ci.com/GiorgioBertolotti/PWSWatcher.svg?branch=master)](https://travis-ci.com/GiorgioBertolotti/PWSWatcher)
+[![Stars](https://img.shields.io/github/stars/GiorgioBertolotti/PWSWatcher.svg)](https://github.com/GiorgioBertolotti/PWSWatcher/stargazers)
+[![Forks](https://img.shields.io/github/forks/GiorgioBertolotti/PWSWatcher.svg)](https://github.com/GiorgioBertolotti/PWSWatcher/network/members)
+[![Issues](https://img.shields.io/github/issues/GiorgioBertolotti/PWSWatcher.svg)](https://github.com/GiorgioBertolotti/PWSWatcher/issues)
 
 ## Why?
 
@@ -9,15 +14,15 @@ There was already another application for the same purpose, but no updates have 
 
 ## Table of contents
 
-- [PWSWatcher](#PWSWatcher)
-  - [Why?](#Why)
-  - [Table of contents](#Table-of-contents)
-  - [Getting started](#Getting-started)
-    - [Download](#Download)
-    - [Usage](#Usage)
-  - [Other](#Other)
-    - [Contact](#Contact)
-    - [Credits](#Credits)
+- [PWSWatcher](#pwswatcher)
+  - [Why?](#why)
+  - [Table of contents](#table-of-contents)
+  - [Getting started](#getting-started)
+    - [Download](#download)
+    - [Usage](#usage)
+  - [Other](#other)
+    - [Contact](#contact)
+    - [Credits](#credits)
 
 ## Getting started
 
