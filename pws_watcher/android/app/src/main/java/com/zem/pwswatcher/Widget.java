@@ -48,6 +48,11 @@ import static com.zem.pwswatcher.WidgetConfigurationActivity.SHARED_PREFERENCES_
 
 public class Widget extends AppWidgetProvider {
     static final String UPDATE_FILTER = "com.zem.pwswatcher.UPDATE";
+    static String prefWindUnit = "km/h";
+    static String prefRainUnit = "mm";
+    static String prefPressUnit = "mb";
+    static String prefTempUnit = "°C";
+    static String prefDewUnit = "°C";
 
     private void updateWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle widgetInfo) {
         int minWidth = widgetInfo.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
@@ -96,6 +101,11 @@ public class Widget extends AppWidgetProvider {
             SharedPreferences sharedPrefs = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
             for (int i = 0; i < widgetNum; i++) {
                 String sourceJSON = sharedPrefs.getString("widget_" + widgetId[i], null);
+                Widget.prefWindUnit = sharedPrefs.getString("flutter.prefWindUnit", "km/h");
+                Widget.prefRainUnit= sharedPrefs.getString("flutter.prefRainUnit", "mm");
+                Widget.prefPressUnit= sharedPrefs.getString("flutter.prefPressUnit", "mb");
+                Widget.prefTempUnit= sharedPrefs.getString("flutter.prefTempUnit", "°C");
+                Widget.prefDewUnit= sharedPrefs.getString("flutter.prefDewUnit", "°C");
                 if (sourceJSON != null) {
                     Source source = null;
                     try {
@@ -171,7 +181,9 @@ public class Widget extends AppWidgetProvider {
             RemoteViews view = new RemoteViews(context.getPackageName(), R.layout.widget);
             boolean done = false;
             try {
-                if (this.source.getUrl().endsWith(".txt")) {
+                if (this.source.getUrl().endsWith("clientraw.txt")) {
+                    done = visualizeClientRawTXT(resp, view);
+                } else if (this.source.getUrl().endsWith(".txt")) {
                     done = visualizeRealtimeTXT(resp, view);
                 } else if (this.source.getUrl().endsWith(".xml")) {
                     done = visualizeRealtimeXML(resp, view);
@@ -183,6 +195,33 @@ public class Widget extends AppWidgetProvider {
                 AppWidgetManager manager = AppWidgetManager.getInstance(context);
                 manager.updateAppWidget(this.id, view);
             }
+        }
+
+        private boolean visualizeClientRawTXT(String resp, RemoteViews view) {
+            try {
+                String[] values = resp.split(" ");
+                view.setTextViewText(R.id.tv_location, this.source.getName());
+                view.setTextViewText(R.id.tv_temperature, convertTemperature(Double.parseDouble(values[4]), "°C", Widget.prefTempUnit) + Widget.prefTempUnit);
+                view.setTextViewText(R.id.tv_humidity, values[5] + "%");
+                view.setTextViewText(R.id.tv_pressure, convertPressure(Double.parseDouble(values[6]), "hPa", Widget.prefPressUnit) + Widget.prefPressUnit);
+                view.setTextViewText(R.id.tv_rain, convertRain(Double.parseDouble(values[7]), "mm", Widget.prefRainUnit) + Widget.prefRainUnit);
+                view.setTextViewText(R.id.tv_windspeed, convertWindSpeed(Double.parseDouble(values[2]), "kts", Widget.prefWindUnit) + Widget.prefWindUnit);
+                String stringDate = null;
+                try {
+                    String date = values[74] + " " + values[29]+ ":" + values[30]+ ":" + values[31];
+                    date = date.trim().replace("/", "-").replace(".", "-");
+                    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+                    Date newDate = format.parse(date);
+                    stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                } catch (Exception e) {
+                    String date = values[74] + " " + values[29]+ ":" + values[30]+ ":" + values[31];
+                    stringDate = date.trim().replace("/", "-").replace(".", "-");
+                }
+                view.setTextViewText(R.id.tv_datetime, stringDate);
+                return true;
+            } catch (Exception ignored) {
+            }
+            return false;
         }
 
         private boolean visualizeRealtimeTXT(String resp, RemoteViews view) {
@@ -300,6 +339,185 @@ public class Widget extends AppWidgetProvider {
                 e.printStackTrace();
             }
             return false;
+        }
+
+        private double convertWindSpeed(double value, String unit, String preferred) {
+            double kmh = 0.0;
+            switch (unit.trim().replaceAll("/", "").toLowerCase()) {
+            case "kts":
+                {
+                kmh = ktsToKmh(value);
+                break;
+                }
+            case "mph":
+                {
+                kmh = mphToKmh(value);
+                break;
+                }
+            case "ms":
+                {
+                kmh = msToKmh(value);
+                break;
+                }
+            default:
+                {
+                kmh = value;
+                break;
+                }
+            }
+            double toReturn = 0.0;
+            switch (preferred.trim().replaceAll("/", "").toLowerCase()) {
+            case "kts":
+                {
+                toReturn = roundTo2Decimal(kmhToKts(kmh));
+                break;
+                }
+            case "mph":
+                {
+                toReturn = roundTo2Decimal(kmhToMph(kmh));
+                break;
+                }
+            case "ms":
+                {
+                toReturn = roundTo2Decimal(kmhToMs(kmh));
+                break;
+                }
+            default:
+                {
+                toReturn = roundTo2Decimal(kmh);
+                break;
+                }
+            }
+            return toReturn;
+        }
+
+        private double convertRain(double value, String unit, String preferred) {
+            double toReturn = 0.0;
+            if (unit.trim().replaceAll("/", "").toLowerCase() != preferred.trim().replaceAll("/", "").toLowerCase()) {
+                if (unit.trim().replaceAll("/", "").toLowerCase() == "mm") {
+                    toReturn = roundTo2Decimal(mmToIn(value));
+                } else {
+                    toReturn = roundTo2Decimal(inToMm(value));
+                }
+            } else
+                toReturn = value;
+            return toReturn;
+        }
+
+        private double convertPressure(double value, String unit, String preferred) {
+            double hPa;
+            switch (unit.trim().replaceAll("/", "").toLowerCase()) {
+            case "inhg":
+                {
+                hPa = inhgToHPa(value);
+                break;
+                }
+            case "mb":
+                {
+                hPa = mbToHPa(value);
+                break;
+                }
+            default:
+                {
+                hPa = value;
+                break;
+                }
+            }
+            double toReturn = 0.0;
+            switch (preferred.trim().replaceAll("/", "").toLowerCase()) {
+            case "inhg":
+                {
+                toReturn = roundTo2Decimal(hPaToInhg(hPa));
+                break;
+                }
+            case "mb":
+                {
+                toReturn = roundTo2Decimal(hPaToMb(hPa));
+                break;
+                }
+            default:
+                {
+                toReturn = roundTo2Decimal(hPa);
+                break;
+                }
+            }
+            return toReturn;
+        }
+
+        private double convertTemperature(double value, String unit, String preferred) {
+            double toReturn = 0.0;
+            String newUnit = unit.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase();
+            String newPref = preferred.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase();
+            if (newUnit.charAt(newUnit.length() - 1) != newPref.charAt(newPref.length() - 1)) {
+                if (newUnit.charAt(newUnit.length() - 1) == 'f') {
+                    toReturn = roundTo2Decimal(fToC(value));
+                } else {
+                    toReturn = roundTo2Decimal(cToF(value));
+                }
+            } else {
+                toReturn = value;
+            }
+            return toReturn;
+        }
+
+        double roundTo2Decimal(double value) {
+            return (double) Math.round(value * 100d) / 100d;
+        }
+
+        double ktsToKmh(double kts) {
+            return kts * 1.852;
+        }
+
+        double mphToKmh(double mph) {
+            return mph * 1.60934;
+        }
+
+        double msToKmh(double ms) {
+            return ms * 3.6;
+        }
+
+        double kmhToKts(double kmh) {
+            return kmh / 1.852;
+        }
+
+        double kmhToMph(double kmh) {
+            return kmh / 1.60934;
+        }
+
+        double kmhToMs(double kmh) {
+            return kmh / 3.6;
+        }
+
+        double mmToIn(double mm) {
+            return mm / 25.4;
+        }
+
+        double inToMm(double inc) {
+            return inc * 25.4;
+        }
+
+        double inhgToHPa(double inhg) {
+            return inhg * 33.86389;
+        }
+
+        double mbToHPa(double mb) {
+            return mb;
+        }
+
+        double hPaToInhg(double pa) {
+            return pa / 33.86389;
+        }
+
+        double hPaToMb(double pa) {
+            return pa;
+        }
+
+        double fToC(double f) {
+            return (f - 32) * 5 / 9;
+        }
+
+        double cToF(double c) {
+            return (c * 9 / 5) + 32;
         }
     }
 }
