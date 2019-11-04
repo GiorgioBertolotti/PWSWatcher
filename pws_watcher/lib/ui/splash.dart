@@ -64,6 +64,11 @@ class _SplashPageState extends State<SplashPage> {
     ApplicationState appState = ApplicationState(
       countID: prefs.getInt("count_id") ?? 0,
       theme: theme,
+      prefWindUnit: prefs.getString("prefWindUnit"),
+      prefRainUnit: prefs.getString("prefRainUnit"),
+      prefPressUnit: prefs.getString("prefPressUnit"),
+      prefTempUnit: prefs.getString("prefTempUnit"),
+      prefDewUnit: prefs.getString("prefDewUnit"),
     );
     Navigator.pushReplacement(
       context,

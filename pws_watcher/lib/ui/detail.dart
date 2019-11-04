@@ -84,7 +84,9 @@ class _DetailPageState extends State<DetailPage> {
                     if ((filter == null || filter.trim().isEmpty) ||
                         (filter != null &&
                             filter.trim().isNotEmpty &&
-                            key.contains(filter.trim())))
+                            key
+                                .toLowerCase()
+                                .contains(filter.trim().toLowerCase())))
                       return ListTile(
                         title: Text(
                           key,

@@ -45,6 +45,11 @@ class _SettingsPageState extends State<SettingsPage>
   final _editIntervalController = TextEditingController();
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   var _themeSelection = [true, false, false, false, false];
+  var _windUnitSelection = [true, false, false, false];
+  var _rainUnitSelection = [true, false];
+  var _pressUnitSelection = [true, false, false];
+  var _tempUnitSelection = [true, false];
+  var _dewUnitSelection = [true, false];
 
   @override
   void initState() {
@@ -96,6 +101,29 @@ class _SettingsPageState extends State<SettingsPage>
           Provider.of<ApplicationState>(context).theme == PWSTheme.Night,
           Provider.of<ApplicationState>(context).theme == PWSTheme.Grey,
           Provider.of<ApplicationState>(context).theme == PWSTheme.Blacked,
+        ];
+        _windUnitSelection = [
+          Provider.of<ApplicationState>(context).prefWindUnit == "km/h",
+          Provider.of<ApplicationState>(context).prefWindUnit == "mph",
+          Provider.of<ApplicationState>(context).prefWindUnit == "kts",
+          Provider.of<ApplicationState>(context).prefWindUnit == "m/s",
+        ];
+        _rainUnitSelection = [
+          Provider.of<ApplicationState>(context).prefRainUnit == "mm",
+          Provider.of<ApplicationState>(context).prefRainUnit == "in",
+        ];
+        _pressUnitSelection = [
+          Provider.of<ApplicationState>(context).prefPressUnit == "hPa",
+          Provider.of<ApplicationState>(context).prefPressUnit == "mb",
+          Provider.of<ApplicationState>(context).prefPressUnit == "inHg",
+        ];
+        _tempUnitSelection = [
+          Provider.of<ApplicationState>(context).prefTempUnit == "°C",
+          Provider.of<ApplicationState>(context).prefTempUnit == "°F",
+        ];
+        _dewUnitSelection = [
+          Provider.of<ApplicationState>(context).prefDewUnit == "°C",
+          Provider.of<ApplicationState>(context).prefDewUnit == "°F",
         ];
       });
     }
@@ -179,11 +207,13 @@ class _SettingsPageState extends State<SettingsPage>
                             children: <Widget>[
                               ToggleButtons(
                                 children: [
-                                  _toggleButton("Day", Colors.lightBlue),
-                                  _toggleButton("Evening", Colors.deepOrange),
-                                  _toggleButton("Night", Colors.deepPurple),
-                                  _toggleButton("Grey", Colors.blueGrey),
-                                  _toggleButton("Blacked", Colors.black),
+                                  _themeToggleButton("Day", Colors.lightBlue),
+                                  _themeToggleButton(
+                                      "Evening", Colors.deepOrange),
+                                  _themeToggleButton(
+                                      "Night", Colors.deepPurple),
+                                  _themeToggleButton("Grey", Colors.blueGrey),
+                                  _themeToggleButton("Blacked", Colors.black),
                                 ],
                                 onPressed: (int index) async {
                                   for (int buttonIndex = 0;
@@ -233,7 +263,36 @@ class _SettingsPageState extends State<SettingsPage>
                         ),
                         const ListTile(
                           title: Text(
-                            'Generic settings',
+                            'Units settings',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Text("Wind speed unit"),
+                        SizedBox(height: 10.0),
+                        _windSpeedUnitSelector(),
+                        SizedBox(height: 20.0),
+                        Text("Rain unit"),
+                        SizedBox(height: 10.0),
+                        _rainUnitSelector(),
+                        SizedBox(height: 20.0),
+                        Text("Pressure unit"),
+                        SizedBox(height: 10.0),
+                        _pressUnitSelector(),
+                        SizedBox(height: 20.0),
+                        Text("Temperature unit"),
+                        SizedBox(height: 10.0),
+                        _tempUnitSelector(),
+                        SizedBox(height: 20.0),
+                        Text("Dew point unit"),
+                        SizedBox(height: 10.0),
+                        _dewUnitSelector(),
+                        const ListTile(
+                          title: Text(
+                            'Visibility settings',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 18,
@@ -252,7 +311,7 @@ class _SettingsPageState extends State<SettingsPage>
                                   visibilityUpdateTimer = value;
                                 });
                                 Provider.of<ApplicationState>(context)
-                                    .updateVisibilities = true;
+                                    .updatePreferences = true;
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityUpdateTimer", value);
@@ -277,7 +336,7 @@ class _SettingsPageState extends State<SettingsPage>
                                   visibilityWindSpeed = value;
                                 });
                                 Provider.of<ApplicationState>(context)
-                                    .updateVisibilities = true;
+                                    .updatePreferences = true;
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityWindSpeed", value);
@@ -302,7 +361,7 @@ class _SettingsPageState extends State<SettingsPage>
                                   visibilityPressure = value;
                                 });
                                 Provider.of<ApplicationState>(context)
-                                    .updateVisibilities = true;
+                                    .updatePreferences = true;
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityPressure", value);
@@ -327,7 +386,7 @@ class _SettingsPageState extends State<SettingsPage>
                                   visibilityWindDirection = value;
                                 });
                                 Provider.of<ApplicationState>(context)
-                                    .updateVisibilities = true;
+                                    .updatePreferences = true;
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityWindDirection", value);
@@ -352,7 +411,7 @@ class _SettingsPageState extends State<SettingsPage>
                                   visibilityHumidity = value;
                                 });
                                 Provider.of<ApplicationState>(context)
-                                    .updateVisibilities = true;
+                                    .updatePreferences = true;
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityHumidity", value);
@@ -377,7 +436,7 @@ class _SettingsPageState extends State<SettingsPage>
                                   visibilityTemperature = value;
                                 });
                                 Provider.of<ApplicationState>(context)
-                                    .updateVisibilities = true;
+                                    .updatePreferences = true;
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityTemperature", value);
@@ -402,7 +461,7 @@ class _SettingsPageState extends State<SettingsPage>
                                   visibilityWindChill = value;
                                 });
                                 Provider.of<ApplicationState>(context)
-                                    .updateVisibilities = true;
+                                    .updatePreferences = true;
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityWindChill", value);
@@ -427,7 +486,7 @@ class _SettingsPageState extends State<SettingsPage>
                                   visibilityRain = value;
                                 });
                                 Provider.of<ApplicationState>(context)
-                                    .updateVisibilities = true;
+                                    .updatePreferences = true;
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityRain", value);
@@ -452,7 +511,7 @@ class _SettingsPageState extends State<SettingsPage>
                                   visibilityDew = value;
                                 });
                                 Provider.of<ApplicationState>(context)
-                                    .updateVisibilities = true;
+                                    .updatePreferences = true;
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityDew", value);
@@ -477,7 +536,7 @@ class _SettingsPageState extends State<SettingsPage>
                                   visibilitySunrise = value;
                                 });
                                 Provider.of<ApplicationState>(context)
-                                    .updateVisibilities = true;
+                                    .updatePreferences = true;
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilitySunrise", value);
@@ -502,7 +561,7 @@ class _SettingsPageState extends State<SettingsPage>
                                   visibilitySunset = value;
                                 });
                                 Provider.of<ApplicationState>(context)
-                                    .updateVisibilities = true;
+                                    .updatePreferences = true;
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilitySunset", value);
@@ -527,7 +586,7 @@ class _SettingsPageState extends State<SettingsPage>
                                   visibilityMoonrise = value;
                                 });
                                 Provider.of<ApplicationState>(context)
-                                    .updateVisibilities = true;
+                                    .updatePreferences = true;
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityMoonrise", value);
@@ -552,7 +611,7 @@ class _SettingsPageState extends State<SettingsPage>
                                   visibilityMoonset = value;
                                 });
                                 Provider.of<ApplicationState>(context)
-                                    .updateVisibilities = true;
+                                    .updatePreferences = true;
                                 SharedPreferences prefs =
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityMoonset", value);
@@ -566,7 +625,16 @@ class _SettingsPageState extends State<SettingsPage>
                             ),
                           ],
                         ),
-                        SizedBox(height: 15.0),
+                        const ListTile(
+                          title: Text(
+                            'Widget settings',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
@@ -677,7 +745,249 @@ class _SettingsPageState extends State<SettingsPage>
     );
   }
 
-  Widget _toggleButton(String tooltip, Color color) {
+  Widget _windSpeedUnitSelector() {
+    return Container(
+      height: 60,
+      child: Center(
+        child: ListView(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          children: <Widget>[
+            ToggleButtons(
+              children: [
+                _unitToggleButton("km/h"),
+                _unitToggleButton("mph"),
+                _unitToggleButton("kts"),
+                _unitToggleButton("m/s"),
+              ],
+              onPressed: (int index) async {
+                for (int buttonIndex = 0;
+                    buttonIndex < _windUnitSelection.length;
+                    buttonIndex++) {
+                  if (buttonIndex == index) {
+                    _windUnitSelection[buttonIndex] = true;
+                  } else {
+                    _windUnitSelection[buttonIndex] = false;
+                  }
+                }
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                String unit;
+                switch (index) {
+                  case 0:
+                    unit = "km/h";
+                    break;
+                  case 1:
+                    unit = "mph";
+                    break;
+                  case 2:
+                    unit = "kts";
+                    break;
+                  case 3:
+                    unit = "m/s";
+                    break;
+                }
+                Provider.of<ApplicationState>(context).updatePreferences = true;
+                Provider.of<ApplicationState>(context).prefWindUnit = unit;
+                prefs.setString("prefWindUnit", unit);
+                setState(() {});
+              },
+              isSelected: _windUnitSelection,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _rainUnitSelector() {
+    return Container(
+      height: 60,
+      child: Center(
+        child: ListView(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          children: <Widget>[
+            ToggleButtons(
+              children: [
+                _unitToggleButton("mm"),
+                _unitToggleButton("in"),
+              ],
+              onPressed: (int index) async {
+                for (int buttonIndex = 0;
+                    buttonIndex < _rainUnitSelection.length;
+                    buttonIndex++) {
+                  if (buttonIndex == index) {
+                    _rainUnitSelection[buttonIndex] = true;
+                  } else {
+                    _rainUnitSelection[buttonIndex] = false;
+                  }
+                }
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                String unit;
+                switch (index) {
+                  case 0:
+                    unit = "mm";
+                    break;
+                  case 1:
+                    unit = "in";
+                    break;
+                }
+                Provider.of<ApplicationState>(context).updatePreferences = true;
+                Provider.of<ApplicationState>(context).prefRainUnit = unit;
+                prefs.setString("prefRainUnit", unit);
+                setState(() {});
+              },
+              isSelected: _rainUnitSelection,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _pressUnitSelector() {
+    return Container(
+      height: 60,
+      child: Center(
+        child: ListView(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          children: <Widget>[
+            ToggleButtons(
+              children: [
+                _unitToggleButton("hPa"),
+                _unitToggleButton("mb"),
+                _unitToggleButton("inHg"),
+              ],
+              onPressed: (int index) async {
+                for (int buttonIndex = 0;
+                    buttonIndex < _pressUnitSelection.length;
+                    buttonIndex++) {
+                  if (buttonIndex == index) {
+                    _pressUnitSelection[buttonIndex] = true;
+                  } else {
+                    _pressUnitSelection[buttonIndex] = false;
+                  }
+                }
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                String unit;
+                switch (index) {
+                  case 0:
+                    unit = "hPa";
+                    break;
+                  case 1:
+                    unit = "mb";
+                    break;
+                  case 2:
+                    unit = "inHg";
+                    break;
+                }
+                Provider.of<ApplicationState>(context).updatePreferences = true;
+                Provider.of<ApplicationState>(context).prefPressUnit = unit;
+                prefs.setString("prefPressUnit", unit);
+                setState(() {});
+              },
+              isSelected: _pressUnitSelection,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _tempUnitSelector() {
+    return Container(
+      height: 60,
+      child: Center(
+        child: ListView(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          children: <Widget>[
+            ToggleButtons(
+              children: [
+                _unitToggleButton("°C"),
+                _unitToggleButton("°F"),
+              ],
+              onPressed: (int index) async {
+                for (int buttonIndex = 0;
+                    buttonIndex < _tempUnitSelection.length;
+                    buttonIndex++) {
+                  if (buttonIndex == index) {
+                    _tempUnitSelection[buttonIndex] = true;
+                  } else {
+                    _tempUnitSelection[buttonIndex] = false;
+                  }
+                }
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                String unit;
+                switch (index) {
+                  case 0:
+                    unit = "°C";
+                    break;
+                  case 1:
+                    unit = "°F";
+                    break;
+                }
+                Provider.of<ApplicationState>(context).updatePreferences = true;
+                Provider.of<ApplicationState>(context).prefTempUnit = unit;
+                prefs.setString("prefTempUnit", unit);
+                setState(() {});
+              },
+              isSelected: _tempUnitSelection,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _dewUnitSelector() {
+    return Container(
+      height: 60,
+      child: Center(
+        child: ListView(
+          shrinkWrap: true,
+          scrollDirection: Axis.horizontal,
+          children: <Widget>[
+            ToggleButtons(
+              children: [
+                _unitToggleButton("°C"),
+                _unitToggleButton("°F"),
+              ],
+              onPressed: (int index) async {
+                for (int buttonIndex = 0;
+                    buttonIndex < _dewUnitSelection.length;
+                    buttonIndex++) {
+                  if (buttonIndex == index) {
+                    _dewUnitSelection[buttonIndex] = true;
+                  } else {
+                    _dewUnitSelection[buttonIndex] = false;
+                  }
+                }
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                String unit;
+                switch (index) {
+                  case 0:
+                    unit = "°C";
+                    break;
+                  case 1:
+                    unit = "°F";
+                    break;
+                }
+                Provider.of<ApplicationState>(context).updatePreferences = true;
+                Provider.of<ApplicationState>(context).prefDewUnit = unit;
+                prefs.setString("prefDewUnit", unit);
+                setState(() {});
+              },
+              isSelected: _dewUnitSelection,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _themeToggleButton(String tooltip, Color color) {
     return Tooltip(
       message: tooltip,
       child: Container(
@@ -689,6 +999,13 @@ class _SettingsPageState extends State<SettingsPage>
           shape: BoxShape.circle,
         ),
       ),
+    );
+  }
+
+  Widget _unitToggleButton(String unit) {
+    return Text(
+      unit,
+      style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w700),
     );
   }
 

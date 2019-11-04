@@ -7,17 +7,27 @@ class ApplicationState {
     this.settingsOpen = false,
     this.countID = 0,
     this.updateSources = true,
-    this.updateVisibilities = true,
+    this.updatePreferences = true,
     this.theme = PWSTheme.Day,
+    this.prefWindUnit = "km/h",
+    this.prefRainUnit = "mm",
+    this.prefPressUnit = "mb",
+    this.prefTempUnit = "°C",
+    this.prefDewUnit = "°C",
   }) {
     setTheme(this.theme);
   }
 
   bool updateSources;
-  bool updateVisibilities;
+  bool updatePreferences;
   bool settingsOpen;
   int countID;
   PWSTheme theme;
+  String prefWindUnit;
+  String prefRainUnit;
+  String prefPressUnit;
+  String prefTempUnit;
+  String prefDewUnit;
   MaterialColor mainColor;
   Color mainColorDark;
 

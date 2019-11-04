@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:pws_watcher/resources/parsing_properties.dart';
 import 'package:pws_watcher/resources/state.dart';
 import 'package:pws_watcher/ui/detail.dart';
 import 'package:xml/xml.dart' as xml;
@@ -28,7 +31,7 @@ class _PWSStatePageState extends State<PWSStatePage>
   var datetime = "--/--/---- --:--:--";
 
   var windspeed = "-";
-  var bar = "-";
+  var press = "-";
   var winddir = "-";
   var humidity = "-";
   var temperature = "-";
@@ -40,12 +43,12 @@ class _PWSStatePageState extends State<PWSStatePage>
   var moonrise = "--:--";
   var moonset = "--:--";
 
-  var windunit = "km/h";
-  var rainunit = "mm";
-  var barunit = "mb";
-  var tempunit = "°C";
-  var degunit = "°";
-  var humunit = "%";
+  var windUnit = "km/h";
+  var rainUnit = "mm";
+  var pressUnit = "mb";
+  var tempUnit = "°C";
+  var dewUnit = "°";
+  var humUnit = "%";
 
   var visibilityUpdateTimer = true;
   var visibilityWindSpeed = true;
@@ -65,7 +68,7 @@ class _PWSStatePageState extends State<PWSStatePage>
   void initState() {
     super.initState();
     _source = widget.source;
-    _setVisibilities();
+    _updatePreferences();
     _retrieveData(_source.url);
     if (_source.autoUpdateInterval != null && _source.autoUpdateInterval != 0) {
       startTimer();
@@ -110,9 +113,10 @@ class _PWSStatePageState extends State<PWSStatePage>
 
   @override
   Widget build(BuildContext context) {
-    if (Provider.of<ApplicationState>(context).updateVisibilities) {
-      Provider.of<ApplicationState>(context).updateVisibilities = false;
-      _setVisibilities();
+    if (Provider.of<ApplicationState>(context).updatePreferences) {
+      Provider.of<ApplicationState>(context).updatePreferences = false;
+      _updatePreferences();
+      _convertToPrefUnits();
     }
     if (!this._source.isEqual(widget.source)) {
       this._source = widget.source;
@@ -207,7 +211,7 @@ class _PWSStatePageState extends State<PWSStatePage>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Text(
-                      "$temperature$tempunit",
+                      "$temperature$tempUnit",
                       maxLines: 1,
                       style: TextStyle(
                         fontSize: 72,
@@ -246,7 +250,7 @@ class _PWSStatePageState extends State<PWSStatePage>
                                   ),
                                 ),
                                 Text(
-                                  "$windunit",
+                                  "$windUnit",
                                   maxLines: 1,
                                   style: TextStyle(
                                     fontSize: 16,
@@ -265,7 +269,7 @@ class _PWSStatePageState extends State<PWSStatePage>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
                                 Text(
-                                  "$bar",
+                                  "$press",
                                   maxLines: 1,
                                   style: TextStyle(
                                     fontSize: 25,
@@ -274,7 +278,7 @@ class _PWSStatePageState extends State<PWSStatePage>
                                   ),
                                 ),
                                 Text(
-                                  "$barunit",
+                                  "$pressUnit",
                                   maxLines: 1,
                                   style: TextStyle(
                                     fontSize: 16,
@@ -345,7 +349,7 @@ class _PWSStatePageState extends State<PWSStatePage>
                                   ),
                                 ),
                                 Text(
-                                  "$humunit",
+                                  "$humUnit",
                                   maxLines: 1,
                                   style: TextStyle(
                                     fontSize: 16,
@@ -397,7 +401,7 @@ class _PWSStatePageState extends State<PWSStatePage>
                                   ),
                                 ),
                                 Text(
-                                  "$tempunit",
+                                  "$tempUnit",
                                   maxLines: 1,
                                   style: TextStyle(
                                     fontSize: 16,
@@ -425,7 +429,7 @@ class _PWSStatePageState extends State<PWSStatePage>
                                   ),
                                 ),
                                 Text(
-                                  "$degunit",
+                                  "$dewUnit",
                                   maxLines: 1,
                                   style: TextStyle(
                                     fontSize: 16,
@@ -477,7 +481,7 @@ class _PWSStatePageState extends State<PWSStatePage>
                                   ),
                                 ),
                                 Text(
-                                  "$rainunit",
+                                  "$rainUnit",
                                   maxLines: 1,
                                   style: TextStyle(
                                     fontSize: 16,
@@ -505,7 +509,7 @@ class _PWSStatePageState extends State<PWSStatePage>
                                   ),
                                 ),
                                 Text(
-                                  "$degunit",
+                                  "$dewUnit",
                                   maxLines: 1,
                                   style: TextStyle(
                                     fontSize: 16,
@@ -719,7 +723,7 @@ class _PWSStatePageState extends State<PWSStatePage>
     }
   }
 
-  Future<Null> _setVisibilities() async {
+  Future<Null> _updatePreferences() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       visibilityUpdateTimer = prefs.getBool("visibilityUpdateTimer");
@@ -766,13 +770,35 @@ class _PWSStatePageState extends State<PWSStatePage>
       }
       _visualizeRealtimeXML(_sourceData);
     } else if (url.endsWith("txt")) {
-      // parsing and variables assignment with realtime.txt
-      _sourceData = await _parseRealtimeTXT(url);
-      if (_sourceData == null) {
-        _isRetrieving = false;
-        return null;
+      if (url.endsWith("clientraw.txt")) {
+        // parsing and variables assignment with clientraw.txt
+        _sourceData = await _parseClientRawTXT(url);
+        if (_sourceData == null) {
+          // parsing and variables assignment with clientraw.txt
+          _sourceData = await _parseRealtimeTXT(url);
+          if (_sourceData == null) {
+            _isRetrieving = false;
+            return null;
+          }
+          _visualizeRealtimeTXT(_sourceData);
+          return null;
+        }
+        _visualizeClientRawTXT(_sourceData);
+      } else {
+        // parsing and variables assignment with realtime.txt
+        _sourceData = await _parseRealtimeTXT(url);
+        if (_sourceData == null) {
+          // parsing and variables assignment with clientraw.txt
+          _sourceData = await _parseClientRawTXT(url);
+          if (_sourceData == null) {
+            _isRetrieving = false;
+            return null;
+          }
+          _visualizeClientRawTXT(_sourceData);
+          return null;
+        }
+        _visualizeRealtimeTXT(_sourceData);
       }
-      _visualizeRealtimeTXT(_sourceData);
     } else {
       _retrieveData(url + "/realtime.xml");
       return _retrieveData(url + "/realtime.txt", force: true);
@@ -824,72 +850,43 @@ class _PWSStatePageState extends State<PWSStatePage>
       var rawResponse = await http.get(url);
       var response = rawResponse.body;
       // split values by space
-      List properties = [
-        "date",
-        "timehhmmss",
-        "temp",
-        "hum",
-        "dew",
-        "wspeed",
-        "wlatest",
-        "bearing",
-        "rrate",
-        "rfall",
-        "press",
-        "currentwdir",
-        "beaufortnumber",
-        "windunit",
-        "tempunitnodeg",
-        "pressunit",
-        "rainunit",
-        "windrun",
-        "presstrendval",
-        "rmonth",
-        "ryear",
-        "rfallY",
-        "intemp",
-        "inhum",
-        "wchill",
-        "temptrend",
-        "tempTH",
-        "TtempTH",
-        "tempTL",
-        "TtempTL",
-        "windTM",
-        "TwindTM",
-        "wgustTM",
-        "TwgustTM",
-        "pressTH",
-        "TpressTH",
-        "pressTL",
-        "TpressTL",
-        "version",
-        "build",
-        "wgust",
-        "heatindex",
-        "humidex",
-        "UV",
-        "ET",
-        "SolarRad",
-        "avgbearing",
-        "rhour",
-        "forecastnumber",
-        "isdaylight",
-        "SensorContactLost",
-        "wdir",
-        "cloudbasevalue",
-        "cloudbaseunit",
-        "apptemp",
-        "SunshineHours",
-        "CurrentSolarMax",
-        "IsSunny"
-      ];
+      List properties = getRealtimeTxtProperties();
       List values = response.trim().split(' ');
       var pwsInfo = <String, String>{};
       for (var counter = 0; counter < properties.length; counter++) {
         if (counter < values.length)
           pwsInfo[properties[counter]] = values[counter];
       }
+      return pwsInfo;
+    } catch (Exception) {
+      return null;
+    }
+  }
+
+  Future<Map<String, String>> _parseClientRawTXT(String url) async {
+    try {
+      var rawResponse = await http.get(url);
+      var response = rawResponse.body;
+      // split values by space
+      List properties = getClientRawProperties();
+      List values = response.trim().split(' ');
+      var pwsInfo = <String, String>{};
+      for (var counter = 0; counter < properties.length; counter++) {
+        if (counter < values.length)
+          pwsInfo[properties[counter]] = values[counter];
+      }
+      try {
+        rawResponse = await http
+            .get(url.replaceAll("clientraw.txt", "clientrawextra.txt"));
+        response = rawResponse.body;
+        // split values by space
+        properties = getClientRawExtraProperties();
+        values = response.trim().split(' ');
+        for (var counter = 0; counter < properties.length; counter++) {
+          if (counter < values.length)
+            pwsInfo[properties[counter]] = values[counter];
+        }
+      } catch (e) {}
       return pwsInfo;
     } catch (Exception) {
       return null;
@@ -939,8 +936,8 @@ class _PWSStatePageState extends State<PWSStatePage>
         else if (map.containsKey("avg_windspeed"))
           windspeed = map["avg_windspeed"];
         if (map.containsKey("barometer"))
-          bar = map["barometer"];
-        else if (map.containsKey("press")) bar = map["press"];
+          press = map["barometer"];
+        else if (map.containsKey("press")) press = map["press"];
         if (map.containsKey("winddir")) winddir = map["winddir"];
         if (map.containsKey("hum")) humidity = map["hum"];
         if (map.containsKey("temp")) temperature = map["temp"];
@@ -957,26 +954,27 @@ class _PWSStatePageState extends State<PWSStatePage>
         if (map.containsKey("moonrise")) moonrise = map["moonrise"];
         if (map.containsKey("moonset")) moonset = map["moonset"];
         if (_isNumeric(windspeed)) {
-          if (map.containsKey("windunit")) windunit = map["windunit"];
+          if (map.containsKey("windunit")) windUnit = map["windunit"];
         } else
-          windunit = "";
+          windUnit = "";
         if (_isNumeric(rain)) {
-          if (map.containsKey("rainunit")) rainunit = map["rainunit"];
+          if (map.containsKey("rainunit")) rainUnit = map["rainunit"];
         } else
-          rainunit = "";
-        if (_isNumeric(bar)) {
-          if (map.containsKey("barunit")) barunit = map["barunit"];
+          rainUnit = "";
+        if (_isNumeric(press)) {
+          if (map.containsKey("barunit")) pressUnit = map["barunit"];
         } else
-          barunit = "";
+          pressUnit = "";
         if (_isNumeric(temperature)) {
-          if (map.containsKey("tempunit")) tempunit = map["tempunit"];
+          if (map.containsKey("tempunit")) tempUnit = map["tempunit"];
         } else
-          tempunit = "";
+          tempUnit = "";
         if (_isNumeric(humidity)) {
-          if (map.containsKey("humunit")) humunit = map["humunit"];
+          if (map.containsKey("humunit")) humUnit = map["humunit"];
         } else
-          humunit = "";
-        degunit = (_isNumeric(dew) ? "°" : "");
+          humUnit = "";
+        dewUnit = (_isNumeric(dew) ? "°" : "");
+        _convertToPrefUnits();
       });
     } catch (e) {}
   }
@@ -1017,7 +1015,7 @@ class _PWSStatePageState extends State<PWSStatePage>
               .replaceAll(".", "-");
         }
         if (map.containsKey("wspeed")) windspeed = map["wspeed"];
-        if (map.containsKey("press")) bar = map["press"];
+        if (map.containsKey("press")) press = map["press"];
         if (map.containsKey("currentwdir")) winddir = map["currentwdir"];
         if (map.containsKey("hum")) humidity = map["hum"];
         if (map.containsKey("temp")) temperature = map["temp"];
@@ -1026,28 +1024,317 @@ class _PWSStatePageState extends State<PWSStatePage>
         if (map.containsKey("dew")) dew = map["dew"];
         // data about sunrise, sunset, moonrise and moonset cannot be retrieved from realtime.txt
         if (_isNumeric(windspeed)) {
-          if (map.containsKey("windunit")) windunit = map["windunit"];
+          if (map.containsKey("windunit")) windUnit = map["windunit"];
         } else
-          windunit = "";
+          windUnit = "";
         if (_isNumeric(rain)) {
-          if (map.containsKey("rainunit")) rainunit = map["rainunit"];
+          if (map.containsKey("rainunit")) rainUnit = map["rainunit"];
         } else
-          rainunit = "";
-        if (_isNumeric(bar)) {
-          if (map.containsKey("pressunit")) barunit = map["pressunit"];
+          rainUnit = "";
+        if (_isNumeric(press)) {
+          if (map.containsKey("pressunit")) pressUnit = map["pressunit"];
         } else
-          barunit = "";
+          pressUnit = "";
         if (_isNumeric(temperature)) {
-          if (map.containsKey("tempunitnodeg")) tempunit = map["tempunitnodeg"];
+          if (map.containsKey("tempunitnodeg")) tempUnit = map["tempunitnodeg"];
         } else
-          tempunit = "";
+          tempUnit = "";
         if (_isNumeric(humidity)) {
-          if (map.containsKey("humunit")) humunit = map["humunit"];
+          if (map.containsKey("humunit")) humUnit = map["humunit"];
         } else
-          humunit = "";
-        degunit = (_isNumeric(dew) ? "°" : "");
+          humUnit = "";
+        dewUnit = (_isNumeric(dew) ? "°" : "");
+        _convertToPrefUnits();
       });
     } catch (e) {}
+  }
+
+  _visualizeClientRawTXT(map) {
+    try {
+      setState(() {
+        if (_source != null) location = _source.name;
+        var tmpDatetime = "";
+        if (map.containsKey("Date")) tmpDatetime += " " + map["Date"];
+        if (map.containsKey("Hour")) tmpDatetime += " " + map["Hour"];
+        if (map.containsKey("Minute")) tmpDatetime += ":" + map["Minute"];
+        if (map.containsKey("Seconds")) tmpDatetime += ":" + map["Seconds"];
+        tmpDatetime =
+            tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
+        try {
+          datetime = DateTime.parse(tmpDatetime)
+              .toLocal()
+              .toString()
+              .replaceAll(".000", "");
+        } catch (e) {
+          datetime = tmpDatetime;
+        }
+        if (map.containsKey("CurrentWindspeed"))
+          windspeed = map["CurrentWindspeed"];
+        if (map.containsKey("Barometer")) press = map["Barometer"];
+        if (map.containsKey("WindDirection"))
+          winddir = deg2WindDir(map["WindDirection"]);
+        if (map.containsKey("OutsideHumidity"))
+          humidity = map["OutsideHumidity"];
+        if (map.containsKey("OutsideTemp")) temperature = map["OutsideTemp"];
+        if (map.containsKey("WindChill")) windchill = map["WindChill"];
+        if (map.containsKey("DailyRain")) rain = map["DailyRain"];
+        if (map.containsKey("DewPointTemp")) dew = map["DewPointTemp"];
+        if (map.containsKey("Sunrise")) sunrise = map["Sunrise"];
+        if (map.containsKey("Sunset")) sunset = map["Sunset"];
+        if (map.containsKey("Moonrise")) moonrise = map["Moonrise"];
+        if (map.containsKey("Moonset")) moonset = map["Moonset"];
+        windUnit = "kts";
+        rainUnit = "mm";
+        pressUnit = "hPa";
+        tempUnit = "°C";
+        humUnit = "%";
+        dewUnit = "°C";
+        _convertToPrefUnits();
+      });
+    } catch (e) {}
+  }
+
+  _convertToPrefUnits() {
+    ApplicationState appState = Provider.of<ApplicationState>(context);
+    if (_isNumeric(windspeed) && windUnit != appState.prefWindUnit) {
+      convertWindSpeed(appState.prefWindUnit);
+    }
+    if (_isNumeric(rain) &&
+        appState.prefRainUnit != null &&
+        rainUnit != appState.prefRainUnit) {
+      convertRain(appState.prefRainUnit);
+    }
+    if (_isNumeric(press) &&
+        appState.prefPressUnit != null &&
+        pressUnit != appState.prefPressUnit) {
+      convertPressure(appState.prefPressUnit);
+    }
+    if (_isNumeric(temperature) &&
+        appState.prefTempUnit != null &&
+        tempUnit != appState.prefTempUnit) {
+      convertTemperature(appState.prefTempUnit);
+    }
+    if (_isNumeric(dew) &&
+        appState.prefDewUnit != null &&
+        dewUnit != appState.prefDewUnit) {
+      convertDew(appState.prefDewUnit);
+    }
+    if (appState.prefWindUnit != null) windUnit = appState.prefWindUnit;
+    if (appState.prefRainUnit != null) rainUnit = appState.prefRainUnit;
+    if (appState.prefPressUnit != null) pressUnit = appState.prefPressUnit;
+    if (appState.prefTempUnit != null) tempUnit = appState.prefTempUnit;
+    if (appState.prefDewUnit != null) dewUnit = appState.prefDewUnit;
+  }
+
+  convertWindSpeed(String preferred) {
+    double kmh;
+    switch (windUnit.trim().replaceAll("/", "").toLowerCase()) {
+      case "kts":
+        {
+          kmh = ktsToKmh(double.parse(windspeed));
+          break;
+        }
+      case "mph":
+        {
+          kmh = mphToKmh(double.parse(windspeed));
+          break;
+        }
+      case "ms":
+        {
+          kmh = msToKmh(double.parse(windspeed));
+          break;
+        }
+      default:
+        {
+          kmh = double.parse(windspeed);
+          break;
+        }
+    }
+    switch (preferred.trim().replaceAll("/", "").toLowerCase()) {
+      case "kts":
+        {
+          windspeed = roundToNthDecimal(kmhToKts(kmh), 2).toString();
+          break;
+        }
+      case "mph":
+        {
+          windspeed = roundToNthDecimal(kmhToMph(kmh), 2).toString();
+          break;
+        }
+      case "ms":
+        {
+          windspeed = roundToNthDecimal(kmhToMs(kmh), 2).toString();
+          break;
+        }
+      default:
+        {
+          windspeed = roundToNthDecimal(kmh, 2).toString();
+          break;
+        }
+    }
+  }
+
+  convertRain(String preferred) {
+    if (rainUnit.trim().replaceAll("/", "").toLowerCase() == "mm") {
+      rain = roundToNthDecimal(mmToIn(double.parse(rain)), 2).toString();
+    } else {
+      rain = roundToNthDecimal(inToMm(double.parse(rain)), 2).toString();
+    }
+  }
+
+  convertPressure(String preferred) {
+    double hPa;
+    switch (pressUnit.trim().replaceAll("/", "").toLowerCase()) {
+      case "inhg":
+        {
+          hPa = inhgToHPa(double.parse(press));
+          break;
+        }
+      case "mb":
+        {
+          hPa = mbToHPa(double.parse(press));
+          break;
+        }
+      default:
+        {
+          hPa = double.parse(press);
+          break;
+        }
+    }
+    switch (preferred.trim().replaceAll("/", "").toLowerCase()) {
+      case "inhg":
+        {
+          press = roundToNthDecimal(hPaToInhg(hPa), 2).toString();
+          break;
+        }
+      case "mb":
+        {
+          press = roundToNthDecimal(hPaToMb(hPa), 2).toString();
+          break;
+        }
+      default:
+        {
+          press = roundToNthDecimal(hPa, 2).toString();
+          break;
+        }
+    }
+  }
+
+  convertTemperature(String preferred) {
+    if (tempUnit.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase() ==
+        "f") {
+      temperature =
+          roundToNthDecimal(fToC(double.parse(temperature)), 2).toString();
+    } else {
+      temperature =
+          roundToNthDecimal(cToF(double.parse(temperature)), 2).toString();
+    }
+  }
+
+  convertDew(String preferred) {
+    if (dewUnit.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase() ==
+        "f") {
+      dew = roundToNthDecimal(fToC(double.parse(dew)), 2).toString();
+    } else {
+      dew = roundToNthDecimal(cToF(double.parse(dew)), 2).toString();
+    }
+  }
+
+  String deg2WindDir(String degrees) {
+    try {
+      double deg = double.parse(degrees);
+      if (deg > 348.75 || deg <= 11.25) {
+        return "N";
+      } else if (deg > 11.25 && deg <= 33.75) {
+        return "NNE";
+      } else if (deg > 33.75 && deg <= 56.25) {
+        return "NE";
+      } else if (deg > 56.25 && deg <= 78.75) {
+        return "ENE";
+      } else if (deg > 78.75 && deg <= 101.25) {
+        return "E";
+      } else if (deg > 101.25 && deg <= 123.75) {
+        return "ESE";
+      } else if (deg > 123.75 && deg <= 146.25) {
+        return "SE";
+      } else if (deg > 146.25 && deg <= 168.75) {
+        return "SSE";
+      } else if (deg > 168.75 && deg <= 191.25) {
+        return "S";
+      } else if (deg > 191.25 && deg <= 213.75) {
+        return "SSW";
+      } else if (deg > 213.75 && deg <= 236.25) {
+        return "SW";
+      } else if (deg > 236.25 && deg <= 258.75) {
+        return "WSW";
+      } else if (deg > 258.75 && deg <= 281.25) {
+        return "W";
+      } else if (deg > 281.25 && deg <= 303.75) {
+        return "WNW";
+      } else if (deg > 303.75 && deg <= 326.25) {
+        return "NW";
+      } else {
+        return "NNW";
+      }
+    } catch (e) {
+      return degrees;
+    }
+  }
+
+  double ktsToKmh(double kts) {
+    return kts * 1.852;
+  }
+
+  double mphToKmh(double mph) {
+    return mph * 1.60934;
+  }
+
+  double msToKmh(double ms) {
+    return ms * 3.6;
+  }
+
+  double kmhToKts(double kmh) {
+    return kmh / 1.852;
+  }
+
+  double kmhToMph(double kmh) {
+    return kmh / 1.60934;
+  }
+
+  double kmhToMs(double kmh) {
+    return kmh / 3.6;
+  }
+
+  double mmToIn(double mm) {
+    return mm / 25.4;
+  }
+
+  double inToMm(double inc) {
+    return inc * 25.4;
+  }
+
+  double inhgToHPa(double inhg) {
+    return inhg * 33.86389;
+  }
+
+  double mbToHPa(double mb) {
+    return mb;
+  }
+
+  double hPaToInhg(double pa) {
+    return pa / 33.86389;
+  }
+
+  double hPaToMb(double pa) {
+    return pa;
+  }
+
+  double fToC(double f) {
+    return (f - 32) * 5 / 9;
+  }
+
+  double cToF(double c) {
+    return (c * 9 / 5) + 32;
   }
 
   bool _isNumeric(String str) {
@@ -1055,5 +1342,10 @@ class _PWSStatePageState extends State<PWSStatePage>
       return false;
     }
     return double.tryParse(str) != null;
+  }
+
+  double roundToNthDecimal(double val, int decimals) {
+    int fac = pow(10, decimals);
+    return (val * fac).round() / fac;
   }
 }
