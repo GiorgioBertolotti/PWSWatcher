@@ -761,34 +761,14 @@ class _SettingsPageState extends State<SettingsPage>
                 _unitToggleButton("m/s"),
               ],
               onPressed: (int index) async {
-                for (int buttonIndex = 0;
-                    buttonIndex < _windUnitSelection.length;
-                    buttonIndex++) {
-                  if (buttonIndex == index) {
-                    _windUnitSelection[buttonIndex] = true;
-                  } else {
-                    _windUnitSelection[buttonIndex] = false;
-                  }
-                }
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                String unit;
-                switch (index) {
-                  case 0:
-                    unit = "km/h";
-                    break;
-                  case 1:
-                    unit = "mph";
-                    break;
-                  case 2:
-                    unit = "kts";
-                    break;
-                  case 3:
-                    unit = "m/s";
-                    break;
-                }
-                Provider.of<ApplicationState>(context).updatePreferences = true;
+                String unit = await _unitSelectorCallback(
+                    index, _windUnitSelection, ["km/h", "mph", "kts", "m/s"]);
                 Provider.of<ApplicationState>(context).prefWindUnit = unit;
-                prefs.setString("prefWindUnit", unit);
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                if (unit == null)
+                  prefs.remove("prefWindUnit");
+                else
+                  prefs.setString("prefWindUnit", unit);
                 setState(() {});
               },
               isSelected: _windUnitSelection,
@@ -813,28 +793,14 @@ class _SettingsPageState extends State<SettingsPage>
                 _unitToggleButton("in"),
               ],
               onPressed: (int index) async {
-                for (int buttonIndex = 0;
-                    buttonIndex < _rainUnitSelection.length;
-                    buttonIndex++) {
-                  if (buttonIndex == index) {
-                    _rainUnitSelection[buttonIndex] = true;
-                  } else {
-                    _rainUnitSelection[buttonIndex] = false;
-                  }
-                }
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                String unit;
-                switch (index) {
-                  case 0:
-                    unit = "mm";
-                    break;
-                  case 1:
-                    unit = "in";
-                    break;
-                }
-                Provider.of<ApplicationState>(context).updatePreferences = true;
+                String unit = await _unitSelectorCallback(
+                    index, _rainUnitSelection, ["mm", "in"]);
                 Provider.of<ApplicationState>(context).prefRainUnit = unit;
-                prefs.setString("prefRainUnit", unit);
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                if (unit == null)
+                  prefs.remove("prefRainUnit");
+                else
+                  prefs.setString("prefRainUnit", unit);
                 setState(() {});
               },
               isSelected: _rainUnitSelection,
@@ -860,31 +826,14 @@ class _SettingsPageState extends State<SettingsPage>
                 _unitToggleButton("inHg"),
               ],
               onPressed: (int index) async {
-                for (int buttonIndex = 0;
-                    buttonIndex < _pressUnitSelection.length;
-                    buttonIndex++) {
-                  if (buttonIndex == index) {
-                    _pressUnitSelection[buttonIndex] = true;
-                  } else {
-                    _pressUnitSelection[buttonIndex] = false;
-                  }
-                }
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                String unit;
-                switch (index) {
-                  case 0:
-                    unit = "hPa";
-                    break;
-                  case 1:
-                    unit = "mb";
-                    break;
-                  case 2:
-                    unit = "inHg";
-                    break;
-                }
-                Provider.of<ApplicationState>(context).updatePreferences = true;
+                String unit = await _unitSelectorCallback(
+                    index, _pressUnitSelection, ["hPa", "mb", "inHg"]);
                 Provider.of<ApplicationState>(context).prefPressUnit = unit;
-                prefs.setString("prefPressUnit", unit);
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                if (unit == null)
+                  prefs.remove("prefPressUnit");
+                else
+                  prefs.setString("prefPressUnit", unit);
                 setState(() {});
               },
               isSelected: _pressUnitSelection,
@@ -909,28 +858,14 @@ class _SettingsPageState extends State<SettingsPage>
                 _unitToggleButton("°F"),
               ],
               onPressed: (int index) async {
-                for (int buttonIndex = 0;
-                    buttonIndex < _tempUnitSelection.length;
-                    buttonIndex++) {
-                  if (buttonIndex == index) {
-                    _tempUnitSelection[buttonIndex] = true;
-                  } else {
-                    _tempUnitSelection[buttonIndex] = false;
-                  }
-                }
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                String unit;
-                switch (index) {
-                  case 0:
-                    unit = "°C";
-                    break;
-                  case 1:
-                    unit = "°F";
-                    break;
-                }
-                Provider.of<ApplicationState>(context).updatePreferences = true;
+                String unit = await _unitSelectorCallback(
+                    index, _tempUnitSelection, ["°C", "°F"]);
                 Provider.of<ApplicationState>(context).prefTempUnit = unit;
-                prefs.setString("prefTempUnit", unit);
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                if (unit == null)
+                  prefs.remove("prefTempUnit");
+                else
+                  prefs.setString("prefTempUnit", unit);
                 setState(() {});
               },
               isSelected: _tempUnitSelection,
@@ -955,28 +890,14 @@ class _SettingsPageState extends State<SettingsPage>
                 _unitToggleButton("°F"),
               ],
               onPressed: (int index) async {
-                for (int buttonIndex = 0;
-                    buttonIndex < _dewUnitSelection.length;
-                    buttonIndex++) {
-                  if (buttonIndex == index) {
-                    _dewUnitSelection[buttonIndex] = true;
-                  } else {
-                    _dewUnitSelection[buttonIndex] = false;
-                  }
-                }
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                String unit;
-                switch (index) {
-                  case 0:
-                    unit = "°C";
-                    break;
-                  case 1:
-                    unit = "°F";
-                    break;
-                }
-                Provider.of<ApplicationState>(context).updatePreferences = true;
+                String unit = await _unitSelectorCallback(
+                    index, _dewUnitSelection, ["°C", "°F"]);
                 Provider.of<ApplicationState>(context).prefDewUnit = unit;
-                prefs.setString("prefDewUnit", unit);
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                if (unit == null)
+                  prefs.remove("prefDewUnit");
+                else
+                  prefs.setString("prefDewUnit", unit);
                 setState(() {});
               },
               isSelected: _dewUnitSelection,
@@ -985,6 +906,33 @@ class _SettingsPageState extends State<SettingsPage>
         ),
       ),
     );
+  }
+
+  Future<String> _unitSelectorCallback(
+      int index, List<bool> selectionList, List<String> units) async {
+    Provider.of<ApplicationState>(context).updatePreferences = true;
+    if (selectionList[index]) {
+      // deselect
+      for (int buttonIndex = 0;
+          buttonIndex < selectionList.length;
+          buttonIndex++) {
+        selectionList[buttonIndex] = false;
+      }
+      return null;
+    } else {
+      // select
+      for (int buttonIndex = 0;
+          buttonIndex < selectionList.length;
+          buttonIndex++) {
+        if (buttonIndex == index) {
+          selectionList[buttonIndex] = true;
+        } else {
+          selectionList[buttonIndex] = false;
+        }
+      }
+      String unit = units[index];
+      return unit;
+    }
   }
 
   Widget _themeToggleButton(String tooltip, Color color) {
@@ -1088,12 +1036,15 @@ class _SettingsPageState extends State<SettingsPage>
           ),
           actions: <Widget>[
             FlatButton(
+              textColor: Provider.of<ApplicationState>(context).mainColor,
               child: Text("Close"),
               onPressed: () {
                 Navigator.of(ctx).pop();
               },
             ),
             FlatButton(
+              color: Provider.of<ApplicationState>(context).mainColor,
+              textColor: Colors.white,
               child: Text("Add"),
               onPressed: () async {
                 FocusScope.of(ctx).requestFocus(FocusNode());
@@ -1133,7 +1084,7 @@ class _SettingsPageState extends State<SettingsPage>
   _editSource(int position) {
     showDialog(
         context: context,
-        builder: (BuildContext context) {
+        builder: (BuildContext ctx) {
           return AlertDialog(
             title: Text("Edit " + _sources[position].name),
             content: Form(
@@ -1209,12 +1160,15 @@ class _SettingsPageState extends State<SettingsPage>
             ),
             actions: <Widget>[
               FlatButton(
+                textColor: Provider.of<ApplicationState>(context).mainColor,
                 child: Text("Close"),
                 onPressed: () {
-                  Navigator.of(context).pop();
+                  Navigator.of(ctx).pop();
                 },
               ),
               FlatButton(
+                color: Provider.of<ApplicationState>(context).mainColor,
+                textColor: Colors.white,
                 child: Text("Edit"),
                 onPressed: () async {
                   if (_editFormKey.currentState.validate()) {
@@ -1232,7 +1186,7 @@ class _SettingsPageState extends State<SettingsPage>
                     }
                     prefs.setStringList("sources", sourcesJSON);
                     _retrieveSources();
-                    Navigator.of(context).pop();
+                    Navigator.of(ctx).pop();
                   }
                 },
               ),
@@ -1250,7 +1204,7 @@ class _SettingsPageState extends State<SettingsPage>
   _deleteSource(int position) async {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext ctx) {
         // return object of type Dialog
         return AlertDialog(
           title: Text("Delete " + _sources[position].name + "?"),
@@ -1258,6 +1212,7 @@ class _SettingsPageState extends State<SettingsPage>
               "This operation is irreversible, if you press Yes this source will be deleted. You really want to delete it?"),
           actions: <Widget>[
             FlatButton(
+              textColor: Provider.of<ApplicationState>(context).mainColor,
               child: Text("Yes"),
               onPressed: () async {
                 SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -1272,13 +1227,15 @@ class _SettingsPageState extends State<SettingsPage>
                 }
                 prefs.setStringList("sources", sourcesJSON);
                 _retrieveSources();
-                Navigator.of(context).pop();
+                Navigator.of(ctx).pop();
               },
             ),
             FlatButton(
+              color: Provider.of<ApplicationState>(context).mainColor,
+              textColor: Colors.white,
               child: Text("Close"),
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(ctx).pop();
               },
             ),
           ],

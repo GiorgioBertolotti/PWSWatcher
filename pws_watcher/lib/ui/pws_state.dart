@@ -116,7 +116,7 @@ class _PWSStatePageState extends State<PWSStatePage>
     if (Provider.of<ApplicationState>(context).updatePreferences) {
       Provider.of<ApplicationState>(context).updatePreferences = false;
       _updatePreferences();
-      _convertToPrefUnits();
+      _retrieveData(_source.url);
     }
     if (!this._source.isEqual(widget.source)) {
       this._source = widget.source;
@@ -1096,27 +1096,29 @@ class _PWSStatePageState extends State<PWSStatePage>
 
   _convertToPrefUnits() {
     ApplicationState appState = Provider.of<ApplicationState>(context);
-    if (_isNumeric(windspeed) && windUnit != appState.prefWindUnit) {
+    if (_isNumeric(windspeed) &&
+        appState.prefWindUnit != null &&
+        !unitEquals(windUnit, appState.prefWindUnit)) {
       convertWindSpeed(appState.prefWindUnit);
     }
     if (_isNumeric(rain) &&
         appState.prefRainUnit != null &&
-        rainUnit != appState.prefRainUnit) {
+        !unitEquals(rainUnit, appState.prefRainUnit)) {
       convertRain(appState.prefRainUnit);
     }
     if (_isNumeric(press) &&
         appState.prefPressUnit != null &&
-        pressUnit != appState.prefPressUnit) {
+        !unitEquals(pressUnit, appState.prefPressUnit)) {
       convertPressure(appState.prefPressUnit);
     }
     if (_isNumeric(temperature) &&
         appState.prefTempUnit != null &&
-        tempUnit != appState.prefTempUnit) {
+        !unitEquals(tempUnit, appState.prefTempUnit)) {
       convertTemperature(appState.prefTempUnit);
     }
     if (_isNumeric(dew) &&
         appState.prefDewUnit != null &&
-        dewUnit != appState.prefDewUnit) {
+        !unitEquals(dewUnit, appState.prefDewUnit)) {
       convertDew(appState.prefDewUnit);
     }
     if (appState.prefWindUnit != null) windUnit = appState.prefWindUnit;
@@ -1124,6 +1126,11 @@ class _PWSStatePageState extends State<PWSStatePage>
     if (appState.prefPressUnit != null) pressUnit = appState.prefPressUnit;
     if (appState.prefTempUnit != null) tempUnit = appState.prefTempUnit;
     if (appState.prefDewUnit != null) dewUnit = appState.prefDewUnit;
+  }
+
+  bool unitEquals(String unit1, String unit2) {
+    return unit1.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase() ==
+        unit2.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase();
   }
 
   convertWindSpeed(String preferred) {
