@@ -290,6 +290,10 @@ class _SettingsPageState extends State<SettingsPage>
                         Text("Dew point unit"),
                         SizedBox(height: 10.0),
                         _dewUnitSelector(),
+                        SizedBox(height: 20.0),
+                        Text(
+                            "* Some input source formats may not guarantee the correct functioning of the unit conversion.",
+                            style: TextStyle(color: Colors.grey)),
                         const ListTile(
                           title: Text(
                             'Visibility settings',

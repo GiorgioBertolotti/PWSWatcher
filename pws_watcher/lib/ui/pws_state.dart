@@ -429,7 +429,7 @@ class _PWSStatePageState extends State<PWSStatePage>
                                   ),
                                 ),
                                 Text(
-                                  "$dewUnit",
+                                  "$tempUnit",
                                   maxLines: 1,
                                   style: TextStyle(
                                     fontSize: 16,
@@ -937,18 +937,58 @@ class _PWSStatePageState extends State<PWSStatePage>
           windspeed = map["avg_windspeed"];
         if (map.containsKey("barometer"))
           press = map["barometer"];
-        else if (map.containsKey("press")) press = map["press"];
+        else if (map.containsKey("press")) {
+          try {
+            final doubleRegex = RegExp(r'(\d+\.\d+)+');
+            press = doubleRegex.allMatches(map["press"]).first.group(0);
+            pressUnit = map["press"].toString().replaceAll(press, "").trim();
+          } catch (e) {
+            press = map["press"];
+          }
+        }
         if (map.containsKey("winddir")) winddir = map["winddir"];
         if (map.containsKey("hum")) humidity = map["hum"];
-        if (map.containsKey("temp")) temperature = map["temp"];
+        if (map.containsKey("temp")) {
+          try {
+            final doubleRegex = RegExp(r'(\d+\.\d+)+');
+            temperature = doubleRegex.allMatches(map["temp"]).first.group(0);
+            tempUnit =
+                map["temp"].toString().replaceAll(temperature, "").trim();
+          } catch (e) {
+            temperature = map["temp"];
+          }
+        }
         if (map.containsKey("windchill"))
           windchill = map["windchill"];
-        else if (map.containsKey("wchill")) windchill = map["wchill"];
+        else if (map.containsKey("wchill")) {
+          try {
+            final doubleRegex = RegExp(r'(\d+\.\d+)+');
+            windchill = doubleRegex.allMatches(map["wchill"]).first.group(0);
+          } catch (e) {
+            windchill = map["wchill"];
+          }
+        }
         if (map.containsKey("todaysrain"))
           rain = map["todaysrain"];
-        else if (map.containsKey("today_rainfall"))
-          rain = map["today_rainfall"];
-        if (map.containsKey("dew")) dew = map["dew"];
+        else if (map.containsKey("today_rainfall")) {
+          try {
+            final doubleRegex = RegExp(r'(\d+\.\d+)+');
+            rain = doubleRegex.allMatches(map["today_rainfall"]).first.group(0);
+            rainUnit =
+                map["today_rainfall"].toString().replaceAll(rain, "").trim();
+          } catch (e) {
+            rain = map["today_rainfall"];
+          }
+        }
+        if (map.containsKey("dew")) {
+          try {
+            final doubleRegex = RegExp(r'(\d+\.\d+)+');
+            dew = doubleRegex.allMatches(map["dew"]).first.group(0);
+            dewUnit = map["dew"].toString().replaceAll(dew, "").trim();
+          } catch (e) {
+            dew = map["dew"];
+          }
+        }
         if (map.containsKey("sunrise")) sunrise = map["sunrise"];
         if (map.containsKey("sunset")) sunset = map["sunset"];
         if (map.containsKey("moonrise")) moonrise = map["moonrise"];
@@ -973,7 +1013,7 @@ class _PWSStatePageState extends State<PWSStatePage>
           if (map.containsKey("humunit")) humUnit = map["humunit"];
         } else
           humUnit = "";
-        dewUnit = (_isNumeric(dew) ? "°" : "");
+        dewUnit = (_isNumeric(dew) ? tempUnit : "");
         _convertToPrefUnits();
       });
     } catch (e) {}
@@ -1043,7 +1083,7 @@ class _PWSStatePageState extends State<PWSStatePage>
           if (map.containsKey("humunit")) humUnit = map["humunit"];
         } else
           humUnit = "";
-        dewUnit = (_isNumeric(dew) ? "°" : "");
+        dewUnit = (_isNumeric(dew) ? tempUnit : "");
         _convertToPrefUnits();
       });
     } catch (e) {}
@@ -1111,21 +1151,27 @@ class _PWSStatePageState extends State<PWSStatePage>
         !unitEquals(pressUnit, appState.prefPressUnit)) {
       convertPressure(appState.prefPressUnit);
     }
-    if (_isNumeric(temperature) &&
+    if ((_isNumeric(windchill) || _isNumeric(temperature)) &&
         appState.prefTempUnit != null &&
         !unitEquals(tempUnit, appState.prefTempUnit)) {
-      convertTemperature(appState.prefTempUnit);
+      if (_isNumeric(windchill)) convertWindChill(appState.prefTempUnit);
+      if (_isNumeric(temperature)) convertTemperature(appState.prefTempUnit);
     }
     if (_isNumeric(dew) &&
         appState.prefDewUnit != null &&
         !unitEquals(dewUnit, appState.prefDewUnit)) {
       convertDew(appState.prefDewUnit);
     }
-    if (appState.prefWindUnit != null) windUnit = appState.prefWindUnit;
-    if (appState.prefRainUnit != null) rainUnit = appState.prefRainUnit;
-    if (appState.prefPressUnit != null) pressUnit = appState.prefPressUnit;
-    if (appState.prefTempUnit != null) tempUnit = appState.prefTempUnit;
-    if (appState.prefDewUnit != null) dewUnit = appState.prefDewUnit;
+    if (_isNumeric(windspeed) && appState.prefWindUnit != null)
+      windUnit = appState.prefWindUnit;
+    if (_isNumeric(rain) && appState.prefRainUnit != null)
+      rainUnit = appState.prefRainUnit;
+    if (_isNumeric(press) && appState.prefPressUnit != null)
+      pressUnit = appState.prefPressUnit;
+    if (_isNumeric(temperature) && appState.prefTempUnit != null)
+      tempUnit = appState.prefTempUnit;
+    if (_isNumeric(dew) && appState.prefDewUnit != null)
+      dewUnit = appState.prefDewUnit;
   }
 
   bool unitEquals(String unit1, String unit2) {
@@ -1224,6 +1270,17 @@ class _PWSStatePageState extends State<PWSStatePage>
           press = roundToNthDecimal(hPa, 2).toString();
           break;
         }
+    }
+  }
+
+  convertWindChill(String preferred) {
+    if (tempUnit.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase() ==
+        "f") {
+      windchill =
+          roundToNthDecimal(fToC(double.parse(windchill)), 2).toString();
+    } else {
+      windchill =
+          roundToNthDecimal(cToF(double.parse(windchill)), 2).toString();
     }
   }
 
