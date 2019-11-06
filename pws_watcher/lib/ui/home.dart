@@ -7,7 +7,6 @@ import 'package:pws_watcher/ui/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pws_watcher/model/source.dart';
 import 'dart:convert';
-import 'package:flutter/services.dart';
 import 'package:pws_watcher/resources/connection_status.dart';
 import 'dart:async';
 import 'package:flare_flutter/flare_actor.dart';
@@ -55,28 +54,6 @@ class _HomePageState extends State<HomePage> {
     _connectionChangeStream.cancel();
   }
 
-  Future<bool> _onWillPop() {
-    return showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text('Are you sure?'),
-            content: Text('Do you want to close the app?'),
-            actions: <Widget>[
-              FlatButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text('No'),
-              ),
-              FlatButton(
-                onPressed: () =>
-                    SystemChannels.platform.invokeMethod('SystemNavigator.pop'),
-                child: Text('Yes'),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-  }
-
   @override
   Widget build(BuildContext context) {
     if (Provider.of<ApplicationState>(context).updateSources) {
@@ -91,115 +68,111 @@ class _HomePageState extends State<HomePage> {
         }
       });
     }
-    return WillPopScope(
-      onWillPop: _onWillPop,
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [
-              Provider.of<ApplicationState>(context).mainColorDark,
-              Provider.of<ApplicationState>(context).mainColor,
-            ],
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: [
+            Provider.of<ApplicationState>(context).mainColorDark,
+            Provider.of<ApplicationState>(context).mainColor,
+          ],
         ),
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Builder(
-            builder: (context) => Provider<ApplicationState>.value(
-              value: Provider.of<ApplicationState>(context),
-              child: SafeArea(
-                child: Stack(
-                  children: <Widget>[
-                    isOffline
-                        ? Padding(
-                            padding: EdgeInsets.all(20),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Text(
-                                  "You are offline.",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      fontSize: 20, color: Colors.white),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Builder(
+          builder: (context) => Provider<ApplicationState>.value(
+            value: Provider.of<ApplicationState>(context),
+            child: SafeArea(
+              child: Stack(
+                children: <Widget>[
+                  isOffline
+                      ? Padding(
+                          padding: EdgeInsets.all(20),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Text(
+                                "You are offline.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                    fontSize: 20, color: Colors.white),
+                              ),
+                              Container(
+                                height:
+                                    (MediaQuery.of(context).size.height) - 200,
+                                width: MediaQuery.of(context).size.width,
+                                child: FlareActor(
+                                  "assets/flare/offline.flr",
+                                  alignment: Alignment.center,
+                                  fit: BoxFit.contain,
+                                  animation: "go",
                                 ),
-                                Container(
-                                  height: (MediaQuery.of(context).size.height) -
-                                      200,
-                                  width: MediaQuery.of(context).size.width,
-                                  child: FlareActor(
-                                    "assets/flare/offline.flr",
-                                    alignment: Alignment.center,
-                                    fit: BoxFit.contain,
-                                    animation: "go",
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        : PageView.builder(
-                            itemCount: _pages.length,
-                            physics: AlwaysScrollableScrollPhysics(),
-                            controller: _controller,
-                            itemBuilder: (BuildContext context, int index) {
-                              if (_pages.length == 0) return Container();
-                              return _pages[index % _pages.length];
-                            },
+                              ),
+                            ],
                           ),
-                    Positioned(
-                      top: 0.0,
-                      right: 0.0,
-                      child: IconButton(
-                        tooltip: "Settings",
-                        icon: Icon(
-                          Icons.settings,
-                          color: Colors.white,
+                        )
+                      : PageView.builder(
+                          itemCount: _pages.length,
+                          physics: AlwaysScrollableScrollPhysics(),
+                          controller: _controller,
+                          itemBuilder: (BuildContext context, int index) {
+                            if (_pages.length == 0) return Container();
+                            return _pages[index % _pages.length];
+                          },
                         ),
-                        padding: EdgeInsets.all(0),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (ctx) =>
-                                  Provider<ApplicationState>.value(
-                                value: Provider.of<ApplicationState>(context),
-                                child: SettingsPage(),
-                              ),
-                            ),
-                          );
-                        },
+                  Positioned(
+                    top: 0.0,
+                    right: 0.0,
+                    child: IconButton(
+                      tooltip: "Settings",
+                      icon: Icon(
+                        Icons.settings,
+                        color: Colors.white,
                       ),
+                      padding: EdgeInsets.all(0),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (ctx) => Provider<ApplicationState>.value(
+                              value: Provider.of<ApplicationState>(context),
+                              child: SettingsPage(),
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    _pages.length > 1 && !isOffline
-                        ? Positioned(
-                            top: 20.0,
-                            right: 0.0,
-                            left: 0.0,
-                            child: Center(
-                              child: Container(
-                                key: _dotsIndicator,
-                                child: DotsIndicator(
-                                  controller: _controller,
-                                  itemCount: _pages.length,
-                                  onPageSelected: (int page) {
-                                    _controller.animateToPage(
-                                      page,
-                                      duration: _kDuration,
-                                      curve: _kCurve,
-                                    );
-                                  },
-                                ),
+                  ),
+                  _pages.length > 1 && !isOffline
+                      ? Positioned(
+                          top: 20.0,
+                          right: 0.0,
+                          left: 0.0,
+                          child: Center(
+                            child: Container(
+                              key: _dotsIndicator,
+                              child: DotsIndicator(
+                                controller: _controller,
+                                itemCount: _pages.length,
+                                onPageSelected: (int page) {
+                                  _controller.animateToPage(
+                                    page,
+                                    duration: _kDuration,
+                                    curve: _kCurve,
+                                  );
+                                },
                               ),
                             ),
-                          )
-                        : Container(),
-                  ],
-                ),
+                          ),
+                        )
+                      : Container(),
+                ],
               ),
             ),
-          ), // This trailing comma makes auto-formatting nicer for build methods.
-        ),
+          ),
+        ), // This trailing comma makes auto-formatting nicer for build methods.
       ),
     );
   }
