@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:pws_watcher/resources/state.dart';
+import 'package:pws_watcher/get_it_setup.dart';
+import 'package:pws_watcher/model/state\.dart';
+import 'package:pws_watcher/pages/settings/widgets/add_source_dialog.dart';
+import 'package:pws_watcher/pages/settings/widgets/delete_source_dialog.dart';
+import 'package:pws_watcher/pages/settings/widgets/edit_source_dialog.dart';
+import 'package:pws_watcher/services/theme_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:async';
@@ -8,7 +13,7 @@ import 'package:pws_watcher/model/source.dart';
 import 'package:highlighter_coachmark/highlighter_coachmark.dart';
 
 class SettingsPage extends StatefulWidget {
-  SettingsPage({Key key}) : super(key: key);
+  final ThemeService themeService = getIt<ThemeService>();
 
   @override
   _SettingsPageState createState() => _SettingsPageState();
@@ -17,8 +22,6 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage>
     with TickerProviderStateMixin {
   final GlobalKey<FormState> _fabKey = GlobalKey<FormState>();
-  final GlobalKey<FormState> _addFormKey = GlobalKey<FormState>();
-  final GlobalKey<FormState> _editFormKey = GlobalKey<FormState>();
 
   var visibilityUpdateTimer = true;
   var visibilityWindSpeed = true;
@@ -37,12 +40,6 @@ class _SettingsPageState extends State<SettingsPage>
   bool _first = true;
 
   List<Source> _sources = List();
-  final _addNameController = TextEditingController();
-  final _addUrlController = TextEditingController();
-  final _addIntervalController = TextEditingController();
-  final _editNameController = TextEditingController();
-  final _editUrlController = TextEditingController();
-  final _editIntervalController = TextEditingController();
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   var _themeSelection = [true, false, false, false, false];
   var _windUnitSelection = [true, false, false, false];
@@ -96,11 +93,11 @@ class _SettingsPageState extends State<SettingsPage>
       _first = false;
       setState(() {
         _themeSelection = [
-          Provider.of<ApplicationState>(context).theme == PWSTheme.Day,
-          Provider.of<ApplicationState>(context).theme == PWSTheme.Evening,
-          Provider.of<ApplicationState>(context).theme == PWSTheme.Night,
-          Provider.of<ApplicationState>(context).theme == PWSTheme.Grey,
-          Provider.of<ApplicationState>(context).theme == PWSTheme.Blacked,
+          widget.themeService.activeTheme == "day",
+          widget.themeService.activeTheme == "evening",
+          widget.themeService.activeTheme == "night",
+          widget.themeService.activeTheme == "grey",
+          widget.themeService.activeTheme == "blacked",
         ];
         _windUnitSelection = [
           Provider.of<ApplicationState>(context).prefWindUnit == "km/h",
@@ -127,21 +124,18 @@ class _SettingsPageState extends State<SettingsPage>
         ];
       });
     }
-    return Theme(
-      data: ThemeData(
-          primarySwatch: Provider.of<ApplicationState>(context).mainColor),
-      child: WillPopScope(
-        onWillPop: _onWillPop,
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: ListTileTheme(
+        iconColor: Theme.of(context).iconTheme.color,
         child: Scaffold(
           key: _scaffoldKey,
-          backgroundColor: Provider.of<ApplicationState>(context).mainColorDark,
           appBar: AppBar(
             brightness: Brightness.dark,
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => closeSettings(),
             ),
-            backgroundColor: Provider.of<ApplicationState>(context).mainColor,
             title: Text(
               "Settings",
               maxLines: 1,
@@ -154,27 +148,13 @@ class _SettingsPageState extends State<SettingsPage>
             centerTitle: true,
           ),
           floatingActionButton: FloatingActionButton.extended(
-            backgroundColor:
-                Provider.of<ApplicationState>(context).theme == PWSTheme.Blacked
-                    ? Colors.white
-                    : Provider.of<ApplicationState>(context).mainColor,
             onPressed: _addSource,
             elevation: 2,
             icon: Icon(
               Icons.add,
-              color: Provider.of<ApplicationState>(context).theme ==
-                      PWSTheme.Blacked
-                  ? Colors.black
-                  : Colors.white,
             ),
             label: Text(
               "add",
-              style: TextStyle(
-                color: Provider.of<ApplicationState>(context).theme ==
-                        PWSTheme.Blacked
-                    ? Colors.black
-                    : Colors.white,
-              ),
             ),
             key: _fabKey,
           ),
@@ -225,33 +205,21 @@ class _SettingsPageState extends State<SettingsPage>
                                       _themeSelection[buttonIndex] = false;
                                     }
                                   }
-                                  SharedPreferences prefs =
-                                      await SharedPreferences.getInstance();
                                   switch (index) {
                                     case 0:
-                                      Provider.of<ApplicationState>(context)
-                                          .setTheme(PWSTheme.Day);
-                                      prefs.setString("theme", "Day");
+                                      widget.themeService.setTheme("day");
                                       break;
                                     case 1:
-                                      Provider.of<ApplicationState>(context)
-                                          .setTheme(PWSTheme.Evening);
-                                      prefs.setString("theme", "Evening");
+                                      widget.themeService.setTheme("evening");
                                       break;
                                     case 2:
-                                      Provider.of<ApplicationState>(context)
-                                          .setTheme(PWSTheme.Night);
-                                      prefs.setString("theme", "Night");
+                                      widget.themeService.setTheme("night");
                                       break;
                                     case 3:
-                                      Provider.of<ApplicationState>(context)
-                                          .setTheme(PWSTheme.Grey);
-                                      prefs.setString("theme", "Grey");
+                                      widget.themeService.setTheme("grey");
                                       break;
                                     case 4:
-                                      Provider.of<ApplicationState>(context)
-                                          .setTheme(PWSTheme.Blacked);
-                                      prefs.setString("theme", "Blacked");
+                                      widget.themeService.setTheme("blacked");
                                       break;
                                   }
                                   setState(() {});
@@ -320,12 +288,6 @@ class _SettingsPageState extends State<SettingsPage>
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityUpdateTimer", value);
                               },
-                              activeTrackColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
-                              activeColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
                             ),
                           ],
                         ),
@@ -345,12 +307,6 @@ class _SettingsPageState extends State<SettingsPage>
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityWindSpeed", value);
                               },
-                              activeTrackColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
-                              activeColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
                             ),
                           ],
                         ),
@@ -370,12 +326,6 @@ class _SettingsPageState extends State<SettingsPage>
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityPressure", value);
                               },
-                              activeTrackColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
-                              activeColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
                             ),
                           ],
                         ),
@@ -395,12 +345,6 @@ class _SettingsPageState extends State<SettingsPage>
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityWindDirection", value);
                               },
-                              activeTrackColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
-                              activeColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
                             ),
                           ],
                         ),
@@ -420,12 +364,6 @@ class _SettingsPageState extends State<SettingsPage>
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityHumidity", value);
                               },
-                              activeTrackColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
-                              activeColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
                             ),
                           ],
                         ),
@@ -445,12 +383,6 @@ class _SettingsPageState extends State<SettingsPage>
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityTemperature", value);
                               },
-                              activeTrackColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
-                              activeColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
                             ),
                           ],
                         ),
@@ -470,12 +402,6 @@ class _SettingsPageState extends State<SettingsPage>
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityWindChill", value);
                               },
-                              activeTrackColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
-                              activeColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
                             ),
                           ],
                         ),
@@ -495,12 +421,6 @@ class _SettingsPageState extends State<SettingsPage>
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityRain", value);
                               },
-                              activeTrackColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
-                              activeColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
                             ),
                           ],
                         ),
@@ -520,12 +440,6 @@ class _SettingsPageState extends State<SettingsPage>
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityDew", value);
                               },
-                              activeTrackColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
-                              activeColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
                             ),
                           ],
                         ),
@@ -545,12 +459,6 @@ class _SettingsPageState extends State<SettingsPage>
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilitySunrise", value);
                               },
-                              activeTrackColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
-                              activeColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
                             ),
                           ],
                         ),
@@ -570,12 +478,6 @@ class _SettingsPageState extends State<SettingsPage>
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilitySunset", value);
                               },
-                              activeTrackColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
-                              activeColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
                             ),
                           ],
                         ),
@@ -595,12 +497,6 @@ class _SettingsPageState extends State<SettingsPage>
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityMoonrise", value);
                               },
-                              activeTrackColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
-                              activeColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
                             ),
                           ],
                         ),
@@ -620,12 +516,6 @@ class _SettingsPageState extends State<SettingsPage>
                                     await SharedPreferences.getInstance();
                                 prefs.setBool("visibilityMoonset", value);
                               },
-                              activeTrackColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
-                              activeColor:
-                                  Provider.of<ApplicationState>(context)
-                                      .mainColor,
                             ),
                           ],
                         ),
@@ -664,9 +554,6 @@ class _SettingsPageState extends State<SettingsPage>
                               flex: 1,
                               child: Slider(
                                 value: refreshInterval,
-                                activeColor:
-                                    Provider.of<ApplicationState>(context)
-                                        .mainColor,
                                 onChanged: (value) async {
                                   setState(() => refreshInterval = value);
                                   SharedPreferences prefs =
@@ -717,9 +604,6 @@ class _SettingsPageState extends State<SettingsPage>
                                   IconButton(
                                     icon: Icon(
                                       Icons.edit,
-                                      color:
-                                          Provider.of<ApplicationState>(context)
-                                              .mainColorDark,
                                     ),
                                     onPressed: () {
                                       _editSource(position);
@@ -957,295 +841,81 @@ class _SettingsPageState extends State<SettingsPage>
   Widget _unitToggleButton(String unit) {
     return Text(
       unit,
-      style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w700),
+      style: TextStyle(
+        fontSize: 20.0,
+        fontWeight: FontWeight.w700,
+        color:
+            widget.themeService.themeSubject.value.brightness == Brightness.dark
+                ? Colors.white
+                : Colors.black,
+      ),
     );
   }
 
-  _addSource() {
-    showDialog(
+  _addSource() async {
+    var source = await showDialog(
       context: context,
       builder: (ctx) => Provider<ApplicationState>.value(
         value: Provider.of<ApplicationState>(context),
-        child: AlertDialog(
-          title: Text("Add source"),
-          content: Form(
-            key: _addFormKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    controller: _addNameController,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty)
-                        return "You must set a source name.";
-                      return null;
-                    },
-                    decoration: InputDecoration.collapsed(
-                        hintText: "Source name",
-                        border: UnderlineInputBorder()),
-                    maxLines: 1,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    keyboardType: TextInputType.url,
-                    controller: _addUrlController,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty)
-                        return "You must set a source url.";
-                      return null;
-                    },
-                    decoration: InputDecoration.collapsed(
-                        hintText: "Realtime file URL",
-                        border: UnderlineInputBorder()),
-                    maxLines: 1,
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: TextFormField(
-                    keyboardType: TextInputType.number,
-                    controller: _addIntervalController,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                    ),
-                    validator: (value) {
-                      if (value == null ||
-                          value.isEmpty ||
-                          int.tryParse(value) == null ||
-                          int.tryParse(value) < 0)
-                        return "Please set a valid interval.";
-                      return null;
-                    },
-                    decoration: InputDecoration.collapsed(
-                        hintText: "Refresh interval (sec).",
-                        border: UnderlineInputBorder()),
-                    maxLines: 1,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            FlatButton(
-              textColor: Provider.of<ApplicationState>(context).mainColor,
-              child: Text("Close"),
-              onPressed: () {
-                Navigator.of(ctx).pop();
-              },
-            ),
-            FlatButton(
-              color: Provider.of<ApplicationState>(context).mainColor,
-              textColor: Colors.white,
-              child: Text("Add"),
-              onPressed: () async {
-                FocusScope.of(ctx).requestFocus(FocusNode());
-                if (_addFormKey.currentState.validate()) {
-                  _addFormKey.currentState.save();
-                  Source source = Source(
-                      Provider.of<ApplicationState>(context).countID++,
-                      _addNameController.text,
-                      _addUrlController.text,
-                      autoUpdateInterval:
-                          int.parse(_addIntervalController.text));
-                  SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  _sources.add(source);
-                  List<String> sourcesJSON = List();
-                  for (Source source in _sources) {
-                    String sourceJSON = jsonEncode(source);
-                    sourcesJSON.add(sourceJSON);
-                  }
-                  prefs.setStringList("sources", sourcesJSON);
-                  prefs.setInt("count_id",
-                      Provider.of<ApplicationState>(context).countID);
-                  _retrieveSources();
-                  Navigator.of(ctx).pop();
-                }
-              },
-            ),
-          ],
-        ),
+        child: AddSourceDialog(context),
       ),
     );
-    _addNameController.text = "";
-    _addUrlController.text = "";
-    _addIntervalController.text = "";
+    if (source != null && source is Source) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      _sources.add(source);
+      List<String> sourcesJSON = List();
+      for (Source source in _sources) {
+        String sourceJSON = jsonEncode(source);
+        sourcesJSON.add(sourceJSON);
+      }
+      prefs.setStringList("sources", sourcesJSON);
+      prefs.setInt("count_id", Provider.of<ApplicationState>(context).countID);
+      _retrieveSources();
+    }
   }
 
-  _editSource(int position) {
-    showDialog(
+  _editSource(int position) async {
+    var source = await showDialog(
         context: context,
         builder: (BuildContext ctx) {
-          return AlertDialog(
-            title: Text("Edit " + _sources[position].name),
-            content: Form(
-              key: _editFormKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      controller: _editNameController,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty)
-                          return "You must set a source name.";
-                        return null;
-                      },
-                      decoration: InputDecoration.collapsed(
-                          hintText: "Source name",
-                          border: UnderlineInputBorder()),
-                      maxLines: 1,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      keyboardType: TextInputType.url,
-                      controller: _editUrlController,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty)
-                          return "You must set a source url.";
-                        return null;
-                      },
-                      decoration: InputDecoration.collapsed(
-                        hintText: "Realtime file URL",
-                        border: UnderlineInputBorder(),
-                      ),
-                      maxLines: 1,
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: TextFormField(
-                      keyboardType: TextInputType.number,
-                      controller: _editIntervalController,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 18,
-                      ),
-                      validator: (value) {
-                        if (value == null ||
-                            value.isEmpty ||
-                            int.tryParse(value) == null ||
-                            int.tryParse(value) < 0)
-                          return "Please set a valid interval.";
-                        return null;
-                      },
-                      decoration: InputDecoration.collapsed(
-                          hintText: "Refresh interval (sec).",
-                          border: UnderlineInputBorder()),
-                      maxLines: 1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            actions: <Widget>[
-              FlatButton(
-                textColor: Provider.of<ApplicationState>(context).mainColor,
-                child: Text("Close"),
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                },
-              ),
-              FlatButton(
-                color: Provider.of<ApplicationState>(context).mainColor,
-                textColor: Colors.white,
-                child: Text("Edit"),
-                onPressed: () async {
-                  if (_editFormKey.currentState.validate()) {
-                    _editFormKey.currentState.save();
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    _sources[position].name = _editNameController.text;
-                    _sources[position].url = _editUrlController.text;
-                    _sources[position].autoUpdateInterval =
-                        int.parse(_editIntervalController.text);
-                    List<String> sourcesJSON = List();
-                    for (Source source in _sources) {
-                      String sourceJSON = jsonEncode(source);
-                      sourcesJSON.add(sourceJSON);
-                    }
-                    prefs.setStringList("sources", sourcesJSON);
-                    _retrieveSources();
-                    Navigator.of(ctx).pop();
-                  }
-                },
-              ),
-            ],
-          );
+          return EditSourceDialog(_sources[position], context);
         });
-    setState(() {
-      _editNameController.text = _sources[position].name;
-      _editUrlController.text = _sources[position].url;
-      _editIntervalController.text =
-          _sources[position].autoUpdateInterval.toString();
-    });
+    if (source != null && source is Source) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      _sources[position].name = source.name;
+      _sources[position].url = source.url;
+      _sources[position].autoUpdateInterval = source.autoUpdateInterval;
+      List<String> sourcesJSON = List();
+      for (Source source in _sources) {
+        String sourceJSON = jsonEncode(source);
+        sourcesJSON.add(sourceJSON);
+      }
+      prefs.setStringList("sources", sourcesJSON);
+      _retrieveSources();
+    }
   }
 
   _deleteSource(int position) async {
-    showDialog(
+    var delete = await showDialog(
       context: context,
       builder: (BuildContext ctx) {
         // return object of type Dialog
-        return AlertDialog(
-          title: Text("Delete " + _sources[position].name + "?"),
-          content: Text(
-              "This operation is irreversible, if you press Yes this source will be deleted. You really want to delete it?"),
-          actions: <Widget>[
-            FlatButton(
-              textColor: Provider.of<ApplicationState>(context).mainColor,
-              child: Text("Yes"),
-              onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                List<String> sourcesJSON = List();
-                int index = prefs.getInt("last_used_source") ?? -1;
-                if (index == _sources[position].id)
-                  prefs.remove("last_used_source");
-                _sources.removeAt(position);
-                for (Source source in _sources) {
-                  String sourceJSON = jsonEncode(source);
-                  sourcesJSON.add(sourceJSON);
-                }
-                prefs.setStringList("sources", sourcesJSON);
-                _retrieveSources();
-                Navigator.of(ctx).pop();
-              },
-            ),
-            FlatButton(
-              color: Provider.of<ApplicationState>(context).mainColor,
-              textColor: Colors.white,
-              child: Text("Close"),
-              onPressed: () {
-                Navigator.of(ctx).pop();
-              },
-            ),
-          ],
-        );
+        return DeleteSourceDialog(_sources[position], context);
       },
     );
+    if (delete != null && delete is bool && delete) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      List<String> sourcesJSON = List();
+      int index = prefs.getInt("last_used_source") ?? -1;
+      if (index == _sources[position].id) prefs.remove("last_used_source");
+      _sources.removeAt(position);
+      for (Source source in _sources) {
+        String sourceJSON = jsonEncode(source);
+        sourcesJSON.add(sourceJSON);
+      }
+      prefs.setStringList("sources", sourcesJSON);
+      _retrieveSources();
+    }
   }
 
   Future<Null> _getSettings() async {

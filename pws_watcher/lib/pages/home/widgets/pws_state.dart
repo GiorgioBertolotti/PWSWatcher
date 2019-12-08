@@ -2,9 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:pws_watcher/resources/parsing_properties.dart';
-import 'package:pws_watcher/resources/state.dart';
-import 'package:pws_watcher/ui/detail.dart';
+import 'package:pws_watcher/model/parsing_properties\.dart';
+import 'package:pws_watcher/model/state\.dart';
+import 'package:pws_watcher/pages/detail/detail.dart';
 import 'package:xml/xml.dart' as xml;
 import 'package:http/http.dart' as http;
 import 'package:flutter_svg/flutter_svg.dart';
@@ -156,17 +156,9 @@ class _PWSStatePageState extends State<PWSStatePage>
                         child: AnimatedBuilder(
                             animation: _controller,
                             builder: (context, snapshot) {
-                              return Theme(
-                                data: ThemeData(
-                                  primarySwatch:
-                                      Provider.of<ApplicationState>(context)
-                                          .mainColor,
-                                ),
-                                child: CircularProgressIndicator(
-                                  value: _controller.value,
-                                  strokeWidth: 2.5,
-                                  backgroundColor: Colors.white,
-                                ),
+                              return CircularProgressIndicator(
+                                value: _controller.value,
+                                strokeWidth: 2.5,
                               );
                             }),
                       ),
