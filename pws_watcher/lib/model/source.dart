@@ -15,10 +15,16 @@ class Source {
     };
   }
 
-  bool isEqual(Source other) {
-    return this.id == other.id &&
-        this.name == other.name &&
-        this.url == other.url &&
-        this.autoUpdateInterval == other.autoUpdateInterval;
-  }
+  bool operator ==(o) =>
+      o is Source &&
+      this.id == o.id &&
+      this.name == o.name &&
+      this.url == o.url &&
+      this.autoUpdateInterval == o.autoUpdateInterval;
+
+  int get hashCode =>
+      this.id.hashCode ^
+      this.name.hashCode ^
+      this.url.hashCode ^
+      this.autoUpdateInterval.hashCode;
 }
