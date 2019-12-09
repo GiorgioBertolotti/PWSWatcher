@@ -1,13 +1,13 @@
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pws_watcher/model/parsing_properties\.dart';
 import 'package:pws_watcher/model/state\.dart';
 import 'package:pws_watcher/pages/detail/detail.dart';
+import 'package:pws_watcher/pages/home/widgets/update_timer.dart';
+import 'package:pws_watcher/pages/home/widgets/variable_row.dart';
 import 'package:xml/xml.dart' as xml;
 import 'package:http/http.dart' as http;
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pws_watcher/model/source.dart';
 import 'dart:async';
@@ -21,10 +21,8 @@ class PWSStatePage extends StatefulWidget {
   _PWSStatePageState createState() => _PWSStatePageState();
 }
 
-class _PWSStatePageState extends State<PWSStatePage>
-    with TickerProviderStateMixin {
+class _PWSStatePageState extends State<PWSStatePage> {
   Map<String, String> _sourceData;
-  AnimationController _controller;
   Source _source;
 
   var location = "Location";
@@ -70,45 +68,6 @@ class _PWSStatePageState extends State<PWSStatePage>
     _source = widget.source;
     _updatePreferences();
     _retrieveData(_source.url);
-    if (_source.autoUpdateInterval != null && _source.autoUpdateInterval != 0) {
-      startTimer();
-    }
-  }
-
-  void startTimer() {
-    _controller = AnimationController(
-      duration: Duration(seconds: _source.autoUpdateInterval),
-      vsync: this,
-    );
-    _controller.addListener(() {
-      if (_controller.value > 0.99) {
-        _retrieveData(_source.url);
-      }
-    });
-    _controller.repeat();
-  }
-
-  void restartTimer() {
-    if (_controller != null) {
-      _controller.stop();
-      _controller.dispose();
-    }
-    _controller = AnimationController(
-      duration: Duration(seconds: _source.autoUpdateInterval),
-      vsync: this,
-    );
-    _controller.addListener(() {
-      if (_controller.value > 0.99) {
-        _retrieveData(_source.url);
-      }
-    });
-    _controller.repeat();
-  }
-
-  @override
-  void dispose() {
-    if (_controller != null) _controller.dispose();
-    super.dispose();
   }
 
   @override
@@ -118,569 +77,198 @@ class _PWSStatePageState extends State<PWSStatePage>
       _updatePreferences();
       _retrieveData(_source.url);
     }
-    if (!this._source.isEqual(widget.source)) {
-      this._source = widget.source;
-      if (this._source.autoUpdateInterval != null &&
-          this._source.autoUpdateInterval != 0) {
-        restartTimer();
-      }
-    }
-    return Stack(
+    return ListView(
+      physics: BouncingScrollPhysics(),
+      shrinkWrap: true,
       children: <Widget>[
-        (_source.autoUpdateInterval != null && _source.autoUpdateInterval == 0)
-            ? Positioned(
-                top: 0.0,
-                left: 0.0,
-                child: IconButton(
-                  tooltip: "Update",
-                  icon: Icon(
-                    Icons.refresh,
-                    color: Colors.white,
-                  ),
-                  padding: EdgeInsets.all(0),
-                  onPressed: () {
-                    _retrieveData(_source.url);
-                  },
-                ),
-              )
-            : visibilityUpdateTimer
-                ? Positioned(
-                    top: 0.0,
-                    left: 0.0,
-                    child: Tooltip(
-                      message: "Update timer",
-                      child: Container(
-                        margin: EdgeInsets.all(16.0),
-                        width: 16.0,
-                        height: 16.0,
-                        child: AnimatedBuilder(
-                            animation: _controller,
-                            builder: (context, snapshot) {
-                              return CircularProgressIndicator(
-                                value: _controller.value,
-                                strokeWidth: 2.5,
-                              );
-                            }),
-                      ),
-                    ),
-                  )
-                : Container(),
-        Positioned(
-          top: 50.0,
-          right: 0.0,
-          left: 0.0,
+        _buildUpdateIndicator(_source),
+        SizedBox(height: 20.0),
+        Center(
+          child: Text(
+            "$location",
+            maxLines: 1,
+            style: TextStyle(
+              fontSize: 40,
+              fontWeight: FontWeight.w900,
+              color: Theme.of(context).accentColor,
+            ),
+          ),
+        ),
+        Center(
+          child: Text(
+            "$datetime",
+            maxLines: 1,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.normal,
+              color: Theme.of(context).accentColor,
+            ),
+          ),
+        ),
+        SizedBox(height: 50.0),
+        Center(
+          child: Text(
+            "$temperature$tempUnit",
+            maxLines: 1,
+            style: TextStyle(
+              fontSize: 72,
+              fontWeight: FontWeight.w900,
+              color: Theme.of(context).accentColor,
+            ),
+          ),
+        ),
+        SizedBox(height: 50.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: DoubleVariableRow(
+            "Wind speed",
+            "assets/images/windspeed.svg",
+            windspeed,
+            windUnit,
+            "Pressure",
+            "assets/images/barometer.svg",
+            press,
+            pressUnit,
+            visibilityLeft: visibilityWindSpeed,
+            visibilityRight: visibilityPressure,
+          ),
+        ),
+        SizedBox(height: 20.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: DoubleVariableRow(
+            "Wind direction",
+            "assets/images/winddir.svg",
+            winddir,
+            "",
+            "Humidity",
+            "assets/images/humidity.svg",
+            humidity,
+            humUnit,
+            visibilityLeft: visibilityWindDirection,
+            visibilityRight: visibilityHumidity,
+          ),
+        ),
+        SizedBox(height: 20.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: DoubleVariableRow(
+            "Temperature",
+            "assets/images/temperature.svg",
+            temperature,
+            tempUnit,
+            "Wind chill",
+            "assets/images/windchill.svg",
+            windchill,
+            tempUnit,
+            visibilityLeft: visibilityTemperature,
+            visibilityRight: visibilityWindChill,
+          ),
+        ),
+        SizedBox(height: 20.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: DoubleVariableRow(
+            "Rain",
+            "assets/images/rain.svg",
+            rain,
+            rainUnit,
+            "Dew",
+            "assets/images/dew.svg",
+            dew,
+            dewUnit,
+            visibilityLeft: visibilityRain,
+            visibilityRight: visibilityDew,
+          ),
+        ),
+        SizedBox(height: 20.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: DoubleVariableRow(
+            "Sunrise",
+            "assets/images/sunrise.svg",
+            sunrise,
+            "",
+            "Moonrise",
+            "assets/images/moonrise.svg",
+            moonrise,
+            "",
+            visibilityLeft: visibilitySunrise,
+            visibilityRight: visibilityMoonrise,
+          ),
+        ),
+        SizedBox(height: 20.0),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: DoubleVariableRow(
+            "Sunset",
+            "assets/images/sunset.svg",
+            sunset,
+            "",
+            "Moonset",
+            "assets/images/moonset.svg",
+            moonset,
+            "",
+            visibilityLeft: visibilitySunset,
+            visibilityRight: visibilityMoonset,
+          ),
+        ),
+        SizedBox(height: 40.0),
+        Container(
+          padding: EdgeInsets.all(20),
           child: Column(
             children: <Widget>[
               Text(
-                "$location",
+                "More info",
                 maxLines: 1,
                 style: TextStyle(
-                  fontSize: 40,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
+                  fontSize: 20,
+                  color: Theme.of(context).accentColor,
                 ),
               ),
-              Text(
-                "$datetime",
-                maxLines: 1,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.normal,
-                  color: Colors.white,
+              IconButton(
+                icon: Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Theme.of(context).accentColor,
                 ),
+                onPressed: _openDetailPage,
               ),
             ],
           ),
         ),
-        Container(
-          padding: EdgeInsets.all(20),
-          child: Center(
-            child: ListView(
-              physics: BouncingScrollPhysics(),
-              shrinkWrap: true,
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text(
-                      "$temperature$tempUnit",
-                      maxLines: 1,
-                      style: TextStyle(
-                        fontSize: 72,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 50.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Tooltip(
-                      message: "Wind speed",
-                      child: visibilityWindSpeed
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: SvgPicture.asset(
-                                      'assets/images/windspeed.svg',
-                                      color: Colors.white,
-                                      width: 30,
-                                      height: 30,
-                                      semanticsLabel: 'Wind speed'),
-                                ),
-                                Text(
-                                  "$windspeed",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  "$windUnit",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Container(),
-                    ),
-                    Tooltip(
-                      message: "Pressure",
-                      child: visibilityPressure
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  "$press",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  "$pressUnit",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 10),
-                                  child: SvgPicture.asset(
-                                      'assets/images/barometer.svg',
-                                      color: Colors.white,
-                                      width: 30,
-                                      height: 30,
-                                      semanticsLabel: 'Barometer'),
-                                ),
-                              ],
-                            )
-                          : Container(),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Tooltip(
-                      message: "Wind direction",
-                      child: visibilityWindDirection
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: SvgPicture.asset(
-                                      'assets/images/winddir.svg',
-                                      color: Colors.white,
-                                      width: 30,
-                                      height: 30,
-                                      semanticsLabel: 'Wind dir'),
-                                ),
-                                Text(
-                                  "$winddir",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Container(),
-                    ),
-                    Tooltip(
-                      message: "Humidity",
-                      child: visibilityHumidity
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  "$humidity",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  "$humUnit",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 10),
-                                  child: SvgPicture.asset(
-                                      'assets/images/humidity.svg',
-                                      color: Colors.white,
-                                      width: 30,
-                                      height: 30,
-                                      semanticsLabel: 'Humidity'),
-                                ),
-                              ],
-                            )
-                          : Container(),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Tooltip(
-                      message: "Temperature",
-                      child: visibilityTemperature
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: SvgPicture.asset(
-                                      'assets/images/temperature.svg',
-                                      color: Colors.white,
-                                      width: 30,
-                                      height: 30,
-                                      semanticsLabel: 'Temperature'),
-                                ),
-                                Text(
-                                  "$temperature",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  "$tempUnit",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Container(),
-                    ),
-                    Tooltip(
-                      message: "Wind chill",
-                      child: visibilityWindChill
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  "$windchill",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  "$tempUnit",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 10),
-                                  child: SvgPicture.asset(
-                                      'assets/images/windchill.svg',
-                                      color: Colors.white,
-                                      width: 30,
-                                      height: 30,
-                                      semanticsLabel: 'Wind chill'),
-                                ),
-                              ],
-                            )
-                          : Container(),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Tooltip(
-                      message: "Rain",
-                      child: visibilityRain
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: SvgPicture.asset(
-                                      'assets/images/rain.svg',
-                                      color: Colors.white,
-                                      width: 30,
-                                      height: 30,
-                                      semanticsLabel: 'Rain'),
-                                ),
-                                Text(
-                                  "$rain",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  "$rainUnit",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Container(),
-                    ),
-                    Tooltip(
-                      message: "Dew",
-                      child: visibilityDew
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Text(
-                                  "$dew",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  "$dewUnit",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 10),
-                                  child: SvgPicture.asset(
-                                      'assets/images/dew.svg',
-                                      color: Colors.white,
-                                      width: 30,
-                                      height: 30,
-                                      semanticsLabel: 'Dew point'),
-                                ),
-                              ],
-                            )
-                          : Container(),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Tooltip(
-                      message: "Sunrise",
-                      child: visibilitySunrise
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: SvgPicture.asset(
-                                      'assets/images/sunrise.svg',
-                                      color: Colors.white,
-                                      width: 30,
-                                      height: 30,
-                                      semanticsLabel: 'Sunrise'),
-                                ),
-                                Text(
-                                  "$sunrise",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Container(),
-                    ),
-                    Tooltip(
-                      message: "Moonrise",
-                      child: visibilityMoonrise
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: SvgPicture.asset(
-                                      'assets/images/moonrise.svg',
-                                      color: Colors.white,
-                                      width: 30,
-                                      height: 30,
-                                      semanticsLabel: 'Moonrise'),
-                                ),
-                                Text(
-                                  "$moonrise",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Container(),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Tooltip(
-                      message: "Sunset",
-                      child: visibilitySunset
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: SvgPicture.asset(
-                                      'assets/images/sunset.svg',
-                                      color: Colors.white,
-                                      width: 30,
-                                      height: 30,
-                                      semanticsLabel: 'Sunset'),
-                                ),
-                                Text(
-                                  "$sunset",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Container(),
-                    ),
-                    Tooltip(
-                      message: "Moonset",
-                      child: visibilityMoonset
-                          ? Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.only(right: 10),
-                                  child: SvgPicture.asset(
-                                      'assets/images/moonset.svg',
-                                      color: Colors.white,
-                                      width: 30,
-                                      height: 30,
-                                      semanticsLabel: 'Moonset'),
-                                ),
-                                Text(
-                                  "$moonset",
-                                  maxLines: 1,
-                                  style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.normal,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            )
-                          : Container(),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: 10.0,
-          right: 0.0,
-          left: 0.0,
-          child: Container(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              children: <Widget>[
-                Text(
-                  "More info",
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.keyboard_arrow_down,
-                    color: Colors.white,
-                  ),
-                  onPressed: _openDetailPage,
-                ),
-              ],
-            ),
-          ),
-        ),
       ],
     );
+  }
+
+  dynamic _buildUpdateIndicator(Source source) {
+    if (source.autoUpdateInterval != null && source.autoUpdateInterval == 0) {
+      return Align(
+        alignment: Alignment.topLeft,
+        child: IconButton(
+          tooltip: "Update",
+          icon: Icon(
+            Icons.refresh,
+            color: Theme.of(context).accentColor,
+          ),
+          padding: EdgeInsets.all(0),
+          onPressed: () {
+            _retrieveData(_source.url);
+          },
+        ),
+      );
+    } else if (visibilityUpdateTimer) {
+      return Align(
+        alignment: Alignment.topLeft,
+        child: Tooltip(
+          message: "Update timer",
+          child: UpdateTimer(
+            Duration(seconds: source.autoUpdateInterval),
+            () => _retrieveData(source.url),
+          ),
+        ),
+      );
+    } else
+      return Container();
   }
 
   _openDetailPage() async {

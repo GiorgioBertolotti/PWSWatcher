@@ -239,23 +239,26 @@ class _SettingsPageState extends State<SettingsPage>
                             ),
                           ),
                         ),
-                        Text("Wind speed unit"),
+                        Text("Wind speed unit",
+                            style: TextStyle(fontSize: 16.0)),
                         SizedBox(height: 10.0),
                         _windSpeedUnitSelector(),
                         SizedBox(height: 20.0),
-                        Text("Rain unit"),
+                        Text("Rain unit", style: TextStyle(fontSize: 16.0)),
                         SizedBox(height: 10.0),
                         _rainUnitSelector(),
                         SizedBox(height: 20.0),
-                        Text("Pressure unit"),
+                        Text("Pressure unit", style: TextStyle(fontSize: 16.0)),
                         SizedBox(height: 10.0),
                         _pressUnitSelector(),
                         SizedBox(height: 20.0),
-                        Text("Temperature unit"),
+                        Text("Temperature unit",
+                            style: TextStyle(fontSize: 16.0)),
                         SizedBox(height: 10.0),
                         _tempUnitSelector(),
                         SizedBox(height: 20.0),
-                        Text("Dew point unit"),
+                        Text("Dew point unit",
+                            style: TextStyle(fontSize: 16.0)),
                         SizedBox(height: 10.0),
                         _dewUnitSelector(),
                         SizedBox(height: 20.0),
@@ -272,252 +275,187 @@ class _SettingsPageState extends State<SettingsPage>
                             ),
                           ),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Update timer visibility"),
-                            Switch(
-                              value: visibilityUpdateTimer,
-                              onChanged: (value) async {
-                                setState(() {
-                                  visibilityUpdateTimer = value;
-                                });
-                                Provider.of<ApplicationState>(context)
-                                    .updatePreferences = true;
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setBool("visibilityUpdateTimer", value);
-                              },
-                            ),
-                          ],
+                        SwitchListTile(
+                          title: Text("Update timer visibility"),
+                          value: visibilityUpdateTimer,
+                          onChanged: (value) async {
+                            setState(() {
+                              visibilityUpdateTimer = value;
+                            });
+                            Provider.of<ApplicationState>(context)
+                                .updatePreferences = true;
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setBool("visibilityUpdateTimer", value);
+                          },
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Wind speed visibility"),
-                            Switch(
-                              value: visibilityWindSpeed,
-                              onChanged: (value) async {
-                                setState(() {
-                                  visibilityWindSpeed = value;
-                                });
-                                Provider.of<ApplicationState>(context)
-                                    .updatePreferences = true;
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setBool("visibilityWindSpeed", value);
-                              },
-                            ),
-                          ],
+                        SwitchListTile(
+                          title: Text("Wind speed visibility"),
+                          value: visibilityWindSpeed,
+                          onChanged: (value) async {
+                            setState(() {
+                              visibilityWindSpeed = value;
+                            });
+                            Provider.of<ApplicationState>(context)
+                                .updatePreferences = true;
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setBool("visibilityWindSpeed", value);
+                          },
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Pressure visibility"),
-                            Switch(
-                              value: visibilityPressure,
-                              onChanged: (value) async {
-                                setState(() {
-                                  visibilityPressure = value;
-                                });
-                                Provider.of<ApplicationState>(context)
-                                    .updatePreferences = true;
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setBool("visibilityPressure", value);
-                              },
-                            ),
-                          ],
+                        SwitchListTile(
+                          title: Text("Pressure visibility"),
+                          value: visibilityPressure,
+                          onChanged: (value) async {
+                            setState(() {
+                              visibilityPressure = value;
+                            });
+                            Provider.of<ApplicationState>(context)
+                                .updatePreferences = true;
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setBool("visibilityPressure", value);
+                          },
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Wind direction visibility"),
-                            Switch(
-                              value: visibilityWindDirection,
-                              onChanged: (value) async {
-                                setState(() {
-                                  visibilityWindDirection = value;
-                                });
-                                Provider.of<ApplicationState>(context)
-                                    .updatePreferences = true;
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setBool("visibilityWindDirection", value);
-                              },
-                            ),
-                          ],
+                        SwitchListTile(
+                          title: Text("Wind direction visibility"),
+                          value: visibilityWindDirection,
+                          onChanged: (value) async {
+                            setState(() {
+                              visibilityWindDirection = value;
+                            });
+                            Provider.of<ApplicationState>(context)
+                                .updatePreferences = true;
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setBool("visibilityWindDirection", value);
+                          },
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Humidity visibility"),
-                            Switch(
-                              value: visibilityHumidity,
-                              onChanged: (value) async {
-                                setState(() {
-                                  visibilityHumidity = value;
-                                });
-                                Provider.of<ApplicationState>(context)
-                                    .updatePreferences = true;
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setBool("visibilityHumidity", value);
-                              },
-                            ),
-                          ],
+                        SwitchListTile(
+                          title: Text("Humidity visibility"),
+                          value: visibilityHumidity,
+                          onChanged: (value) async {
+                            setState(() {
+                              visibilityHumidity = value;
+                            });
+                            Provider.of<ApplicationState>(context)
+                                .updatePreferences = true;
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setBool("visibilityHumidity", value);
+                          },
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Temperature (small) visibility"),
-                            Switch(
-                              value: visibilityTemperature,
-                              onChanged: (value) async {
-                                setState(() {
-                                  visibilityTemperature = value;
-                                });
-                                Provider.of<ApplicationState>(context)
-                                    .updatePreferences = true;
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setBool("visibilityTemperature", value);
-                              },
-                            ),
-                          ],
+                        SwitchListTile(
+                          title: Text("Temperature (small) visibility"),
+                          value: visibilityTemperature,
+                          onChanged: (value) async {
+                            setState(() {
+                              visibilityTemperature = value;
+                            });
+                            Provider.of<ApplicationState>(context)
+                                .updatePreferences = true;
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setBool("visibilityTemperature", value);
+                          },
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Wind chill visibility"),
-                            Switch(
-                              value: visibilityWindChill,
-                              onChanged: (value) async {
-                                setState(() {
-                                  visibilityWindChill = value;
-                                });
-                                Provider.of<ApplicationState>(context)
-                                    .updatePreferences = true;
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setBool("visibilityWindChill", value);
-                              },
-                            ),
-                          ],
+                        SwitchListTile(
+                          title: Text("Wind chill visibility"),
+                          value: visibilityWindChill,
+                          onChanged: (value) async {
+                            setState(() {
+                              visibilityWindChill = value;
+                            });
+                            Provider.of<ApplicationState>(context)
+                                .updatePreferences = true;
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setBool("visibilityWindChill", value);
+                          },
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Rain visibility"),
-                            Switch(
-                              value: visibilityRain,
-                              onChanged: (value) async {
-                                setState(() {
-                                  visibilityRain = value;
-                                });
-                                Provider.of<ApplicationState>(context)
-                                    .updatePreferences = true;
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setBool("visibilityRain", value);
-                              },
-                            ),
-                          ],
+                        SwitchListTile(
+                          title: Text("Rain visibility"),
+                          value: visibilityRain,
+                          onChanged: (value) async {
+                            setState(() {
+                              visibilityRain = value;
+                            });
+                            Provider.of<ApplicationState>(context)
+                                .updatePreferences = true;
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setBool("visibilityRain", value);
+                          },
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Dew visibility"),
-                            Switch(
-                              value: visibilityDew,
-                              onChanged: (value) async {
-                                setState(() {
-                                  visibilityDew = value;
-                                });
-                                Provider.of<ApplicationState>(context)
-                                    .updatePreferences = true;
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setBool("visibilityDew", value);
-                              },
-                            ),
-                          ],
+                        SwitchListTile(
+                          title: Text("Dew visibility"),
+                          value: visibilityDew,
+                          onChanged: (value) async {
+                            setState(() {
+                              visibilityDew = value;
+                            });
+                            Provider.of<ApplicationState>(context)
+                                .updatePreferences = true;
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setBool("visibilityDew", value);
+                          },
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Sunrise hour visibility"),
-                            Switch(
-                              value: visibilitySunrise,
-                              onChanged: (value) async {
-                                setState(() {
-                                  visibilitySunrise = value;
-                                });
-                                Provider.of<ApplicationState>(context)
-                                    .updatePreferences = true;
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setBool("visibilitySunrise", value);
-                              },
-                            ),
-                          ],
+                        SwitchListTile(
+                          title: Text("Sunrise hour visibility"),
+                          value: visibilitySunrise,
+                          onChanged: (value) async {
+                            setState(() {
+                              visibilitySunrise = value;
+                            });
+                            Provider.of<ApplicationState>(context)
+                                .updatePreferences = true;
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setBool("visibilitySunrise", value);
+                          },
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Sunset hour visibility"),
-                            Switch(
-                              value: visibilitySunset,
-                              onChanged: (value) async {
-                                setState(() {
-                                  visibilitySunset = value;
-                                });
-                                Provider.of<ApplicationState>(context)
-                                    .updatePreferences = true;
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setBool("visibilitySunset", value);
-                              },
-                            ),
-                          ],
+                        SwitchListTile(
+                          title: Text("Sunset hour visibility"),
+                          value: visibilitySunset,
+                          onChanged: (value) async {
+                            setState(() {
+                              visibilitySunset = value;
+                            });
+                            Provider.of<ApplicationState>(context)
+                                .updatePreferences = true;
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setBool("visibilitySunset", value);
+                          },
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Moonrise hour visibility"),
-                            Switch(
-                              value: visibilityMoonrise,
-                              onChanged: (value) async {
-                                setState(() {
-                                  visibilityMoonrise = value;
-                                });
-                                Provider.of<ApplicationState>(context)
-                                    .updatePreferences = true;
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setBool("visibilityMoonrise", value);
-                              },
-                            ),
-                          ],
+                        SwitchListTile(
+                          title: Text("Moonrise hour visibility"),
+                          value: visibilityMoonrise,
+                          onChanged: (value) async {
+                            setState(() {
+                              visibilityMoonrise = value;
+                            });
+                            Provider.of<ApplicationState>(context)
+                                .updatePreferences = true;
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setBool("visibilityMoonrise", value);
+                          },
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: <Widget>[
-                            Text("Moonset hour visibility"),
-                            Switch(
-                              value: visibilityMoonset,
-                              onChanged: (value) async {
-                                setState(() {
-                                  visibilityMoonset = value;
-                                });
-                                Provider.of<ApplicationState>(context)
-                                    .updatePreferences = true;
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setBool("visibilityMoonset", value);
-                              },
-                            ),
-                          ],
+                        SwitchListTile(
+                          title: Text("Moonset hour visibility"),
+                          value: visibilityMoonset,
+                          onChanged: (value) async {
+                            setState(() {
+                              visibilityMoonset = value;
+                            });
+                            Provider.of<ApplicationState>(context)
+                                .updatePreferences = true;
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            prefs.setBool("visibilityMoonset", value);
+                          },
                         ),
                         const ListTile(
                           title: Text(
@@ -899,7 +837,6 @@ class _SettingsPageState extends State<SettingsPage>
     var delete = await showDialog(
       context: context,
       builder: (BuildContext ctx) {
-        // return object of type Dialog
         return DeleteSourceDialog(_sources[position], context);
       },
     );
