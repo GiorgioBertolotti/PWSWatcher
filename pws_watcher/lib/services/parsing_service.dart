@@ -36,69 +36,66 @@ class ParsingService {
 
   Future<Null> updateData({bool force = false}) async {
     String url = this.source.url;
-    _updateData(url);
+    await _updateData(url);
   }
 
   Future<Null> _updateData(String url, {bool force = false}) async {
     if (!force && _isRetrieving) return null;
-    _isRetrieving = true;
     if (url == null) return null;
-    if (url.endsWith("xml")) {
-      // parsing and variables assignment with realtime.xml
-      Map<String, String> sourceData = await _parseRealtimeXML(url);
-      if (sourceData == null) {
-        _isRetrieving = false;
-        return null;
-      }
-      allDataSubject.add(sourceData);
-      interestVariablesSubject.add(_valuesFromRealtimeXML(sourceData));
-    } else if (url.endsWith("txt")) {
-      if (url.endsWith("clientraw.txt")) {
-        // parsing and variables assignment with clientraw.txt
-        Map<String, String> sourceData = await _parseClientRawTXT(url);
-        if (sourceData == null) {
-          // parsing and variables assignment with clientraw.txt
-          sourceData = await _parseRealtimeTXT(url);
-          if (sourceData == null) {
-            _isRetrieving = false;
-            return null;
-          }
+    _isRetrieving = true;
+    try {
+      if (url.endsWith("xml")) {
+        // parsing and variables assignment with realtime.xml
+        Map<String, String> sourceData = await _parseRealtimeXML(url);
+        if (sourceData != null) {
           allDataSubject.add(sourceData);
-          interestVariablesSubject.add(_valuesFromRealtimeTXT(sourceData));
-          return null;
+          interestVariablesSubject.add(_valuesFromRealtimeXML(sourceData));
         }
-        allDataSubject.add(sourceData);
-        interestVariablesSubject.add(_valuesFromClientRawTXT(sourceData));
+      } else if (url.endsWith("txt")) {
+        if (url.endsWith("clientraw.txt")) {
+          // parsing and variables assignment with clientraw.txt
+          Map<String, String> sourceData = await _parseClientRawTXT(url);
+          if (sourceData == null) {
+            // parsing and variables assignment with clientraw.txt
+            sourceData = await _parseRealtimeTXT(url);
+            if (sourceData != null) {
+              allDataSubject.add(sourceData);
+              interestVariablesSubject.add(_valuesFromRealtimeTXT(sourceData));
+            }
+          } else {
+            allDataSubject.add(sourceData);
+            interestVariablesSubject.add(_valuesFromClientRawTXT(sourceData));
+          }
+        } else {
+          // parsing and variables assignment with realtime.txt
+          Map<String, String> sourceData = await _parseRealtimeTXT(url);
+          if (sourceData == null) {
+            // parsing and variables assignment with clientraw.txt
+            sourceData = await _parseClientRawTXT(url);
+            if (sourceData == null) {
+              _isRetrieving = false;
+              return null;
+            }
+            allDataSubject.add(sourceData);
+            interestVariablesSubject.add(_valuesFromClientRawTXT(sourceData));
+          } else {
+            allDataSubject.add(sourceData);
+            interestVariablesSubject.add(_valuesFromRealtimeTXT(sourceData));
+          }
+        }
+      } else if (url.endsWith("csv")) {
+        // parsing and variables assignment with daily.csv
+        Map<String, String> sourceData = await _parseDailyCSV(url);
+        if (sourceData != null) {
+          allDataSubject.add(sourceData);
+          Map interest = _valuesFromDailyCSV(sourceData);
+          if (interest != null) interestVariablesSubject.add(interest);
+        }
       } else {
-        // parsing and variables assignment with realtime.txt
-        Map<String, String> sourceData = await _parseRealtimeTXT(url);
-        if (sourceData == null) {
-          // parsing and variables assignment with clientraw.txt
-          sourceData = await _parseClientRawTXT(url);
-          if (sourceData == null) {
-            _isRetrieving = false;
-            return null;
-          }
-          allDataSubject.add(sourceData);
-          interestVariablesSubject.add(_valuesFromClientRawTXT(sourceData));
-          return null;
-        }
-        allDataSubject.add(sourceData);
-        interestVariablesSubject.add(_valuesFromRealtimeTXT(sourceData));
+        _updateData(url + "/realtime.xml");
+        return _updateData(url + "/realtime.txt", force: true);
       }
-    } else if (url.endsWith("csv")) {
-      // parsing and variables assignment with daily.csv
-      Map<String, String> sourceData = await _parseDailyCSV(url);
-      if (sourceData == null) {
-        _isRetrieving = false;
-        return null;
-      }
-      allDataSubject.add(sourceData);
-      interestVariablesSubject.add(_valuesFromDailyCSV(sourceData));
-    } else {
-      _updateData(url + "/realtime.xml");
-      return _updateData(url + "/realtime.txt", force: true);
-    }
+    } catch (e) {}
     _isRetrieving = false;
   }
 
@@ -208,7 +205,7 @@ class ParsingService {
           int part2 = int.parse(time.split(":")[1]);
           if (part1 == 12) {
             if (am) part1 = 0;
-            if (pm) part1 = 13;
+            if (pm) part1 = 12;
           }
           TimeOfDay timeOfDay = TimeOfDay(
             hour: part1,
@@ -563,14 +560,14 @@ class ParsingService {
           tmpDatetime += " " + map["Date"];
         }
       }
-      bool am = map["Time"].toLowerCase().contains("am");
-      bool pm = map["Time"].toLowerCase().contains("pm");
+      bool am = map["Time"]?.toLowerCase()?.contains("am") ?? false;
+      bool pm = map["Time"]?.toLowerCase()?.contains("pm") ?? false;
       String time = map["Time"].replaceAll("am", "").replaceAll("pm", "");
       int part1 = int.parse(time.split(":")[0]);
       int part2 = int.parse(time.split(":")[1]);
       if (part1 == 12) {
         if (am) part1 = 0;
-        if (pm) part1 = 13;
+        if (pm) part1 = 12;
       }
       tmpDatetime += " " +
           part1.toString().padLeft(2, "0") +
@@ -637,7 +634,6 @@ class ParsingService {
       interestVariables = _convertToPrefUnits(interestVariables);
       return interestVariables;
     } catch (e) {
-      print(e);
       return null;
     }
   }
