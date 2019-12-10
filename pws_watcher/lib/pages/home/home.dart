@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:pws_watcher/resources/dots_indicator.dart';
-import 'package:pws_watcher/resources/state.dart';
-import 'package:pws_watcher/ui/pws_state.dart';
-import 'package:pws_watcher/ui/settings.dart';
+import 'package:pws_watcher/pages/home/widgets/dots_indicator.dart';
+import 'package:pws_watcher/model/state\.dart';
+import 'package:pws_watcher/pages/home/widgets/pws_state.dart';
+import 'package:pws_watcher/pages/settings/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pws_watcher/model/source.dart';
 import 'dart:convert';
-import 'package:pws_watcher/resources/connection_status.dart';
+import 'package:pws_watcher/services/connection_status\.dart';
 import 'dart:async';
 import 'package:flare_flutter/flare_actor.dart';
 
@@ -74,8 +74,8 @@ class _HomePageState extends State<HomePage> {
           begin: Alignment.bottomCenter,
           end: Alignment.topCenter,
           colors: [
-            Provider.of<ApplicationState>(context).mainColorDark,
-            Provider.of<ApplicationState>(context).mainColor,
+            Theme.of(context).primaryColorDark,
+            Theme.of(context).primaryColor,
           ],
         ),
       ),
