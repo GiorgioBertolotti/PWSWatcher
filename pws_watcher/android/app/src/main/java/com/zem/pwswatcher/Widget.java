@@ -114,7 +114,7 @@ public class Widget extends AppWidgetProvider {
                     } catch (JSONException ignored) {
                     }
                     if (source != null) {
-                        if (source.getUrl().endsWith(".txt") || source.getUrl().endsWith(".xml")) {
+                        if (source.getUrl().endsWith(".txt") || source.getUrl().endsWith(".xml") || source.getUrl().endsWith(".csv")) {
                             DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i]);
                             dataElaborator.execute();
                         } else {
@@ -123,6 +123,9 @@ public class Widget extends AppWidgetProvider {
                             DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i]);
                             dataElaborator.execute();
                             source.setUrl(originalSource + "/realtime.xml");
+                            dataElaborator = new DataElaborator(context, source, widgetId[i]);
+                            dataElaborator.execute();
+                            source.setUrl(originalSource + "/daily.csv");
                             dataElaborator = new DataElaborator(context, source, widgetId[i]);
                             dataElaborator.execute();
                         }
@@ -187,6 +190,8 @@ public class Widget extends AppWidgetProvider {
                     done = visualizeRealtimeTXT(resp, view);
                 } else if (this.source.getUrl().endsWith(".xml")) {
                     done = visualizeRealtimeXML(resp, view);
+                } else if (this.source.getUrl().endsWith(".csv")) {
+                    done = visualizeDailyCSV(resp, view);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -195,6 +200,35 @@ public class Widget extends AppWidgetProvider {
                 AppWidgetManager manager = AppWidgetManager.getInstance(context);
                 manager.updateAppWidget(this.id, view);
             }
+        }
+
+        private boolean visualizeDailyCSV(String resp, RemoteViews view) {
+            try {
+                String[] lines = resp.split("\r\n");
+                String[] units = lines[2].split(",");
+                String[] values = lines[lines.length - 1].split(",");
+                view.setTextViewText(R.id.tv_location, this.source.getName());
+                view.setTextViewText(R.id.tv_temperature, convertTemperature(Double.parseDouble(values[7]), units[7], Widget.prefTempUnit) + Widget.prefTempUnit);
+                view.setTextViewText(R.id.tv_humidity, values[5] + "%");
+                view.setTextViewText(R.id.tv_pressure, convertPressure(Double.parseDouble(values[8]), units[8], Widget.prefPressUnit) + Widget.prefPressUnit);
+                view.setTextViewText(R.id.tv_rain, convertRain(Double.parseDouble(values[52]), units[52], Widget.prefRainUnit) + Widget.prefRainUnit);
+                view.setTextViewText(R.id.tv_windspeed, convertWindSpeed(Double.parseDouble(values[2]), units[2], Widget.prefWindUnit) + Widget.prefWindUnit);
+                String stringDate = null;
+                try {
+                    String date = lines[0] + " " + values[0];
+                    date = date.trim().replace("/", "-").replace(".", "-").toUpperCase();
+                    SimpleDateFormat format = new SimpleDateFormat("MM-dd-yy hh:mma");
+                    Date newDate = format.parse(date);
+                    stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                } catch (Exception e) {
+                    String date = lines[0] + " " + values[0];
+                    stringDate = date.trim().replace("/", "-").replace(".", "-");
+                }
+                view.setTextViewText(R.id.tv_datetime, stringDate);
+                return true;
+            } catch (Exception ignored) {
+            }
+            return false;
         }
 
         private boolean visualizeClientRawTXT(String resp, RemoteViews view) {
@@ -407,6 +441,7 @@ public class Widget extends AppWidgetProvider {
         private double convertPressure(double value, String unit, String preferred) {
             double hPa;
             switch (unit.trim().replaceAll("/", "").toLowerCase()) {
+            case "in":
             case "inhg":
                 {
                 hPa = inhgToHPa(value);
@@ -425,6 +460,7 @@ public class Widget extends AppWidgetProvider {
             }
             double toReturn = 0.0;
             switch (preferred.trim().replaceAll("/", "").toLowerCase()) {
+            case "in":
             case "inhg":
                 {
                 toReturn = roundTo2Decimal(hPaToInhg(hPa));
