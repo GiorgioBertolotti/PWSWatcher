@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:async';
 import 'package:pws_watcher/model/source.dart';
-import 'package:highlighter_coachmark/highlighter_coachmark.dart';
+import 'package:showcaseview/showcaseview.dart';
 
 class SettingsPage extends StatefulWidget {
   final ThemeService themeService = getIt<ThemeService>();
@@ -21,7 +21,9 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage>
     with TickerProviderStateMixin {
-  final GlobalKey<FormState> _fabKey = GlobalKey<FormState>();
+  final GlobalKey _fabKey = GlobalKey();
+  final GlobalKey _urlKey = GlobalKey();
+  final GlobalKey _helpKey = GlobalKey();
 
   var visibilityUpdateTimer = true;
   var visibilityWindSpeed = true;
@@ -147,16 +149,22 @@ class _SettingsPageState extends State<SettingsPage>
             ),
             centerTitle: true,
           ),
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: _addSource,
-            elevation: 2,
-            icon: Icon(
-              Icons.add,
-            ),
-            label: Text(
-              "add",
-            ),
+          floatingActionButton: Showcase(
             key: _fabKey,
+            title: 'Add PWS',
+            description: 'Tap here to add your PWS info',
+            shapeBorder: CircleBorder(),
+            child: FloatingActionButton.extended(
+              onPressed: _addSource,
+              elevation: 2,
+              icon: Icon(
+                Icons.add,
+              ),
+              label: Text(
+                "add",
+              ),
+              key: _fabKey,
+            ),
           ),
           body: Builder(
             builder: (context) => ListView(
@@ -791,13 +799,17 @@ class _SettingsPageState extends State<SettingsPage>
   }
 
   _addSource() async {
-    var source = await showDialog(
+    var source = await (showDialog(
       context: context,
       builder: (ctx) => Provider<ApplicationState>.value(
         value: Provider.of<ApplicationState>(context),
         child: AddSourceDialog(context),
       ),
-    );
+    ).then((_) {
+      setState(() {
+        ShowCaseWidget.of(context).startShowCase([_urlKey, _helpKey]);
+      });
+    }));
     if (source != null && source is Source) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       _sources.add(source);
@@ -894,7 +906,12 @@ class _SettingsPageState extends State<SettingsPage>
       _sources = List();
       List<String> sources = prefs.getStringList("sources");
       if (sources == null || sources.length == 0) {
-        _showCoachMarkFAB();
+        _shouldShowcase().then((shouldShow) {
+          if (shouldShow) {
+            ShowCaseWidget.of(context)
+                .startShowCase([_fabKey, _urlKey, _helpKey]);
+          }
+        });
       } else
         for (String sourceJSON in sources) {
           try {
@@ -910,32 +927,8 @@ class _SettingsPageState extends State<SettingsPage>
     });
   }
 
-  _showCoachMarkFAB() async {
+  Future<bool> _shouldShowcase() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    if (!(prefs.getBool("coach_mark_shown") ?? false)) {
-      CoachMark coachMarkFAB = CoachMark();
-      RenderBox target = _fabKey.currentContext.findRenderObject();
-      Rect markRect = target.localToGlobal(Offset.zero) & target.size;
-      markRect = Rect.fromCircle(
-          center: markRect.center, radius: markRect.longestSide * 0.6);
-      coachMarkFAB.show(
-          targetContext: _fabKey.currentContext,
-          markRect: markRect,
-          children: [
-            Center(
-                child: Text("Tap here\nto add a source",
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontSize: 24.0,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.white,
-                    )))
-          ],
-          duration: null,
-          onClose: () async {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            prefs.setBool("coach_mark_shown", true);
-          });
-    }
+    return !(prefs.getBool("coach_mark_shown") ?? false);
   }
 }
