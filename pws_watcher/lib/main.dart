@@ -5,6 +5,7 @@ import 'package:pws_watcher/splash.dart';
 import 'package:pws_watcher/services/connection_status\.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await setupGetIt();
   ConnectionStatusSingleton connectionStatus =
       ConnectionStatusSingleton.getInstance();

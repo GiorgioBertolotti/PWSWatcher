@@ -49,14 +49,16 @@ class _PWSStatePageState extends State<PWSStatePage> {
   Widget build(BuildContext context) {
     if (_first) {
       _first = false;
-      parsingService =
-          ParsingService(_source, Provider.of<ApplicationState>(context));
+      parsingService = ParsingService(
+          _source, Provider.of<ApplicationState>(context, listen: false));
     }
-    if (Provider.of<ApplicationState>(context).updatePreferences) {
-      Provider.of<ApplicationState>(context).updatePreferences = false;
+    if (Provider.of<ApplicationState>(context, listen: false)
+        .updatePreferences) {
+      Provider.of<ApplicationState>(context, listen: false).updatePreferences =
+          false;
       _updatePreferences();
-      parsingService
-          .setApplicationState(Provider.of<ApplicationState>(context));
+      parsingService.setApplicationState(
+          Provider.of<ApplicationState>(context, listen: false));
     }
     if (_source != widget.source) {
       _source = widget.source;
@@ -304,7 +306,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
         context,
         MaterialPageRoute(
           builder: (ctx) => Provider<ApplicationState>.value(
-            value: Provider.of<ApplicationState>(context),
+            value: Provider.of<ApplicationState>(context, listen: false),
             child: DetailPage(parsingService.allDataSubject.value),
           ),
         ),
