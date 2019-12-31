@@ -95,6 +95,13 @@ class _SettingsPageState extends State<SettingsPage>
                     icon: Icon(Icons.arrow_back, color: Colors.white),
                     onPressed: () => closeSettings(),
                   ),
+                  actions: <Widget>[
+                    IconButton(
+                      icon: Icon(Icons.help),
+                      onPressed: () => _showShowcase(),
+                      tooltip: "Show tutorial",
+                    )
+                  ],
                   title: Text(
                     "Settings",
                     maxLines: 1,
@@ -124,6 +131,7 @@ class _SettingsPageState extends State<SettingsPage>
                 ),
                 body: Builder(
                   builder: (context) => ListView(
+                    addAutomaticKeepAlives: true,
                     children: <Widget>[
                       ThemeSettingsCard(),
                       UnitSettingsCard(),
@@ -295,6 +303,17 @@ class _SettingsPageState extends State<SettingsPage>
 
   Future<bool> _shouldShowcase() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    return !(prefs.getBool("coach_mark_shown") ?? false);
+    bool shouldShow = !(prefs.getBool("showcase_1") ?? false);
+    if (shouldShow) {
+      prefs.setBool("showcase_1", true);
+    }
+    return shouldShow;
+  }
+
+  _showShowcase() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool("showcase_1", false);
+    prefs.setBool("showcase_2", false);
+    ShowCaseWidget.of(_showCaseContext).startShowCase([_fabKey]);
   }
 }
