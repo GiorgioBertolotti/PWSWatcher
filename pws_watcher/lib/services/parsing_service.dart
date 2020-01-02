@@ -255,9 +255,9 @@ class ParsingService {
         else if (map.containsKey("refresh_time"))
           tmpDatetime += " " + map["refresh_time"].substring(0, 10);
         if (map.containsKey("station_time"))
-          tmpDatetime = " " + map["station_time"];
+          tmpDatetime += " " + map["station_time"];
         else if (map.containsKey("refresh_time"))
-          tmpDatetime = " " + map["refresh_time"].substring(12);
+          tmpDatetime += " " + map["refresh_time"].substring(12);
         tmpDatetime =
             tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
         interestVariables["datetime"] = DateTime.parse(tmpDatetime)
