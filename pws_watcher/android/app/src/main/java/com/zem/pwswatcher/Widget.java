@@ -165,13 +165,38 @@ public class Widget extends AppWidgetProvider {
         protected String doInBackground(String... params) {
             try {
                 OkHttpClient client = new OkHttpClient.Builder().build();
-                Request request = new Request.Builder()
-                        .url(this.source.getUrl())
-                        .build();
-                Call call = client.newCall(request);
-                Response response = call.execute();
-                return response.body().string();
-            } catch (IOException e) {
+                if(!this.source.getUrl().startsWith("http://") && !this.source.getUrl().startsWith("https://")) {
+                    Request request = new Request.Builder()
+                            .url("http://" + this.source.getUrl())
+                            .build();
+                    Call call = client.newCall(request);
+                    Response response = call.execute();
+                    if(response.code() == 200)
+                        return response.body().string();
+                    else {
+                        request = new Request.Builder()
+                                .url("https://" + this.source.getUrl())
+                                .build();
+                        call = client.newCall(request);
+                        response = call.execute();
+                        if(response.code() == 200)
+                            return response.body().string();
+                        else {
+                            return null;
+                        }
+                    }
+                } else {
+                    Request request = new Request.Builder()
+                            .url(this.source.getUrl())
+                            .build();
+                    Call call = client.newCall(request);
+                    Response response = call.execute();
+                    if(response.code() == 200)
+                        return response.body().string();
+                    else
+                        return null;
+                }
+            } catch (Exception e) {
                 e.printStackTrace();
                 return null;
             }
@@ -299,7 +324,7 @@ public class Widget extends AppWidgetProvider {
                 int eventType = parser.getEventType();
                 String location = null, date = null, time = null, temp = null, tempunit = null, hum = null,
                     press = null, pressunit = null, rain = null, rainunit = null, wind = null, windunit = null;
-                String[] attributes = {"misc", "realtime", "today", "yesterday", "record"};
+                String[] attributes = {"misc", "realtime", "today", "yesterday", "record", "units"};
                 while (eventType != XmlPullParser.END_DOCUMENT) {
                     String eltName = null;
                     switch (eventType) {
@@ -379,6 +404,7 @@ public class Widget extends AppWidgetProvider {
             double kmh = 0.0;
             switch (unit.trim().replaceAll("/", "").toLowerCase()) {
             case "kts":
+            case "kn":
                 {
                 kmh = ktsToKmh(value);
                 break;
@@ -402,6 +428,7 @@ public class Widget extends AppWidgetProvider {
             double toReturn = 0.0;
             switch (preferred.trim().replaceAll("/", "").toLowerCase()) {
             case "kts":
+            case "kn":
                 {
                 toReturn = roundTo2Decimal(kmhToKts(kmh));
                 break;
