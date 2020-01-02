@@ -97,7 +97,7 @@ class _SettingsPageState extends State<SettingsPage>
                   ),
                   actions: <Widget>[
                     IconButton(
-                      icon: Icon(Icons.help),
+                      icon: Icon(Icons.help, color: Colors.white),
                       onPressed: () => _showShowcase(),
                       tooltip: "Show tutorial",
                     )

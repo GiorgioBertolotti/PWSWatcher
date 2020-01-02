@@ -35,54 +35,47 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            Padding(
+            Container(
+              height: 75.0,
               padding: EdgeInsets.all(8.0),
               child: TextFormField(
                 controller: _editNameController,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                ),
                 validator: (value) {
                   if (value == null || value.isEmpty)
                     return "You must set a source name.";
                   return null;
                 },
-                decoration: InputDecoration.collapsed(
-                    hintText: "Source name", border: UnderlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: "PWS name",
+                  border: OutlineInputBorder(),
+                ),
                 maxLines: 1,
               ),
             ),
-            Padding(
+            Container(
+              height: 75.0,
               padding: EdgeInsets.all(8.0),
               child: TextFormField(
                 keyboardType: TextInputType.url,
                 controller: _editUrlController,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                ),
                 validator: (value) {
                   if (value == null || value.isEmpty)
                     return "You must set a source url.";
                   return null;
                 },
-                decoration: InputDecoration.collapsed(
-                  hintText: "Realtime file URL",
-                  border: UnderlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: "Realtime file URL",
+                  border: OutlineInputBorder(),
                 ),
                 maxLines: 1,
               ),
             ),
-            Padding(
+            Container(
+              height: 75.0,
               padding: EdgeInsets.all(8.0),
               child: TextFormField(
                 keyboardType: TextInputType.number,
                 controller: _editIntervalController,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 18,
-                ),
                 validator: (value) {
                   if (value == null ||
                       value.isEmpty ||
@@ -91,9 +84,10 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
                     return "Please set a valid interval.";
                   return null;
                 },
-                decoration: InputDecoration.collapsed(
-                    hintText: "Refresh interval (sec).",
-                    border: UnderlineInputBorder()),
+                decoration: InputDecoration(
+                  labelText: "Update interval (sec).",
+                  border: OutlineInputBorder(),
+                ),
                 maxLines: 1,
               ),
             ),
@@ -101,6 +95,15 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
         ),
       ),
       actions: <Widget>[
+        /*
+        FlatButton(
+          textColor: Theme.of(widget.context).buttonColor,
+          child: Text("Help"),
+          onPressed: () {
+            // TODO: Show help
+          },
+        ),
+        */
         FlatButton(
           textColor: Theme.of(widget.context).buttonColor,
           child: Text("Close"),

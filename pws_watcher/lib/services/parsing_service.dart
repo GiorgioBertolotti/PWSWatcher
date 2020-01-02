@@ -125,6 +125,7 @@ class ParsingService {
                     "today",
                     "yesterday",
                     "record",
+                    "units",
                   ].contains(attr.name.toString()))
               .value;
         } catch (Exception) {}
@@ -701,6 +702,7 @@ class ParsingService {
         .replaceAll("/", "")
         .toLowerCase()) {
       case "kts":
+      case "kn":
         {
           kmh = ktsToKmh(double.parse(interestVariables["windspeed"]));
           break;
@@ -723,26 +725,27 @@ class ParsingService {
     }
     switch (preferred.trim().replaceAll("/", "").toLowerCase()) {
       case "kts":
+      case "kn":
         {
           interestVariables["windspeed"] =
-              roundToNthDecimal(kmhToKts(kmh), 2).toString();
+              roundToNthDecimal(kmhToKts(kmh), 1).toString();
           break;
         }
       case "mph":
         {
           interestVariables["windspeed"] =
-              roundToNthDecimal(kmhToMph(kmh), 2).toString();
+              roundToNthDecimal(kmhToMph(kmh), 1).toString();
           break;
         }
       case "ms":
         {
           interestVariables["windspeed"] =
-              roundToNthDecimal(kmhToMs(kmh), 2).toString();
+              roundToNthDecimal(kmhToMs(kmh), 1).toString();
           break;
         }
       default:
         {
-          interestVariables["windspeed"] = roundToNthDecimal(kmh, 2).toString();
+          interestVariables["windspeed"] = roundToNthDecimal(kmh, 1).toString();
           break;
         }
     }
@@ -800,12 +803,12 @@ class ParsingService {
       case "mb":
         {
           interestVariables["press"] =
-              roundToNthDecimal(hPaToMb(hPa), 2).toString();
+              roundToNthDecimal(hPaToMb(hPa), 3).toString();
           break;
         }
       default:
         {
-          interestVariables["press"] = roundToNthDecimal(hPa, 2).toString();
+          interestVariables["press"] = roundToNthDecimal(hPa, 3).toString();
           break;
         }
     }
@@ -820,11 +823,11 @@ class ParsingService {
             .toLowerCase() ==
         "f") {
       interestVariables["windchill"] = roundToNthDecimal(
-              fToC(double.parse(interestVariables["windchill"])), 2)
+              fToC(double.parse(interestVariables["windchill"])), 1)
           .toString();
     } else {
       interestVariables["windchill"] = roundToNthDecimal(
-              cToF(double.parse(interestVariables["windchill"])), 2)
+              cToF(double.parse(interestVariables["windchill"])), 1)
           .toString();
     }
     return interestVariables;
@@ -838,11 +841,11 @@ class ParsingService {
             .toLowerCase() ==
         "f") {
       interestVariables["temperature"] = roundToNthDecimal(
-              fToC(double.parse(interestVariables["temperature"])), 2)
+              fToC(double.parse(interestVariables["temperature"])), 1)
           .toString();
     } else {
       interestVariables["temperature"] = roundToNthDecimal(
-              cToF(double.parse(interestVariables["temperature"])), 2)
+              cToF(double.parse(interestVariables["temperature"])), 1)
           .toString();
     }
     return interestVariables;
@@ -856,11 +859,11 @@ class ParsingService {
             .toLowerCase() ==
         "f") {
       interestVariables["dew"] =
-          roundToNthDecimal(fToC(double.parse(interestVariables["dew"])), 2)
+          roundToNthDecimal(fToC(double.parse(interestVariables["dew"])), 1)
               .toString();
     } else {
       interestVariables["dew"] =
-          roundToNthDecimal(cToF(double.parse(interestVariables["dew"])), 2)
+          roundToNthDecimal(cToF(double.parse(interestVariables["dew"])), 1)
               .toString();
     }
     return interestVariables;
