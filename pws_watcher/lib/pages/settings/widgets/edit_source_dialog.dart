@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pws_watcher/model/source.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class EditSourceDialog extends StatefulWidget {
   EditSourceDialog(this.source, this.context);
@@ -95,15 +96,11 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
         ),
       ),
       actions: <Widget>[
-        /*
         FlatButton(
           textColor: Theme.of(widget.context).buttonColor,
           child: Text("Help"),
-          onPressed: () {
-            // TODO: Show help
-          },
+          onPressed: _openHelp,
         ),
-        */
         FlatButton(
           textColor: Theme.of(widget.context).buttonColor,
           child: Text("Close"),
@@ -128,5 +125,14 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
         ),
       ],
     );
+  }
+
+  _openHelp() async {
+    const url = "https://bertolotti.dev/PWSWatcher/compatibilities";
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      print("Could not launch" + url);
+    }
   }
 }

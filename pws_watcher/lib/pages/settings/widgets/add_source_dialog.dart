@@ -7,6 +7,7 @@ import 'package:pws_watcher/model/state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcase_widget.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AddSourceDialog extends StatefulWidget {
   AddSourceDialog(this.context);
@@ -76,7 +77,7 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
                   child: Showcase(
                     key: _urlKey,
                     title: "Enter URL",
-                    description: "URL of the file with PWS data",
+                    description: "Tap on HELP for more info",
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(
@@ -129,15 +130,11 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
             ),
           ),
           actions: <Widget>[
-            /*
             FlatButton(
               textColor: Theme.of(widget.context).buttonColor,
               child: Text("Help"),
-              onPressed: () {
-                // TODO: Show help
-              },
+              onPressed: _openHelp,
             ),
-            */
             FlatButton(
               textColor: Theme.of(widget.context).buttonColor,
               child: Text("Close"),
@@ -170,6 +167,15 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
         );
       }),
     );
+  }
+
+  _openHelp() async {
+    const url = "https://bertolotti.dev/PWSWatcher/compatibilities";
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      print("Could not launch" + url);
+    }
   }
 
   Future<bool> _shouldShowcase() async {

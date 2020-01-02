@@ -26,6 +26,8 @@ There was already another application for the same purpose, but no updates have 
 
 ## Getting started
 
+Before starting check out [this page](https://bertolotti.dev/PWSWatcher/compatibilities) to see how to connect your PWS to PWS Watcher.
+
 ### Download
 
 <center><a href='https://play.google.com/store/apps/details?id=com.zem.pwswatcher&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en/badges/images/generic/en_badge_web_generic.png' width='50%'/></a></center>
