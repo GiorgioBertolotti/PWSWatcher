@@ -50,6 +50,11 @@ class ParsingService {
         if (sourceData != null) {
           allDataSubject.add(sourceData);
           interestVariablesSubject.add(_valuesFromRealtimeXML(sourceData));
+        } else {
+          if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            await _updateData("http://" + url, force: true);
+            await _updateData("https://" + url, force: true);
+          }
         }
       } else if (url.endsWith("txt")) {
         if (url.endsWith("clientraw.txt")) {
@@ -61,6 +66,11 @@ class ParsingService {
             if (sourceData != null) {
               allDataSubject.add(sourceData);
               interestVariablesSubject.add(_valuesFromRealtimeTXT(sourceData));
+            } else {
+              if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                await _updateData("http://" + url, force: true);
+                await _updateData("https://" + url, force: true);
+              }
             }
           } else {
             allDataSubject.add(sourceData);
@@ -72,12 +82,15 @@ class ParsingService {
           if (sourceData == null) {
             // parsing and variables assignment with clientraw.txt
             sourceData = await _parseClientRawTXT(url);
-            if (sourceData == null) {
-              _isRetrieving = false;
-              return null;
+            if (sourceData != null) {
+              allDataSubject.add(sourceData);
+              interestVariablesSubject.add(_valuesFromClientRawTXT(sourceData));
+            } else {
+              if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                await _updateData("http://" + url, force: true);
+                await _updateData("https://" + url, force: true);
+              }
             }
-            allDataSubject.add(sourceData);
-            interestVariablesSubject.add(_valuesFromClientRawTXT(sourceData));
           } else {
             allDataSubject.add(sourceData);
             interestVariablesSubject.add(_valuesFromRealtimeTXT(sourceData));
@@ -90,10 +103,15 @@ class ParsingService {
           allDataSubject.add(sourceData);
           Map interest = _valuesFromDailyCSV(sourceData);
           if (interest != null) interestVariablesSubject.add(interest);
+        } else {
+          if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            await _updateData("http://" + url, force: true);
+            await _updateData("https://" + url, force: true);
+          }
         }
       } else {
-        _updateData(url + "/realtime.xml");
-        return _updateData(url + "/realtime.txt", force: true);
+        await _updateData(url + "/realtime.xml", force: true);
+        await _updateData(url + "/realtime.txt", force: true);
       }
     } catch (e) {}
     _isRetrieving = false;
