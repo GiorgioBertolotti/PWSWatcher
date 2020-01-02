@@ -56,8 +56,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (Provider.of<ApplicationState>(context).updateSources) {
-      Provider.of<ApplicationState>(context).updateSources = false;
+    if (Provider.of<ApplicationState>(
+      context,
+      listen: false,
+    ).updateSources) {
+      Provider.of<ApplicationState>(
+        context,
+        listen: false,
+      ).updateSources = false;
       _populateSources().then((sources) {
         _pages.clear();
         if (sources != null) {
@@ -83,7 +89,10 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.transparent,
         body: Builder(
           builder: (context) => Provider<ApplicationState>.value(
-            value: Provider.of<ApplicationState>(context),
+            value: Provider.of<ApplicationState>(
+              context,
+              listen: false,
+            ),
             child: SafeArea(
               child: Stack(
                 children: <Widget>[
@@ -137,7 +146,10 @@ class _HomePageState extends State<HomePage> {
                           context,
                           MaterialPageRoute(
                             builder: (ctx) => Provider<ApplicationState>.value(
-                              value: Provider.of<ApplicationState>(context),
+                              value: Provider.of<ApplicationState>(
+                                context,
+                                listen: false,
+                              ),
                               child: SettingsPage(),
                             ),
                           ),
@@ -186,7 +198,10 @@ class _HomePageState extends State<HomePage> {
         context,
         MaterialPageRoute(
           builder: (ctx) => Provider<ApplicationState>.value(
-            value: Provider.of<ApplicationState>(context),
+            value: Provider.of<ApplicationState>(
+              context,
+              listen: false,
+            ),
             child: SettingsPage(),
           ),
         ),
