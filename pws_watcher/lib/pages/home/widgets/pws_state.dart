@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pws_watcher/model/state\.dart';
@@ -19,6 +21,7 @@ class PWSStatePage extends StatefulWidget {
 }
 
 class _PWSStatePageState extends State<PWSStatePage> {
+  GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
   ParsingService parsingService;
   Source _source;
 
@@ -68,20 +71,28 @@ class _PWSStatePageState extends State<PWSStatePage> {
         stream: parsingService.variables$,
         builder: (context, snapshot) {
           if (snapshot.hasError || !snapshot.hasData) {
-            return ListView(
-              physics: BouncingScrollPhysics(),
-              shrinkWrap: true,
-              children: <Widget>[
-                _buildUpdateIndicator(_source),
-                SizedBox(height: 50.0),
-                Center(
-                  child: Container(
-                    height: 100.0,
-                    width: 100.0,
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-              ],
+            return RefreshIndicator(
+              color: Theme.of(context).primaryColor,
+              backgroundColor: Theme.of(context).accentColor,
+              key: _refreshKey,
+              onRefresh: _refresh,
+              child: ListView(
+                physics: AlwaysScrollableScrollPhysics(
+                  parent: BouncingScrollPhysics(),
+                ),
+                shrinkWrap: true,
+                children: <Widget>[
+                  _buildUpdateIndicator(_source),
+                  SizedBox(height: 50.0),
+                  Center(
+                    child: Container(
+                      height: 100.0,
+                      width: 100.0,
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                ],
+              ),
             );
           }
           Map<String, String> data = snapshot.data as Map<String, String>;
@@ -107,195 +118,215 @@ class _PWSStatePageState extends State<PWSStatePage> {
           var tempUnit = data["tempUnit"] ?? "°C";
           var dewUnit = data["dewUnit"] ?? "°";
           var humUnit = data["humUnit"] ?? "%";
-          return ListView(
-            physics: BouncingScrollPhysics(),
-            shrinkWrap: true,
-            children: <Widget>[
-              _buildUpdateIndicator(_source),
-              SizedBox(height: 20.0),
-              Center(
-                child: Text(
-                  "$location",
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.w900,
-                    color: Theme.of(context).accentColor,
-                  ),
-                ),
+          return RefreshIndicator(
+            color: Theme.of(context).primaryColor,
+            backgroundColor: Theme.of(context).accentColor,
+            key: _refreshKey,
+            onRefresh: _refresh,
+            child: ListView(
+              physics: AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
               ),
-              Center(
-                child: Text(
-                  "$datetime",
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).accentColor,
-                  ),
-                ),
-              ),
-              SizedBox(height: 50.0),
-              Center(
-                child: Text(
-                  "$temperature$tempUnit",
-                  maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 72,
-                    fontWeight: FontWeight.w900,
-                    color: Theme.of(context).accentColor,
-                  ),
-                ),
-              ),
-              SizedBox(height: 50.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: DoubleVariableRow(
-                  "Wind speed",
-                  "assets/images/windspeed.svg",
-                  windspeed,
-                  windUnit,
-                  "Pressure",
-                  "assets/images/barometer.svg",
-                  press,
-                  pressUnit,
-                  visibilityLeft: visibilityWindSpeed,
-                  visibilityRight: visibilityPressure,
-                ),
-              ),
-              SizedBox(height: 20.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: DoubleVariableRow(
-                  "Wind direction",
-                  "assets/images/winddir.svg",
-                  winddir,
-                  "",
-                  "Humidity",
-                  "assets/images/humidity.svg",
-                  humidity,
-                  humUnit,
-                  visibilityLeft: visibilityWindDirection,
-                  visibilityRight: visibilityHumidity,
-                ),
-              ),
-              SizedBox(height: 20.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: DoubleVariableRow(
-                  "Temperature",
-                  "assets/images/temperature.svg",
-                  temperature,
-                  tempUnit,
-                  "Wind chill",
-                  "assets/images/windchill.svg",
-                  windchill,
-                  tempUnit,
-                  visibilityLeft: visibilityTemperature,
-                  visibilityRight: visibilityWindChill,
-                ),
-              ),
-              SizedBox(height: 20.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: DoubleVariableRow(
-                  "Rain",
-                  "assets/images/rain.svg",
-                  rain,
-                  rainUnit,
-                  "Dew",
-                  "assets/images/dew.svg",
-                  dew,
-                  dewUnit,
-                  visibilityLeft: visibilityRain,
-                  visibilityRight: visibilityDew,
-                ),
-              ),
-              SizedBox(height: 20.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: DoubleVariableRow(
-                  "Sunrise",
-                  "assets/images/sunrise.svg",
-                  sunrise,
-                  "",
-                  "Moonrise",
-                  "assets/images/moonrise.svg",
-                  moonrise,
-                  "",
-                  visibilityLeft: visibilitySunrise,
-                  visibilityRight: visibilityMoonrise,
-                ),
-              ),
-              SizedBox(height: 20.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: DoubleVariableRow(
-                  "Sunset",
-                  "assets/images/sunset.svg",
-                  sunset,
-                  "",
-                  "Moonset",
-                  "assets/images/moonset.svg",
-                  moonset,
-                  "",
-                  visibilityLeft: visibilitySunset,
-                  visibilityRight: visibilityMoonset,
-                ),
-              ),
-              SizedBox(height: 40.0),
-              Container(
-                padding: EdgeInsets.all(20),
-                child: Column(
-                  children: <Widget>[
-                    Text(
-                      "More info",
-                      maxLines: 1,
-                      style: TextStyle(
-                        fontSize: 20,
-                        color: Theme.of(context).accentColor,
-                      ),
+              shrinkWrap: true,
+              children: <Widget>[
+                _buildUpdateIndicator(_source),
+                SizedBox(height: 20.0),
+                Center(
+                  child: Text(
+                    "$location",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 40,
+                      fontWeight: FontWeight.w900,
+                      color: Theme.of(context).accentColor,
                     ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.keyboard_arrow_down,
-                        color: Theme.of(context).accentColor,
-                      ),
-                      onPressed: _openDetailPage,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+                Center(
+                  child: Text(
+                    "$datetime",
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                      color: Theme.of(context).accentColor,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 50.0),
+                Center(
+                  child: Text(
+                    "$temperature$tempUnit",
+                    maxLines: 1,
+                    style: TextStyle(
+                      fontSize: 72,
+                      fontWeight: FontWeight.w900,
+                      color: Theme.of(context).accentColor,
+                    ),
+                  ),
+                ),
+                SizedBox(height: 50.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: DoubleVariableRow(
+                    "Wind speed",
+                    "assets/images/windspeed.svg",
+                    windspeed,
+                    windUnit,
+                    "Pressure",
+                    "assets/images/barometer.svg",
+                    press,
+                    pressUnit,
+                    visibilityLeft: visibilityWindSpeed,
+                    visibilityRight: visibilityPressure,
+                  ),
+                ),
+                SizedBox(height: 20.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: DoubleVariableRow(
+                    "Wind direction",
+                    "assets/images/winddir.svg",
+                    winddir,
+                    "",
+                    "Humidity",
+                    "assets/images/humidity.svg",
+                    humidity,
+                    humUnit,
+                    visibilityLeft: visibilityWindDirection,
+                    visibilityRight: visibilityHumidity,
+                  ),
+                ),
+                SizedBox(height: 20.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: DoubleVariableRow(
+                    "Temperature",
+                    "assets/images/temperature.svg",
+                    temperature,
+                    tempUnit,
+                    "Wind chill",
+                    "assets/images/windchill.svg",
+                    windchill,
+                    tempUnit,
+                    visibilityLeft: visibilityTemperature,
+                    visibilityRight: visibilityWindChill,
+                  ),
+                ),
+                SizedBox(height: 20.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: DoubleVariableRow(
+                    "Rain",
+                    "assets/images/rain.svg",
+                    rain,
+                    rainUnit,
+                    "Dew",
+                    "assets/images/dew.svg",
+                    dew,
+                    dewUnit,
+                    visibilityLeft: visibilityRain,
+                    visibilityRight: visibilityDew,
+                  ),
+                ),
+                SizedBox(height: 20.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: DoubleVariableRow(
+                    "Sunrise",
+                    "assets/images/sunrise.svg",
+                    sunrise,
+                    "",
+                    "Moonrise",
+                    "assets/images/moonrise.svg",
+                    moonrise,
+                    "",
+                    visibilityLeft: visibilitySunrise,
+                    visibilityRight: visibilityMoonrise,
+                  ),
+                ),
+                SizedBox(height: 20.0),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: DoubleVariableRow(
+                    "Sunset",
+                    "assets/images/sunset.svg",
+                    sunset,
+                    "",
+                    "Moonset",
+                    "assets/images/moonset.svg",
+                    moonset,
+                    "",
+                    visibilityLeft: visibilitySunset,
+                    visibilityRight: visibilityMoonset,
+                  ),
+                ),
+                SizedBox(height: 40.0),
+                Container(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        "SEE ALL",
+                        maxLines: 1,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Theme.of(context).accentColor,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Theme.of(context).accentColor,
+                        ),
+                        onPressed: _openDetailPage,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           );
         });
   }
 
+  Future<void> _refresh() async {
+    _refreshKey.currentState.show();
+    parsingService.setSource(_source);
+    await Future.delayed(Duration(milliseconds: Random().nextInt(1000) + 500));
+  }
+
   dynamic _buildUpdateIndicator(Source source) {
-    if (source.autoUpdateInterval != null && source.autoUpdateInterval == 0) {
-      return Align(
-        alignment: Alignment.topLeft,
-        child: IconButton(
-          tooltip: "Update",
-          icon: Icon(
-            Icons.refresh,
-            color: Theme.of(context).accentColor,
+    if (source.autoUpdateInterval != null) {
+      if (source.autoUpdateInterval == 0) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: IconButton(
+            tooltip: "Update",
+            icon: Icon(
+              Icons.refresh,
+              color: Theme.of(context).accentColor,
+            ),
+            padding: EdgeInsets.all(0),
+            onPressed: _refresh,
           ),
-          padding: EdgeInsets.all(0),
-          onPressed: () => parsingService.setSource(_source),
-        ),
-      );
-    } else if (visibilityUpdateTimer) {
-      return Align(
-        alignment: Alignment.topLeft,
-        child: Tooltip(
-          message: "Update timer",
-          child: UpdateTimer(
-            Duration(seconds: source.autoUpdateInterval),
-            () => parsingService.setSource(_source),
+        );
+      } else if (visibilityUpdateTimer) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Tooltip(
+            message: "Update timer",
+            child: UpdateTimer(
+              Duration(seconds: source.autoUpdateInterval),
+              () => parsingService.setSource(_source),
+            ),
           ),
-        ),
-      );
+        );
+      } else
+        return Container();
     } else
       return Container();
   }
@@ -360,6 +391,8 @@ class _PWSStatePageState extends State<PWSStatePage> {
     visibilitySunset ??= true;
     visibilityMoonrise ??= true;
     visibilityMoonset ??= true;
-    setState(() {});
+    try {
+      setState(() {});
+    } catch (Exception) {}
   }
 }
