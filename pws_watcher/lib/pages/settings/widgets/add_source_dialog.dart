@@ -23,9 +23,13 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
   final GlobalKey _urlKey = GlobalKey();
   final GlobalKey _refreshKey = GlobalKey();
 
-  final _addNameController = TextEditingController();
-  final _addUrlController = TextEditingController();
-  final _addIntervalController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _urlController = TextEditingController();
+  final _intervalController = TextEditingController();
+
+  FocusNode _nameFocusNode = FocusNode();
+  FocusNode _urlFocusNode = FocusNode();
+  FocusNode _intervalFocusNode = FocusNode();
 
   BuildContext _showCaseContext;
 
@@ -58,7 +62,7 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
                   width: MediaQuery.of(context).size.width,
                   padding: EdgeInsets.all(8.0),
                   child: TextFormField(
-                    controller: _addNameController,
+                    controller: _nameController,
                     validator: (value) {
                       if (value == null || value.isEmpty)
                         return "You must set a PWS name.";
@@ -69,6 +73,10 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
                       border: OutlineInputBorder(),
                     ),
                     maxLines: 1,
+                    focusNode: _nameFocusNode,
+                    textInputAction: TextInputAction.next,
+                    onFieldSubmitted: (value) =>
+                        FocusScope.of(context).requestFocus(_urlFocusNode),
                   ),
                 ),
                 Container(
@@ -82,7 +90,7 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
                       padding: const EdgeInsets.all(8.0),
                       child: TextFormField(
                         keyboardType: TextInputType.url,
-                        controller: _addUrlController,
+                        controller: _urlController,
                         validator: (value) {
                           if (value == null || value.isEmpty)
                             return "You must set a url.";
@@ -93,6 +101,10 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
                           border: OutlineInputBorder(),
                         ),
                         maxLines: 1,
+                        focusNode: _urlFocusNode,
+                        textInputAction: TextInputAction.next,
+                        onFieldSubmitted: (value) => FocusScope.of(context)
+                            .requestFocus(_intervalFocusNode),
                       ),
                     ),
                   ),
@@ -108,7 +120,7 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
                       padding: EdgeInsets.all(8.0),
                       child: TextFormField(
                         keyboardType: TextInputType.number,
-                        controller: _addIntervalController,
+                        controller: _intervalController,
                         validator: (value) {
                           if (value == null ||
                               value.isEmpty ||
@@ -122,6 +134,9 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
                           border: OutlineInputBorder(),
                         ),
                         maxLines: 1,
+                        focusNode: _intervalFocusNode,
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (text) => _addPWS(),
                       ),
                     ),
                   ),
@@ -146,27 +161,28 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
               textColor: Colors.white,
               color: Theme.of(widget.context).buttonColor,
               child: Text("Add"),
-              onPressed: () async {
-                FocusScope.of(context).requestFocus(FocusNode());
-                if (_addFormKey.currentState.validate()) {
-                  _addFormKey.currentState.save();
-                  Source source = Source(
-                      Provider.of<ApplicationState>(
-                        context,
-                        listen: false,
-                      ).countID++,
-                      _addNameController.text,
-                      _addUrlController.text,
-                      autoUpdateInterval:
-                          int.parse(_addIntervalController.text));
-                  PWSWatcher.navigatorKey.currentState.pop(source);
-                }
-              },
+              onPressed: _addPWS,
             ),
           ],
         );
       }),
     );
+  }
+
+  _addPWS() {
+    FocusScope.of(context).requestFocus(FocusNode());
+    if (_addFormKey.currentState.validate()) {
+      _addFormKey.currentState.save();
+      Source source = Source(
+          Provider.of<ApplicationState>(
+            context,
+            listen: false,
+          ).countID++,
+          _nameController.text,
+          _urlController.text,
+          autoUpdateInterval: int.parse(_intervalController.text));
+      PWSWatcher.navigatorKey.currentState.pop(source);
+    }
   }
 
   _openHelp() async {

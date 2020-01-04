@@ -1,3 +1,4 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pws_watcher/get_it_setup.dart';
@@ -41,10 +42,7 @@ class _SettingsPageState extends State<SettingsPage>
   Future<bool> _onWillPop() async {
     //triggered on device's back button click
     if (_sources.length == 0) {
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text(
-            "You should add a source in order to navigate to the home page."),
-      ));
+      _showNoPWSFlushbar();
       return false;
     }
     Provider.of<ApplicationState>(context, listen: false).settingsOpen = false;
@@ -57,10 +55,7 @@ class _SettingsPageState extends State<SettingsPage>
 
   void closeSettings() {
     if (_sources.length == 0) {
-      _scaffoldKey.currentState.showSnackBar(SnackBar(
-        content: Text(
-            "You should add a source in order to navigate to the home page."),
-      ));
+      _showNoPWSFlushbar();
       return;
     }
     //triggered on AppBar back button click
@@ -75,6 +70,22 @@ class _SettingsPageState extends State<SettingsPage>
         listen: false,
       ).updateSources = true;
     });
+  }
+
+  _showNoPWSFlushbar() {
+    Flushbar(
+      title: "Wait a second",
+      message: "You should add a PWS to monitor",
+      duration: Duration(seconds: 3),
+      animationDuration: Duration(milliseconds: 350),
+      mainButton: FlatButton(
+        onPressed: () => _showShowcase(),
+        child: Text(
+          "HELP",
+          style: TextStyle(color: Colors.amber),
+        ),
+      ),
+    )..show(context);
   }
 
   @override
@@ -114,6 +125,8 @@ class _SettingsPageState extends State<SettingsPage>
                   centerTitle: true,
                 ),
                 floatingActionButton: Showcase(
+                  onTargetClick: _addSource,
+                  disposeOnTap: true,
                   key: _fabKey,
                   title: "Add PWS",
                   description: "Tap here to add your PWS info",
@@ -312,7 +325,6 @@ class _SettingsPageState extends State<SettingsPage>
 
   _showShowcase() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool("showcase_1", false);
     prefs.setBool("showcase_2", false);
     ShowCaseWidget.of(_showCaseContext).startShowCase([_fabKey]);
   }

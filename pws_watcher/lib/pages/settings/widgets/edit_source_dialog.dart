@@ -15,15 +15,19 @@ class EditSourceDialog extends StatefulWidget {
 class _EditSourceDialogState extends State<EditSourceDialog> {
   final GlobalKey<FormState> _editFormKey = GlobalKey<FormState>();
 
-  final _editNameController = TextEditingController();
-  final _editUrlController = TextEditingController();
-  final _editIntervalController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _urlController = TextEditingController();
+  final _intervalController = TextEditingController();
+
+  FocusNode _nameFocusNode = FocusNode();
+  FocusNode _urlFocusNode = FocusNode();
+  FocusNode _intervalFocusNode = FocusNode();
 
   @override
   void initState() {
-    _editNameController.text = widget.source.name;
-    _editUrlController.text = widget.source.url;
-    _editIntervalController.text = widget.source.autoUpdateInterval.toString();
+    _nameController.text = widget.source.name;
+    _urlController.text = widget.source.url;
+    _intervalController.text = widget.source.autoUpdateInterval.toString();
     super.initState();
   }
 
@@ -40,7 +44,7 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
               height: 75.0,
               padding: EdgeInsets.all(8.0),
               child: TextFormField(
-                controller: _editNameController,
+                controller: _nameController,
                 validator: (value) {
                   if (value == null || value.isEmpty)
                     return "You must set a source name.";
@@ -51,6 +55,10 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 1,
+                focusNode: _nameFocusNode,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (value) =>
+                    FocusScope.of(context).requestFocus(_urlFocusNode),
               ),
             ),
             Container(
@@ -58,7 +66,7 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
               padding: EdgeInsets.all(8.0),
               child: TextFormField(
                 keyboardType: TextInputType.url,
-                controller: _editUrlController,
+                controller: _urlController,
                 validator: (value) {
                   if (value == null || value.isEmpty)
                     return "You must set a source url.";
@@ -69,6 +77,10 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 1,
+                focusNode: _urlFocusNode,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (value) =>
+                    FocusScope.of(context).requestFocus(_intervalFocusNode),
               ),
             ),
             Container(
@@ -76,7 +88,7 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
               padding: EdgeInsets.all(8.0),
               child: TextFormField(
                 keyboardType: TextInputType.number,
-                controller: _editIntervalController,
+                controller: _intervalController,
                 validator: (value) {
                   if (value == null ||
                       value.isEmpty ||
@@ -90,6 +102,9 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
                   border: OutlineInputBorder(),
                 ),
                 maxLines: 1,
+                focusNode: _intervalFocusNode,
+                textInputAction: TextInputAction.done,
+                onFieldSubmitted: (text) => _editPWS(),
               ),
             ),
           ],
@@ -112,19 +127,20 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
           textColor: Colors.white,
           color: Theme.of(widget.context).buttonColor,
           child: Text("Edit"),
-          onPressed: () async {
-            if (_editFormKey.currentState.validate()) {
-              _editFormKey.currentState.save();
-              widget.source.name = _editNameController.text;
-              widget.source.url = _editUrlController.text;
-              widget.source.autoUpdateInterval =
-                  int.parse(_editIntervalController.text);
-              Navigator.of(widget.context).pop(widget.source);
-            }
-          },
+          onPressed: _editPWS,
         ),
       ],
     );
+  }
+
+  _editPWS() {
+    if (_editFormKey.currentState.validate()) {
+      _editFormKey.currentState.save();
+      widget.source.name = _nameController.text;
+      widget.source.url = _urlController.text;
+      widget.source.autoUpdateInterval = int.parse(_intervalController.text);
+      Navigator.of(widget.context).pop(widget.source);
+    }
   }
 
   _openHelp() async {
