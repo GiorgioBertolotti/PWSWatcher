@@ -3,13 +3,30 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:id="@+id/ll_activity_container" >
+
+    <TextView 
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Select a PWS for the widget"
+        android:textColor="@android:color/black"
+        android:textSize="26sp" />
 
     <ListView
         android:id="@+id/lv_sources"
+        android:layout_marginTop="14dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="#d8d8d8"
         android:dividerHeight="1dp" />
 
+    <TextView 
+        android:id="@+id/tv_empty_list"
+        android:layout_marginTop="14dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="There are no sources, open the app to configure it..."
+        android:textSize="18sp" />
 </LinearLayout>

@@ -1,21 +1,23 @@
 package com.zem.pwswatcher;
 
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.util.Base64;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.SeekBar;
+import android.widget.CheckBox;
+import android.widget.Button;
 import android.widget.RemoteViews;
 import android.widget.TextView;
 
@@ -37,6 +39,14 @@ public class WidgetConfigurationActivity extends Activity {
     private static final String LIST_IDENTIFIER = "VGhpcyBpcyB0aGUgcHJlZml4IGZvciBhIGxpc3Qu";
     int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     private ListView lvSources;
+    private SeekBar sbFontSize;
+    private TextView tvFontSize;
+    private CheckBox cbHumidity;
+    private CheckBox cbPressure;
+    private CheckBox cbRain;
+    private CheckBox cbWindSpeed;
+    private Button btnConfirm;
+    private Source selectedSource;
     private AppWidgetManager widgetManager;
     private RemoteViews views;
     private SourcesListAdapter rAdapter;
@@ -47,7 +57,7 @@ public class WidgetConfigurationActivity extends Activity {
         super.onCreate(icicle);
         setResult(RESULT_CANCELED);
         setContentView(R.layout.activity_widget_configuration);
-        lvSources = findViewById(R.id.lv_sources);
+        this.lvSources = findViewById(R.id.lv_sources);
         widgetManager = AppWidgetManager.getInstance(this);
         views = new RemoteViews(this.getPackageName(), R.layout.widget);
         Intent intent = getIntent();
@@ -83,25 +93,101 @@ public class WidgetConfigurationActivity extends Activity {
         }
         this.rAdapter = new SourcesListAdapter(getApplicationContext(), sources);
         this.lvSources.setAdapter(this.rAdapter);
+        this.lvSources.setEmptyView(findViewById(R.id.tv_empty_list));
         this.lvSources.setOnItemClickListener((adapter, v, position, id) -> {
-            Source source = rAdapter.getItem(position);
-            SharedPreferences sharedPrefs = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
-            try {
-                sharedPrefs.edit().putString("widget_" + mAppWidgetId, source.toJSON()).apply();
-                Log.d("PWSWatcher", "Added Widget #" + mAppWidgetId);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            Intent updateIntent = new Intent(getApplicationContext(), Widget.class);
-            updateIntent.setAction(UPDATE_FILTER);
-            int[] ids = widgetManager.getAppWidgetIds(new ComponentName(getApplicationContext(), Widget.class));
-            updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
-            getApplicationContext().sendBroadcast(updateIntent);
-            Intent resultValue = new Intent();
-            resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-            setResult(RESULT_OK, resultValue);
-            finish();
+            this.selectedSource = rAdapter.getItem(position);
+            final ViewGroup viewGroup = (ViewGroup) findViewById(R.id.ll_activity_container);
+            viewGroup.removeAllViews();
+            viewGroup.addView(View.inflate(this, R.layout.widget_settings, null));
+            this.sbFontSize = findViewById(R.id.sb_fontsize);
+            this.tvFontSize = findViewById(R.id.tv_fontsize);
+            this.cbHumidity = findViewById(R.id.cb_humidity);
+            this.cbPressure = findViewById(R.id.cb_pressure);
+            this.cbRain = findViewById(R.id.cb_rain);
+            this.cbWindSpeed = findViewById(R.id.cb_windspeed);
+            SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    float fontSize = 16f;
+                    if (progress == 0) {
+                        tvFontSize.setText("extra-small");
+                        tvFontSize.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize * 0.35f);
+                    } else if (progress == 1) {
+                        tvFontSize.setText("small");
+                        tvFontSize.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize * 0.75f);
+                    } else if (progress == 2) {
+                        tvFontSize.setText("medium");
+                        tvFontSize.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
+                    } else if (progress == 3) {
+                        tvFontSize.setText("big");
+                        tvFontSize.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize * 1.25f);
+                    } else {
+                        tvFontSize.setText("extra-big");
+                        tvFontSize.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize * 1.65f);
+                    }
+                }
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                    // called when the user first touches the SeekBar
+                }
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    // called after the user finishes moving the SeekBar
+                }
+            };
+            this.sbFontSize.setOnSeekBarChangeListener(seekBarChangeListener);
+            this.btnConfirm = findViewById(R.id.btn_confirm);
+            this.btnConfirm.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    completeActivity();
+                }
+            });
         });
+    }
+
+    private void completeActivity() {
+        SharedPreferences sharedPrefs = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        try {
+            JSONObject root = new JSONObject();
+            root.put("source", this.selectedSource.toJSONObject());
+            switch (this.sbFontSize.getProgress()) {
+                case 0:
+                    root.put("fontSizeMultiplier", 0.35);
+                    break;
+                case 1:
+                    root.put("fontSizeMultiplier", 0.75);
+                    break;
+                case 2:
+                    root.put("fontSizeMultiplier", 1.0);
+                    break;
+                case 3:
+                    root.put("fontSizeMultiplier", 1.25);
+                    break;
+                case 4:
+                    root.put("fontSizeMultiplier", 1.65);
+                    break;
+                default:
+                    root.put("fontSizeMultiplier", 1.0);
+                    break;
+            }
+            root.put("humidityVisible", this.cbHumidity.isChecked());
+            root.put("pressureVisible", this.cbPressure.isChecked());
+            root.put("rainVisible", this.cbRain.isChecked());
+            root.put("windspeedVisible", this.cbWindSpeed.isChecked());
+            sharedPrefs.edit().putString("widget_" + mAppWidgetId, root.toString()).apply();
+            Log.d("PWSWatcher", "Added Widget #" + mAppWidgetId);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Intent updateIntent = new Intent(getApplicationContext(), Widget.class);
+        updateIntent.setAction(UPDATE_FILTER);
+        int[] ids = widgetManager.getAppWidgetIds(new ComponentName(getApplicationContext(), Widget.class));
+        updateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids);
+        getApplicationContext().sendBroadcast(updateIntent);
+        Intent resultValue = new Intent();
+        resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+        setResult(RESULT_OK, resultValue);
+        finish();
     }
 
     private List<String> decodeList(String encodedList) throws IOException {

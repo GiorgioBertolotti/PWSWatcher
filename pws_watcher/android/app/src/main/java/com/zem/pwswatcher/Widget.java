@@ -8,51 +8,49 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ComponentName;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import java.io.IOException;
+import java.math.BigDecimal;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
-import java.text.DateFormat;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
-
-import com.zem.pwswatcher.model.Source;
-
 
 import okhttp3.Call;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-
+import com.zem.pwswatcher.model.Source;
 import static com.zem.pwswatcher.WidgetConfigurationActivity.SHARED_PREFERENCES_NAME;
 
 
 public class Widget extends AppWidgetProvider {
     static final String UPDATE_FILTER = "com.zem.pwswatcher.UPDATE";
+    private static final String onRefreshClick = "REFRESH_TAG";
     static String prefWindUnit = "km/h";
     static String prefRainUnit = "mm";
     static String prefPressUnit = "mb";
     static String prefTempUnit = "°C";
     static String prefDewUnit = "°C";
+    private float fontSizeMultiplier = 1.0f;
+    private boolean humidityVisible = true;
+    private boolean pressureVisible = true;
+    private boolean rainVisible = true;
+    private boolean windspeedVisible = true;
 
     private void updateWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle widgetInfo) {
         int minWidth = widgetInfo.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
@@ -77,7 +75,7 @@ public class Widget extends AppWidgetProvider {
     @Override
     public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle widgetInfo) {
         super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, widgetInfo);
-        updateWidget(context, appWidgetManager, appWidgetId, widgetInfo);
+        // updateWidget(context, appWidgetManager, appWidgetId, widgetInfo);
     }
 
     @Override
@@ -88,7 +86,6 @@ public class Widget extends AppWidgetProvider {
         ComponentName widgetComponent = new ComponentName(context.getPackageName(), this.getClass().getName());
         int[] widgetId = widgetManager.getAppWidgetIds(widgetComponent);
         int widgetNum = widgetId.length;
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
         if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)) {
             SharedPreferences sharedPrefs = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
             Intent updateIntent = new Intent(context, Widget.class);
@@ -109,24 +106,35 @@ public class Widget extends AppWidgetProvider {
                 if (sourceJSON != null) {
                     Source source = null;
                     try {
-                        JSONObject obj = new JSONObject(sourceJSON);
-                        source = new Source(obj.getInt("id"), obj.getString("name"), obj.getString("url"));
+                        JSONObject rootObj = new JSONObject(sourceJSON);
+                        JSONObject sourceObj = rootObj.getJSONObject("source");
+                        source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"));
+                        this.fontSizeMultiplier = BigDecimal.valueOf(rootObj.getDouble("fontSizeMultiplier")).floatValue();
+                        this.humidityVisible = rootObj.getBoolean("humidityVisible");
+                        this.pressureVisible = rootObj.getBoolean("pressureVisible");
+                        this.rainVisible = rootObj.getBoolean("rainVisible");
+                        this.windspeedVisible = rootObj.getBoolean("windspeedVisible");
                     } catch (JSONException ignored) {
+                        ignored.printStackTrace();
                     }
                     if (source != null) {
                         if (source.getUrl().endsWith(".txt") || source.getUrl().endsWith(".xml") || source.getUrl().endsWith(".csv")) {
-                            DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i]);
+                            DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
+                                this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
                             dataElaborator.execute();
                         } else {
                             String originalSource = source.getUrl();
                             source.setUrl(originalSource + "/realtime.txt");
-                            DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i]);
+                            DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
+                                this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
                             dataElaborator.execute();
                             source.setUrl(originalSource + "/realtime.xml");
-                            dataElaborator = new DataElaborator(context, source, widgetId[i]);
+                            dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
+                                this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
                             dataElaborator.execute();
                             source.setUrl(originalSource + "/daily.csv");
-                            dataElaborator = new DataElaborator(context, source, widgetId[i]);
+                            dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
+                                this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
                             dataElaborator.execute();
                         }
                     }
@@ -147,6 +155,52 @@ public class Widget extends AppWidgetProvider {
             editor.apply();
         } else if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED)) {
             super.onReceive(context, intent);
+        } else if (intent.getAction().equals(onRefreshClick)) {
+            SharedPreferences sharedPrefs = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+            for (int i = 0; i < widgetNum; i++) {
+                String sourceJSON = sharedPrefs.getString("widget_" + widgetId[i], null);
+                Widget.prefWindUnit = sharedPrefs.getString("flutter.prefWindUnit", "km/h");
+                Widget.prefRainUnit= sharedPrefs.getString("flutter.prefRainUnit", "mm");
+                Widget.prefPressUnit= sharedPrefs.getString("flutter.prefPressUnit", "mb");
+                Widget.prefTempUnit= sharedPrefs.getString("flutter.prefTempUnit", "°C");
+                Widget.prefDewUnit= sharedPrefs.getString("flutter.prefDewUnit", "°C");
+                if (sourceJSON != null) {
+                    Source source = null;
+                    try {
+                        JSONObject rootObj = new JSONObject(sourceJSON);
+                        JSONObject sourceObj = rootObj.getJSONObject("source");
+                        source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"));
+                        this.fontSizeMultiplier = BigDecimal.valueOf(rootObj.getDouble("fontSizeMultiplier")).floatValue();
+                        this.humidityVisible = rootObj.getBoolean("humidityVisible");
+                        this.pressureVisible = rootObj.getBoolean("pressureVisible");
+                        this.rainVisible = rootObj.getBoolean("rainVisible");
+                        this.windspeedVisible = rootObj.getBoolean("windspeedVisible");
+                    } catch (JSONException ignored) {
+                        ignored.printStackTrace();
+                    }
+                    if (source != null) {
+                        if (source.getUrl().endsWith(".txt") || source.getUrl().endsWith(".xml") || source.getUrl().endsWith(".csv")) {
+                            DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
+                                    this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
+                            dataElaborator.execute();
+                        } else {
+                            String originalSource = source.getUrl();
+                            source.setUrl(originalSource + "/realtime.txt");
+                            DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
+                                    this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
+                            dataElaborator.execute();
+                            source.setUrl(originalSource + "/realtime.xml");
+                            dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
+                                    this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
+                            dataElaborator.execute();
+                            source.setUrl(originalSource + "/daily.csv");
+                            dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
+                                    this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
+                            dataElaborator.execute();
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -154,11 +208,22 @@ public class Widget extends AppWidgetProvider {
         private Context context;
         private Source source;
         private int id;
+        private float fontSizeMultiplier;
+        private boolean humidityVisible = true;
+        private boolean pressureVisible = true;
+        private boolean rainVisible = true;
+        private boolean windspeedVisible = true;
 
-        public DataElaborator(Context context, Source source, int id) {
+        public DataElaborator(Context context, Source source, int id, float fontSizeMultiplier, boolean humidityVisible,
+            boolean pressureVisible, boolean rainVisible, boolean windspeedVisible) {
             this.context = context;
             this.source = source;
             this.id = id;
+            this.fontSizeMultiplier = fontSizeMultiplier;
+            this.humidityVisible = humidityVisible;
+            this.pressureVisible = pressureVisible;
+            this.rainVisible = rainVisible;
+            this.windspeedVisible = windspeedVisible;
         }
 
         @Override
@@ -218,6 +283,16 @@ public class Widget extends AppWidgetProvider {
                 } else if (this.source.getUrl().endsWith(".csv")) {
                     done = visualizeDailyCSV(resp, view);
                 }
+                setFontSizes(view);
+                setVisibilities(view);
+                Intent configurationIntent = new Intent(context, WidgetConfigurationActivity.class);
+                configurationIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, this.id);
+                configurationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                configurationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                configurationIntent.setData(Uri.parse(configurationIntent.toUri(Intent.URI_INTENT_SCHEME)));
+                PendingIntent configurationPendingIntent = PendingIntent.getActivity(context, 0, configurationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                view.setOnClickPendingIntent(R.id.ib_setting, configurationPendingIntent);
+                view.setOnClickPendingIntent(R.id.ib_refresh, getPendingSelfIntent(context, onRefreshClick));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -225,6 +300,12 @@ public class Widget extends AppWidgetProvider {
                 AppWidgetManager manager = AppWidgetManager.getInstance(context);
                 manager.updateAppWidget(this.id, view);
             }
+        }
+
+        protected PendingIntent getPendingSelfIntent(Context context, String action) {
+            Intent intent = new Intent(context, Widget.class);
+            intent.setAction(action);
+            return PendingIntent.getBroadcast(context, 0, intent, 0);
         }
 
         private boolean visualizeDailyCSV(String resp, RemoteViews view) {
@@ -398,6 +479,39 @@ public class Widget extends AppWidgetProvider {
                 e.printStackTrace();
             }
             return false;
+        }
+
+        private void setFontSizes(RemoteViews view) {
+            view.setFloat(R.id.tv_location, "setTextSize", 18f * this.fontSizeMultiplier);
+            view.setFloat(R.id.tv_temperature, "setTextSize", 40f * this.fontSizeMultiplier);
+            view.setFloat(R.id.tv_humidity, "setTextSize", 16f * this.fontSizeMultiplier);
+            view.setFloat(R.id.tv_pressure, "setTextSize", 16f * this.fontSizeMultiplier);
+            view.setFloat(R.id.tv_rain, "setTextSize", 16f * this.fontSizeMultiplier);
+            view.setFloat(R.id.tv_windspeed, "setTextSize", 16f * this.fontSizeMultiplier);
+            view.setFloat(R.id.tv_humidity_desc, "setTextSize", 16f * this.fontSizeMultiplier);
+            view.setFloat(R.id.tv_pressure_desc, "setTextSize", 16f * this.fontSizeMultiplier);
+            view.setFloat(R.id.tv_rain_desc, "setTextSize", 16f * this.fontSizeMultiplier);
+            view.setFloat(R.id.tv_windspeed_desc, "setTextSize", 16f * this.fontSizeMultiplier);
+            view.setFloat(R.id.tv_datetime, "setTextSize", 14f * this.fontSizeMultiplier);
+        }
+
+        private void setVisibilities(RemoteViews view) {
+            if (this.humidityVisible)
+                view.setViewVisibility(R.id.ll_humidity, View.VISIBLE);
+            else
+                view.setViewVisibility(R.id.ll_humidity, View.GONE);
+            if (this.pressureVisible)
+                view.setViewVisibility(R.id.ll_pressure, View.VISIBLE);
+            else
+                view.setViewVisibility(R.id.ll_pressure, View.GONE);
+            if (this.rainVisible)
+                view.setViewVisibility(R.id.ll_rain, View.VISIBLE);
+            else
+                view.setViewVisibility(R.id.ll_rain, View.GONE);
+            if (this.windspeedVisible)
+                view.setViewVisibility(R.id.ll_windspeed, View.VISIBLE);
+            else
+                view.setViewVisibility(R.id.ll_windspeed, View.GONE);
         }
 
         private double convertWindSpeed(double value, String unit, String preferred) {

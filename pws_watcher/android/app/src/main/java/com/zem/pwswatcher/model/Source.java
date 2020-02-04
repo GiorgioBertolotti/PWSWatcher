@@ -38,6 +38,14 @@ public class Source {
         return root.toString();
     }
 
+    public JSONObject toJSONObject() throws JSONException {
+        JSONObject root = new JSONObject();
+        root.put("id", this.id);
+        root.put("name", this.name);
+        root.put("url", this.url);
+        return root;
+    }
+
     public static Source fromJSON(String json) throws JSONException {
         JSONObject root = new JSONObject(json);
         return new Source(root.getInt("id"), root.getString("name"), root.getString("url"));

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/rounded"
+    android:id="@+id/rl_widget_container" >
+        
+    <TextView
+        android:id="@+id/tv_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:text="Location"
+        android:textColor="#ffffff"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tv_temperature"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_below="@id/tv_location"
+        android:text="Temp"
+        android:textColor="#ffffff"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <ImageButton
+        android:id="@+id/ib_setting"
+        android:scaleType="fitXY"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_margin="3dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/settings"
+        android:background="@drawable/settings" />
+
+    <ImageButton
+        android:id="@+id/ib_refresh"
+        android:scaleType="fitXY"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_margin="3dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/refresh"
+        android:background="@drawable/refresh" />
+</RelativeLayout>
