@@ -1,4 +1,6 @@
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:launch_review/launch_review.dart';
 import 'package:provider/provider.dart';
 import 'package:pws_watcher/pages/home/widgets/dots_indicator.dart';
 import 'package:pws_watcher/model/state\.dart';
@@ -21,9 +23,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final _controller = PageController();
   static const _kDuration = const Duration(milliseconds: 300);
   static const _kCurve = Curves.ease;
+  final int visitsBeforeReviewRequest = 3;
+  final _controller = PageController();
   final List<Widget> _pages = List();
   StreamSubscription _connectionChangeStream;
   bool isOffline = false;
@@ -40,6 +43,7 @@ class _HomePageState extends State<HomePage> {
     });
     _connectionChangeStream =
         connectionStatus.connectionChange.listen(connectionChanged);
+    checkReviewRequest();
   }
 
   void connectionChanged(dynamic hasConnection) {
@@ -242,5 +246,28 @@ class _HomePageState extends State<HomePage> {
       return source;
     } else
       return null;
+  }
+
+  checkReviewRequest() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int homepageCounter = prefs.getInt("homepageCounter") ?? 0;
+    if (homepageCounter < visitsBeforeReviewRequest) {
+      homepageCounter++;
+      prefs.setInt("homepageCounter", homepageCounter);
+      if (homepageCounter == visitsBeforeReviewRequest) {
+        Flushbar(
+          message: "Please leave a 5 star review ❤️",
+          duration: null,
+          animationDuration: Duration(milliseconds: 350),
+          mainButton: FlatButton(
+            onPressed: () => LaunchReview.launch(),
+            child: Text(
+              "REVIEW",
+              style: TextStyle(color: Colors.amber),
+            ),
+          ),
+        )..show(context);
+      }
+    }
   }
 }
