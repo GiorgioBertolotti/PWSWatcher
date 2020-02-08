@@ -8,6 +8,13 @@ layout: default
     <li><a href="#weatherdisplay">Weather Display</a></li>
     <li><a href="#ambientweather">Ambient Weather</a></li>
     <li><a href="#weewx">WeeWX</a></li>
+    <li>
+      <a href="#meteobridge">Meteobridge</a>
+      <ul>
+        <li><a href="#meteobridge-pro">Meteobridge PRO</a></li>
+        <li><a href="#meteobridge-std">Meteobridge Standard</a></li>
+      </ul>
+    </li>
   </ul>
 </p>
 <h2 id="cumulusmx">Cumulus MX</h2>
@@ -52,4 +59,19 @@ layout: default
   setup your WeeWX to produce an XML file in the expected format for the app. Then the last step in order to have the
   URL will be to publishing the generated XML file to a webserver via <a
     href="https://it.wikipedia.org/wiki/File_Transfer_Protocol" target="_blank">FTP</a>.
+</p>
+<h2 id="meteobridge">Meteobridge</h2>
+<h3 id="meteobridge-pro">Meteobridge PRO</h3>
+<p>
+  Meteobridge PRO/PRO-RF and NANO SD already have the template for the integration with PWS Watcher built-in.<br />
+  The name of the template to set in order to work with PWS Watcher is <i>realtime.txt</i>.
+</p>
+<h3 id="meteobridge-std">Meteobridge Standard</h3>
+<p>
+  Meteobridge Standard and NANO don't have any memory, so the template has to be loaded in RAM from a server, in order
+  to do that you have 2 possibilities, the first is to download a template which generates a <i>realtime.txt</i> file
+  compatible with PWS Watcher and publish it on your own webserver, the second is to connect the Metebridge to a
+  third-party server hosted from someone else.<br />
+  I suggest to contact <a href="mailto:info@soluzionimeteo.it">Soluzioni Meteo</a> to request the template or the
+  access to one of their servers with the template.
 </p>
