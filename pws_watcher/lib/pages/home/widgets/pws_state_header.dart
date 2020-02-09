@@ -81,6 +81,5 @@ class PWSStateHeader extends StatelessWidget {
         ],
       );
     }
-    return Container();
   }
 }
