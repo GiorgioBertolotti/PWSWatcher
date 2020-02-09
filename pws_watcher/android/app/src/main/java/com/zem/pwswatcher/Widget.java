@@ -274,8 +274,10 @@ public class Widget extends AppWidgetProvider {
             RemoteViews view = new RemoteViews(context.getPackageName(), R.layout.widget);
             boolean done = false;
             try {
+                boolean isClientRawTxt = false;
                 if (this.source.getUrl().endsWith("clientraw.txt")) {
                     done = visualizeClientRawTXT(resp, view);
+                    isClientRawTxt = true;
                 } else if (this.source.getUrl().endsWith(".txt")) {
                     done = visualizeRealtimeTXT(resp, view);
                 } else if (this.source.getUrl().endsWith(".xml")) {
@@ -284,7 +286,7 @@ public class Widget extends AppWidgetProvider {
                     done = visualizeDailyCSV(resp, view);
                 }
                 setFontSizes(view);
-                setVisibilities(view);
+                setVisibilities(view, isClientRawTxt);
                 Intent configurationIntent = new Intent(context, WidgetConfigurationActivity.class);
                 configurationIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, this.id);
                 configurationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -315,6 +317,7 @@ public class Widget extends AppWidgetProvider {
                 String[] values = lines[lines.length - 1].split(",");
                 view.setTextViewText(R.id.tv_location, this.source.getName());
                 view.setTextViewText(R.id.tv_temperature, convertTemperature(Double.parseDouble(values[7]), units[7], Widget.prefTempUnit) + Widget.prefTempUnit);
+                view.setTextViewText(R.id.tv_temperature_left, convertTemperature(Double.parseDouble(values[7]), units[7], Widget.prefTempUnit) + Widget.prefTempUnit);
                 view.setTextViewText(R.id.tv_humidity, values[5] + "%");
                 view.setTextViewText(R.id.tv_pressure, convertPressure(Double.parseDouble(values[8]), units[8], Widget.prefPressUnit) + Widget.prefPressUnit);
                 view.setTextViewText(R.id.tv_rain, convertRain(Double.parseDouble(values[52]), units[52], Widget.prefRainUnit) + Widget.prefRainUnit);
@@ -342,10 +345,15 @@ public class Widget extends AppWidgetProvider {
                 String[] values = resp.split(" ");
                 view.setTextViewText(R.id.tv_location, this.source.getName());
                 view.setTextViewText(R.id.tv_temperature, convertTemperature(Double.parseDouble(values[4]), "°C", Widget.prefTempUnit) + Widget.prefTempUnit);
+                view.setTextViewText(R.id.tv_temperature_left, convertTemperature(Double.parseDouble(values[4]), "°C", Widget.prefTempUnit) + Widget.prefTempUnit);
                 view.setTextViewText(R.id.tv_humidity, values[5] + "%");
                 view.setTextViewText(R.id.tv_pressure, convertPressure(Double.parseDouble(values[6]), "hPa", Widget.prefPressUnit) + Widget.prefPressUnit);
                 view.setTextViewText(R.id.tv_rain, convertRain(Double.parseDouble(values[7]), "mm", Widget.prefRainUnit) + Widget.prefRainUnit);
                 view.setTextViewText(R.id.tv_windspeed, convertWindSpeed(Double.parseDouble(values[2]), "kts", Widget.prefWindUnit) + Widget.prefWindUnit);
+                int currentConditionIcon = Integer.parseInt(values[48]);
+                int[] currentConditionMapping = {R.drawable.sunny, R.drawable.clear_night, R.drawable.cloudy, R.drawable.cloudy, R.drawable.cloudy_night, R.drawable.sunny, R.drawable.fog, R.drawable.fog, R.drawable.heavy_rain, R.drawable.sunny, R.drawable.fog, R.drawable.fog_night, R.drawable.heavy_rain, R.drawable.cloudy_night, R.drawable.rain, R.drawable.heavy_rain, R.drawable.snow, R.drawable.storm, R.drawable.partly_cloudy, R.drawable.partly_cloudy, R.drawable.rain, R.drawable.heavy_rain, R.drawable.heavy_rain, R.drawable.snow, R.drawable.snow, R.drawable.snow, R.drawable.snow_melt, R.drawable.snow, R.drawable.sunny, R.drawable.storm, R.drawable.storm, R.drawable.storm, R.drawable.windy, R.drawable.windy, R.drawable.stopped_raining, R.drawable.rain, R.drawable.sunrise, R.drawable.sunset};
+                int currentConditionAsset = currentConditionMapping[currentConditionIcon];
+                view.setImageViewResource(R.id.iv_weather, currentConditionAsset);
                 String stringDate = null;
                 try {
                     String date = values[74] + " " + values[29]+ ":" + values[30]+ ":" + values[31];
@@ -369,6 +377,7 @@ public class Widget extends AppWidgetProvider {
                 String[] values = resp.split(" ");
                 view.setTextViewText(R.id.tv_location, this.source.getName());
                 view.setTextViewText(R.id.tv_temperature, values[2] + (values[14].contains("°") ? "" : "°") + values[14]);
+                view.setTextViewText(R.id.tv_temperature_left, values[2] + (values[14].contains("°") ? "" : "°") + values[14]);
                 view.setTextViewText(R.id.tv_humidity, values[3] + "%");
                 view.setTextViewText(R.id.tv_pressure, values[10] + " " +values[15]);
                 view.setTextViewText(R.id.tv_rain, values[9] + " " + values[16]);
@@ -459,6 +468,7 @@ public class Widget extends AppWidgetProvider {
                 }
                 view.setTextViewText(R.id.tv_location, (location != null) ? location : this.source.getName());
                 view.setTextViewText(R.id.tv_temperature, ((temp != null) ? temp : "") + ((tempunit != null) ? (tempunit.contains("°") ? tempunit : "°" + tempunit) : ""));
+                view.setTextViewText(R.id.tv_temperature_left, ((temp != null) ? temp : "") + ((tempunit != null) ? (tempunit.contains("°") ? tempunit : "°" + tempunit) : ""));
                 view.setTextViewText(R.id.tv_humidity, ((hum != null) ? (hum.contains("%") ? hum : hum + "%") : "-"));
                 view.setTextViewText(R.id.tv_pressure, ((press != null) ? press : "-") + " " + ((pressunit != null) ? pressunit : ""));
                 view.setTextViewText(R.id.tv_rain, ((rain != null) ? rain : "-") + " " + ((rainunit != null) ? rainunit : ""));
@@ -484,6 +494,7 @@ public class Widget extends AppWidgetProvider {
         private void setFontSizes(RemoteViews view) {
             view.setFloat(R.id.tv_location, "setTextSize", 18f * this.fontSizeMultiplier);
             view.setFloat(R.id.tv_temperature, "setTextSize", 40f * this.fontSizeMultiplier);
+            view.setFloat(R.id.tv_temperature_left, "setTextSize", 40f * this.fontSizeMultiplier);
             view.setFloat(R.id.tv_humidity, "setTextSize", 16f * this.fontSizeMultiplier);
             view.setFloat(R.id.tv_pressure, "setTextSize", 16f * this.fontSizeMultiplier);
             view.setFloat(R.id.tv_rain, "setTextSize", 16f * this.fontSizeMultiplier);
@@ -495,7 +506,7 @@ public class Widget extends AppWidgetProvider {
             view.setFloat(R.id.tv_datetime, "setTextSize", 14f * this.fontSizeMultiplier);
         }
 
-        private void setVisibilities(RemoteViews view) {
+        private void setVisibilities(RemoteViews view, boolean isClientRawTxt) {
             if (this.humidityVisible)
                 view.setViewVisibility(R.id.ll_humidity, View.VISIBLE);
             else
@@ -512,6 +523,13 @@ public class Widget extends AppWidgetProvider {
                 view.setViewVisibility(R.id.ll_windspeed, View.VISIBLE);
             else
                 view.setViewVisibility(R.id.ll_windspeed, View.GONE);
+            if(isClientRawTxt) {
+                view.setViewVisibility(R.id.tv_temperature, View.INVISIBLE);
+                view.setViewVisibility(R.id.rl_temperature, View.VISIBLE);
+            } else {
+                view.setViewVisibility(R.id.tv_temperature, View.VISIBLE);
+                view.setViewVisibility(R.id.rl_temperature, View.GONE);
+            }
         }
 
         private double convertWindSpeed(double value, String unit, String preferred) {
