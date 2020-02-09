@@ -2,8 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:pws_watcher/model/parsing_utilities.dart';
 import 'package:pws_watcher/model/state\.dart';
 import 'package:pws_watcher/pages/detail/detail.dart';
+import 'package:pws_watcher/pages/home/widgets/pws_state_header.dart';
 import 'package:pws_watcher/pages/home/widgets/update_timer.dart';
 import 'package:pws_watcher/pages/home/widgets/variable_row.dart';
 import 'package:pws_watcher/services/parsing_service.dart';
@@ -25,6 +27,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
   ParsingService parsingService;
   Source _source;
 
+  var visibilityCurrentWeatherIcon = true;
   var visibilityUpdateTimer = true;
   var visibilityWindSpeed = true;
   var visibilityPressure = true;
@@ -111,6 +114,17 @@ class _PWSStatePageState extends State<PWSStatePage> {
           var sunset = data["sunset"] ?? "--:--";
           var moonrise = data["moonrise"] ?? "--:--";
           var moonset = data["moonset"] ?? "--:--";
+          var currentConditionIndex =
+              (int.parse(data["currentConditionIndex"] ?? "-1"));
+
+          var currentConditionAsset = null;
+          if (currentConditionIndex > 0 &&
+              currentConditionIndex < currentConditionDesc.length &&
+              currentConditionMapping
+                  .containsKey(currentConditionDesc[currentConditionIndex]))
+            currentConditionAsset = getCurrentConditionAsset(
+                currentConditionMapping[
+                    currentConditionDesc[currentConditionIndex]]);
 
           var windUnit = data["windUnit"] ?? "km/h";
           var rainUnit = data["rainUnit"] ?? "mm";
@@ -131,29 +145,12 @@ class _PWSStatePageState extends State<PWSStatePage> {
               children: <Widget>[
                 _buildUpdateIndicator(_source),
                 SizedBox(height: 20.0),
-                Center(
-                  child: Text(
-                    "$location",
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 40,
-                      fontWeight: FontWeight.w900,
-                      color: Theme.of(context).accentColor,
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    "$datetime",
-                    maxLines: 1,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.normal,
-                      color: Theme.of(context).accentColor,
-                    ),
-                  ),
+                PWSStateHeader(
+                  location,
+                  datetime,
+                  asset: visibilityCurrentWeatherIcon
+                      ? currentConditionAsset
+                      : null,
                 ),
                 SizedBox(height: 50.0),
                 Center(
@@ -326,9 +323,9 @@ class _PWSStatePageState extends State<PWSStatePage> {
           ),
         );
       } else
-        return Container();
+        return Container(height: 40.0);
     } else
-      return Container();
+      return Container(height: 40.0);
   }
 
   _openDetailPage() async {
@@ -364,35 +361,26 @@ class _PWSStatePageState extends State<PWSStatePage> {
   }
 
   Future<Null> _updatePreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    visibilityUpdateTimer = prefs.getBool("visibilityUpdateTimer");
-    visibilityWindSpeed = prefs.getBool("visibilityWindSpeed");
-    visibilityPressure = prefs.getBool("visibilityPressure");
-    visibilityWindDirection = prefs.getBool("visibilityWindDirection");
-    visibilityHumidity = prefs.getBool("visibilityHumidity");
-    visibilityTemperature = prefs.getBool("visibilityTemperature");
-    visibilityWindChill = prefs.getBool("visibilityWindChill");
-    visibilityRain = prefs.getBool("visibilityRain");
-    visibilityDew = prefs.getBool("visibilityDew");
-    visibilitySunrise = prefs.getBool("visibilitySunrise");
-    visibilitySunset = prefs.getBool("visibilitySunset");
-    visibilityMoonrise = prefs.getBool("visibilityMoonrise");
-    visibilityMoonset = prefs.getBool("visibilityMoonset");
-    visibilityUpdateTimer ??= true;
-    visibilityWindSpeed ??= true;
-    visibilityPressure ??= true;
-    visibilityWindDirection ??= true;
-    visibilityHumidity ??= true;
-    visibilityTemperature ??= true;
-    visibilityWindChill ??= true;
-    visibilityRain ??= true;
-    visibilityDew ??= true;
-    visibilitySunrise ??= true;
-    visibilitySunset ??= true;
-    visibilityMoonrise ??= true;
-    visibilityMoonset ??= true;
     try {
-      setState(() {});
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        visibilityCurrentWeatherIcon =
+            prefs.getBool("visibilityCurrentWeatherIcon") ?? true;
+        visibilityUpdateTimer = prefs.getBool("visibilityUpdateTimer") ?? true;
+        visibilityWindSpeed = prefs.getBool("visibilityWindSpeed") ?? true;
+        visibilityPressure = prefs.getBool("visibilityPressure") ?? true;
+        visibilityWindDirection =
+            prefs.getBool("visibilityWindDirection") ?? true;
+        visibilityHumidity = prefs.getBool("visibilityHumidity") ?? true;
+        visibilityTemperature = prefs.getBool("visibilityTemperature") ?? true;
+        visibilityWindChill = prefs.getBool("visibilityWindChill") ?? true;
+        visibilityRain = prefs.getBool("visibilityRain") ?? true;
+        visibilityDew = prefs.getBool("visibilityDew") ?? true;
+        visibilitySunrise = prefs.getBool("visibilitySunrise") ?? true;
+        visibilitySunset = prefs.getBool("visibilitySunset") ?? true;
+        visibilityMoonrise = prefs.getBool("visibilityMoonrise") ?? true;
+        visibilityMoonset = prefs.getBool("visibilityMoonset") ?? true;
+      });
     } catch (Exception) {}
   }
 }

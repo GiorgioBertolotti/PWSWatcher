@@ -162,7 +162,7 @@ class ParsingService {
       var rawResponse = await http.get(url);
       var response = rawResponse.body;
       // split values by space
-      List properties = getRealtimeTxtProperties();
+      List properties = realtimeTxtProperties;
       List values = response.trim().split(' ');
       var pwsInfo = <String, String>{};
       for (var counter = 0; counter < properties.length; counter++) {
@@ -180,7 +180,7 @@ class ParsingService {
       var rawResponse = await http.get(url);
       var response = rawResponse.body;
       // split values by space
-      List properties = getClientRawProperties();
+      List properties = clientRawProperties;
       List values = response.trim().split(' ');
       var pwsInfo = <String, String>{};
       for (var counter = 0; counter < properties.length; counter++) {
@@ -192,7 +192,7 @@ class ParsingService {
             .get(url.replaceAll("clientraw.txt", "clientrawextra.txt"));
         response = rawResponse.body;
         // split values by space
-        properties = getClientRawExtraProperties();
+        properties = clientRawExtraProperties;
         values = response.trim().split(' ');
         for (var counter = 0; counter < properties.length; counter++) {
           if (counter < values.length)
@@ -503,9 +503,12 @@ class ParsingService {
       if (source != null) interestVariables["location"] = source.name;
       var tmpDatetime = "";
       if (map.containsKey("Date")) tmpDatetime += " " + map["Date"];
-      if (map.containsKey("Hour")) tmpDatetime += " " + map["Hour"];
-      if (map.containsKey("Minute")) tmpDatetime += ":" + map["Minute"];
-      if (map.containsKey("Seconds")) tmpDatetime += ":" + map["Seconds"];
+      if (map.containsKey("Hour"))
+        tmpDatetime += " " + map["Hour"].padLeft(2, "0");
+      if (map.containsKey("Minute"))
+        tmpDatetime += ":" + map["Minute"].padLeft(2, "0");
+      if (map.containsKey("Seconds"))
+        tmpDatetime += ":" + map["Seconds"].padLeft(2, "0");
       tmpDatetime =
           tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
       try {
@@ -540,6 +543,9 @@ class ParsingService {
         interestVariables["moonrise"] = map["Moonrise"];
       if (map.containsKey("Moonset"))
         interestVariables["moonset"] = map["Moonset"];
+      if (map.containsKey("CurrentConditionIcon"))
+        interestVariables["currentConditionIndex"] =
+            map["CurrentConditionIcon"];
       interestVariables["windUnit"] = "kts";
       interestVariables["rainUnit"] = "mm";
       interestVariables["pressUnit"] = "hPa";

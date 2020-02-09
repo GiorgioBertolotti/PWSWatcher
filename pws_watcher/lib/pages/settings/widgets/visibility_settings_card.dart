@@ -14,6 +14,7 @@ class VisibilitySettingsCard extends StatefulWidget {
 }
 
 class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
+  var visibilityCurrentWeatherIcon = true;
   var visibilityUpdateTimer = true;
   var visibilityWindSpeed = true;
   var visibilityPressure = true;
@@ -56,6 +57,21 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+            ),
+            SwitchListTile(
+              title: Text("Current weather icon visibility"),
+              value: visibilityCurrentWeatherIcon,
+              onChanged: (value) async {
+                setState(() {
+                  visibilityCurrentWeatherIcon = value;
+                });
+                Provider.of<ApplicationState>(
+                  context,
+                  listen: false,
+                ).updatePreferences = true;
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.setBool("visibilityCurrentWeatherIcon", value);
+              },
             ),
             SwitchListTile(
               title: Text("Update timer visibility"),
@@ -259,34 +275,28 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
   }
 
   Future<Null> _getSettings() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      visibilityUpdateTimer = prefs.getBool("visibilityUpdateTimer");
-      visibilityWindSpeed = prefs.getBool("visibilityWindSpeed");
-      visibilityPressure = prefs.getBool("visibilityPressure");
-      visibilityWindDirection = prefs.getBool("visibilityWindDirection");
-      visibilityHumidity = prefs.getBool("visibilityHumidity");
-      visibilityTemperature = prefs.getBool("visibilityTemperature");
-      visibilityWindChill = prefs.getBool("visibilityWindChill");
-      visibilityRain = prefs.getBool("visibilityRain");
-      visibilityDew = prefs.getBool("visibilityDew");
-      visibilitySunrise = prefs.getBool("visibilitySunrise");
-      visibilitySunset = prefs.getBool("visibilitySunset");
-      visibilityMoonrise = prefs.getBool("visibilityMoonrise");
-      visibilityMoonset = prefs.getBool("visibilityMoonset");
-      visibilityUpdateTimer ??= true;
-      visibilityWindSpeed ??= true;
-      visibilityPressure ??= true;
-      visibilityWindDirection ??= true;
-      visibilityHumidity ??= true;
-      visibilityTemperature ??= true;
-      visibilityWindChill ??= true;
-      visibilityRain ??= true;
-      visibilityDew ??= true;
-      visibilitySunrise ??= true;
-      visibilitySunset ??= true;
-      visibilityMoonrise ??= true;
-      visibilityMoonset ??= true;
-    });
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      setState(() {
+        visibilityCurrentWeatherIcon =
+            prefs.getBool("visibilityCurrentWeatherIcon") ?? true;
+        visibilityUpdateTimer = prefs.getBool("visibilityUpdateTimer") ?? true;
+        visibilityWindSpeed = prefs.getBool("visibilityWindSpeed") ?? true;
+        visibilityPressure = prefs.getBool("visibilityPressure") ?? true;
+        visibilityWindDirection =
+            prefs.getBool("visibilityWindDirection") ?? true;
+        visibilityHumidity = prefs.getBool("visibilityHumidity") ?? true;
+        visibilityTemperature = prefs.getBool("visibilityTemperature") ?? true;
+        visibilityWindChill = prefs.getBool("visibilityWindChill") ?? true;
+        visibilityRain = prefs.getBool("visibilityRain") ?? true;
+        visibilityDew = prefs.getBool("visibilityDew") ?? true;
+        visibilitySunrise = prefs.getBool("visibilitySunrise") ?? true;
+        visibilitySunset = prefs.getBool("visibilitySunset") ?? true;
+        visibilityMoonrise = prefs.getBool("visibilityMoonrise") ?? true;
+        visibilityMoonset = prefs.getBool("visibilityMoonset") ?? true;
+      });
+    } catch (e) {
+      print(e);
+    }
   }
 }
