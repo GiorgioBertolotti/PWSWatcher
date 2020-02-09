@@ -6,7 +6,7 @@ import 'package:pws_watcher/model/state.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:xml/xml.dart' as xml;
 import 'package:http/http.dart' as http;
-import 'package:pws_watcher/model/parsing_properties.dart';
+import 'package:pws_watcher/model/parsing_utilities.dart';
 
 class ParsingService {
   BehaviorSubject<Map<String, String>> allDataSubject =

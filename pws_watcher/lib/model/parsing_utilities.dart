@@ -1,3 +1,52 @@
+String getCurrentConditionIconName(String currentCondition) {
+  Map mapping = {
+    "sunny": "sunny",
+    "clear night": "clear_night",
+    "cloudy": "cloudy",
+    "cloudy": "cloudy",
+    "cloudy night": "cloudy_night",
+    "dry clear": "sunny",
+    "fog": "fog",
+    "hazy": "fog",
+    "heavy rain": "heavy_rain",
+    "mainly fine": "sunny",
+    "misty": "fog",
+    "night fog": "fog_night",
+    "night heavy rain": "heavy_rain",
+    "night overcast": "cloudy_night",
+    "night rain": "rain",
+    "night showers": "heay_rain",
+    "night snow": "snow",
+    "night thunder": "storm",
+    "overcast": "partly_cloudy",
+    "partly cloudy": "partly_cloudy",
+    "rain": "rain",
+    "hard rain": "heavy_rain",
+    "showers": "heavy_rain",
+    "sleet": "snow",
+    "sleet showers": "snow",
+    "snowing": "snow",
+    "snow melt": "snow_melt",
+    "snow showers": "snow",
+    "sunny": "sunny",
+    "thunder showers": "storm",
+    "thunder showers": "storm",
+    "thunderstorms": "storm",
+    "tornado warning": "windy",
+    "windy": "windy",
+    "stopped raining": "stopped_raining",
+    "windy rain": "rain",
+    "sunrise": "sunrise",
+    "sunset": "sunset",
+  };
+  if (mapping.containsKey(currentCondition))
+    return "assets/images/current_weather/" +
+        mapping[currentCondition] +
+        ".svg";
+  else
+    return null;
+}
+
 List<String> getClientRawProperties() {
   return [
     "Beginningoffile",
