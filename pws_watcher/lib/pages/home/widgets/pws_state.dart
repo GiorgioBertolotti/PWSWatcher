@@ -114,9 +114,16 @@ class _PWSStatePageState extends State<PWSStatePage> {
           var sunset = data["sunset"] ?? "--:--";
           var moonrise = data["moonrise"] ?? "--:--";
           var moonset = data["moonset"] ?? "--:--";
+
+          var windUnit = data["windUnit"] ?? "km/h";
+          var rainUnit = data["rainUnit"] ?? "mm";
+          var pressUnit = data["pressUnit"] ?? "mb";
+          var tempUnit = data["tempUnit"] ?? "°C";
+          var dewUnit = data["dewUnit"] ?? "°";
+          var humUnit = data["humUnit"] ?? "%";
+
           var currentConditionIndex =
               (int.parse(data["currentConditionIndex"] ?? "-1"));
-
           var currentConditionAsset;
           if (currentConditionIndex > 0 &&
               currentConditionIndex < currentConditionDesc.length &&
@@ -125,13 +132,6 @@ class _PWSStatePageState extends State<PWSStatePage> {
             currentConditionAsset = getCurrentConditionAsset(
                 currentConditionMapping[
                     currentConditionDesc[currentConditionIndex]]);
-
-          var windUnit = data["windUnit"] ?? "km/h";
-          var rainUnit = data["rainUnit"] ?? "mm";
-          var pressUnit = data["pressUnit"] ?? "mb";
-          var tempUnit = data["tempUnit"] ?? "°C";
-          var dewUnit = data["dewUnit"] ?? "°";
-          var humUnit = data["humUnit"] ?? "%";
           return RefreshIndicator(
             color: Theme.of(context).primaryColor,
             backgroundColor: Theme.of(context).accentColor,

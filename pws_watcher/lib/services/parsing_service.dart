@@ -48,8 +48,10 @@ class ParsingService {
         // parsing and variables assignment with realtime.xml
         Map<String, String> sourceData = await _parseRealtimeXML(url);
         if (sourceData != null) {
+          Map interestData = _valuesFromRealtimeXML(sourceData);
+          sourceData.addAll(beautifyConvertedValues(interestData));
           allDataSubject.add(sourceData);
-          interestVariablesSubject.add(_valuesFromRealtimeXML(sourceData));
+          interestVariablesSubject.add(interestData);
         } else {
           if (!url.startsWith("http://") && !url.startsWith("https://")) {
             await _updateData("http://" + url, force: true);
@@ -64,8 +66,10 @@ class ParsingService {
             // parsing and variables assignment with clientraw.txt
             sourceData = await _parseRealtimeTXT(url);
             if (sourceData != null) {
+              Map interestData = _valuesFromRealtimeXML(sourceData);
+              sourceData.addAll(beautifyConvertedValues(interestData));
               allDataSubject.add(sourceData);
-              interestVariablesSubject.add(_valuesFromRealtimeTXT(sourceData));
+              interestVariablesSubject.add(interestData);
             } else {
               if (!url.startsWith("http://") && !url.startsWith("https://")) {
                 await _updateData("http://" + url, force: true);
@@ -73,8 +77,10 @@ class ParsingService {
               }
             }
           } else {
+            Map interestData = _valuesFromClientRawTXT(sourceData);
+            sourceData.addAll(beautifyConvertedValues(interestData));
             allDataSubject.add(sourceData);
-            interestVariablesSubject.add(_valuesFromClientRawTXT(sourceData));
+            interestVariablesSubject.add(interestData);
           }
         } else {
           // parsing and variables assignment with realtime.txt
@@ -83,8 +89,10 @@ class ParsingService {
             // parsing and variables assignment with clientraw.txt
             sourceData = await _parseClientRawTXT(url);
             if (sourceData != null) {
+              Map interestData = _valuesFromClientRawTXT(sourceData);
+              sourceData.addAll(beautifyConvertedValues(interestData));
               allDataSubject.add(sourceData);
-              interestVariablesSubject.add(_valuesFromClientRawTXT(sourceData));
+              interestVariablesSubject.add(interestData);
             } else {
               if (!url.startsWith("http://") && !url.startsWith("https://")) {
                 await _updateData("http://" + url, force: true);
@@ -92,17 +100,22 @@ class ParsingService {
               }
             }
           } else {
+            Map interestData = _valuesFromRealtimeTXT(sourceData);
+            sourceData.addAll(beautifyConvertedValues(interestData));
             allDataSubject.add(sourceData);
-            interestVariablesSubject.add(_valuesFromRealtimeTXT(sourceData));
+            interestVariablesSubject.add(interestData);
           }
         }
       } else if (url.endsWith("csv")) {
         // parsing and variables assignment with daily.csv
         Map<String, String> sourceData = await _parseDailyCSV(url);
         if (sourceData != null) {
+          Map interestData = _valuesFromDailyCSV(sourceData);
+          if (interestData != null) {
+            sourceData.addAll(beautifyConvertedValues(interestData));
+            interestVariablesSubject.add(interestData);
+          }
           allDataSubject.add(sourceData);
-          Map interest = _valuesFromDailyCSV(sourceData);
-          if (interest != null) interestVariablesSubject.add(interest);
         } else {
           if (!url.startsWith("http://") && !url.startsWith("https://")) {
             await _updateData("http://" + url, force: true);
@@ -115,6 +128,28 @@ class ParsingService {
       }
     } catch (e) {}
     _isRetrieving = false;
+  }
+
+  Map<String, String> beautifyConvertedValues(Map<String, String> map) {
+    Map<String, String> toReturn = Map();
+    var windspeed = map["windspeed"] ?? "-";
+    var press = map["press"] ?? "-";
+    var temperature = map["temperature"] ?? "-";
+    var windchill = map["windchill"] ?? "-";
+    var rain = map["rain"] ?? "-";
+    var dew = map["dew"] ?? "-";
+    var windUnit = map["windUnit"] ?? "km/h";
+    var rainUnit = map["rainUnit"] ?? "mm";
+    var pressUnit = map["pressUnit"] ?? "mb";
+    var tempUnit = map["tempUnit"] ?? "°C";
+    var dewUnit = map["dewUnit"] ?? "°";
+    toReturn["FinalWindSpeed"] = windspeed + windUnit;
+    toReturn["FinalRain"] = rain + rainUnit;
+    toReturn["FinalPressure"] = press + pressUnit;
+    toReturn["FinalTemperature"] = temperature + tempUnit;
+    toReturn["FinalWindChill"] = windchill + tempUnit;
+    toReturn["FinalDewPoint"] = dew + dewUnit;
+    return toReturn;
   }
 
   Future<Map<String, String>> _parseRealtimeXML(String url) async {
