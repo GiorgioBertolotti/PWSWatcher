@@ -45,6 +45,7 @@ build: &build_apk
       - tools
       - platform-tools
       - build-tools-28.0.3
+      - android-29
       - android-28
       - android-27
   before_script:
@@ -72,6 +73,7 @@ google_play: &google_play
       - tools
       - platform-tools
       - build-tools-28.0.3
+      - android-29
       - android-28
       - android-27
   install:
