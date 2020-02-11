@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:pws_watcher/model/source.dart';
+import 'package:pws_watcher/model/pws.dart';
 import 'package:pws_watcher/model/state.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:xml/xml.dart' as xml;
@@ -15,10 +15,10 @@ class ParsingService {
       BehaviorSubject<Map<String, String>>.seeded(Map());
   Stream<Map<String, String>> get data$ => allDataSubject.stream;
   Stream<Map<String, String>> get variables$ => interestVariablesSubject.stream;
-  Source source;
+  PWS source;
   ApplicationState appState;
 
-  setSource(Source source) {
+  setSource(PWS source) {
     this.source = source;
     updateData();
   }

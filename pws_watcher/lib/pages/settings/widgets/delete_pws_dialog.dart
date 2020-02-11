@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:pws_watcher/model/source.dart';
+import 'package:pws_watcher/model/pws.dart';
 
-class DeleteSourceDialog extends StatelessWidget {
-  DeleteSourceDialog(this.source, this.context);
+class DeletePWSDialog extends StatelessWidget {
+  DeletePWSDialog(this.source, this.context);
 
-  final Source source;
+  final PWS source;
   final BuildContext context;
 
   @override

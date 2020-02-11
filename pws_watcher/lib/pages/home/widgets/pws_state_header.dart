@@ -39,7 +39,7 @@ class PWSStateHeader extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
-                      color: Theme.of(context).accentColor,
+                      color: Theme.of(context).accentColor.withOpacity(0.8),
                     ),
                   ),
                 ],
@@ -75,7 +75,7 @@ class PWSStateHeader extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.normal,
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).accentColor.withOpacity(0.8),
             ),
           ),
         ],

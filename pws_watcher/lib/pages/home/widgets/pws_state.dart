@@ -10,13 +10,15 @@ import 'package:pws_watcher/pages/home/widgets/update_timer.dart';
 import 'package:pws_watcher/pages/home/widgets/variable_row.dart';
 import 'package:pws_watcher/services/parsing_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pws_watcher/model/source.dart';
+import 'package:pws_watcher/model/pws.dart';
 import 'dart:async';
+
+import 'snapshot_preview.dart';
 
 class PWSStatePage extends StatefulWidget {
   PWSStatePage(this.source);
 
-  final Source source;
+  final PWS source;
 
   @override
   _PWSStatePageState createState() => _PWSStatePageState();
@@ -25,7 +27,7 @@ class PWSStatePage extends StatefulWidget {
 class _PWSStatePageState extends State<PWSStatePage> {
   GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
   ParsingService parsingService;
-  Source _source;
+  PWS _source;
 
   var visibilityCurrentWeatherIcon = true;
   var visibilityUpdateTimer = true;
@@ -132,6 +134,10 @@ class _PWSStatePageState extends State<PWSStatePage> {
             currentConditionAsset = getCurrentConditionAsset(
                 currentConditionMapping[
                     currentConditionDesc[currentConditionIndex]]);
+
+          bool thereIsSnapshot = widget.source.snapshotUrl != null &&
+              widget.source.snapshotUrl.isNotEmpty;
+
           return RefreshIndicator(
             color: Theme.of(context).primaryColor,
             backgroundColor: Theme.of(context).accentColor,
@@ -152,7 +158,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
                       ? currentConditionAsset
                       : null,
                 ),
-                SizedBox(height: 50.0),
+                SizedBox(height: 30.0),
                 Center(
                   child: Text(
                     "$temperature$tempUnit",
@@ -260,7 +266,9 @@ class _PWSStatePageState extends State<PWSStatePage> {
                     visibilityRight: visibilityMoonset,
                   ),
                 ),
-                SizedBox(height: 40.0),
+                thereIsSnapshot ? SizedBox(height: 30) : Container(),
+                thereIsSnapshot ? SnapshotPreview(widget.source) : Container(),
+                SizedBox(height: thereIsSnapshot ? 20.0 : 40.0),
                 Container(
                   padding: EdgeInsets.all(20),
                   child: Column(
@@ -296,7 +304,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
     await Future.delayed(Duration(milliseconds: Random().nextInt(1000) + 500));
   }
 
-  dynamic _buildUpdateIndicator(Source source) {
+  dynamic _buildUpdateIndicator(PWS source) {
     if (source.autoUpdateInterval != null) {
       if (source.autoUpdateInterval == 0) {
         return Align(

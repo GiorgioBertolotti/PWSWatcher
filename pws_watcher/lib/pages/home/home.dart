@@ -7,7 +7,7 @@ import 'package:pws_watcher/model/state\.dart';
 import 'package:pws_watcher/pages/home/widgets/pws_state.dart';
 import 'package:pws_watcher/pages/settings/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pws_watcher/model/source.dart';
+import 'package:pws_watcher/model/pws.dart';
 import 'dart:convert';
 import 'package:pws_watcher/services/connection_status\.dart';
 import 'dart:async';
@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
       _populateSources().then((sources) {
         _pages.clear();
         if (sources != null) {
-          for (Source s in sources) {
+          for (PWS s in sources) {
             _pages.add(PWSStatePage(s));
           }
           setState(() {});
@@ -193,8 +193,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<List<Source>> _populateSources() async {
-    List<Source> toReturn;
+  Future<List<PWS>> _populateSources() async {
+    List<PWS> toReturn;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> sources = prefs.getStringList("sources");
     if (sources == null || sources.length == 0) {
@@ -224,21 +224,26 @@ class _HomePageState extends State<HomePage> {
     return toReturn;
   }
 
-  Future<Source> _getSourceData(int id) async {
+  Future<PWS> _getSourceData(int id) async {
     if (id != null && id != -1) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       List<String> sources = prefs.getStringList("sources");
-      Source source;
+      PWS source;
       if (sources == null || sources.length < 1)
         source = null;
       else {
         for (String sourceJSON in sources) {
           dynamic parsed = jsonDecode(sourceJSON);
           if (parsed["id"] == id) {
-            source = Source(parsed["id"], parsed["name"], parsed["url"],
-                autoUpdateInterval: (parsed["autoUpdateInterval"] != null)
-                    ? parsed["autoUpdateInterval"]
-                    : 0);
+            source = PWS(
+              parsed["id"],
+              parsed["name"],
+              parsed["url"],
+              autoUpdateInterval: (parsed["autoUpdateInterval"] != null)
+                  ? parsed["autoUpdateInterval"]
+                  : 0,
+              snapshotUrl: parsed["snapshotUrl"],
+            );
             break;
           }
         }

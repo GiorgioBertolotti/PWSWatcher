@@ -2,34 +2,37 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pws_watcher/main.dart';
-import 'package:pws_watcher/model/source.dart';
+import 'package:pws_watcher/model/pws.dart';
 import 'package:pws_watcher/model/state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:showcaseview/showcase_widget.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class AddSourceDialog extends StatefulWidget {
-  AddSourceDialog(this.context);
+class AddPWSDialog extends StatefulWidget {
+  AddPWSDialog(this.context);
 
   final BuildContext context;
 
   @override
-  _AddSourceDialogState createState() => _AddSourceDialogState();
+  _AddPWSDialogState createState() => _AddPWSDialogState();
 }
 
-class _AddSourceDialogState extends State<AddSourceDialog> {
+class _AddPWSDialogState extends State<AddPWSDialog> {
   final GlobalKey<FormState> _addFormKey = GlobalKey<FormState>();
   final GlobalKey _urlKey = GlobalKey();
   final GlobalKey _refreshKey = GlobalKey();
+  final GlobalKey _snapshotUrlKey = GlobalKey();
 
   final _nameController = TextEditingController();
   final _urlController = TextEditingController();
   final _intervalController = TextEditingController();
+  final _snapshotUrlController = TextEditingController();
 
   FocusNode _nameFocusNode = FocusNode();
   FocusNode _urlFocusNode = FocusNode();
   FocusNode _intervalFocusNode = FocusNode();
+  FocusNode _snapshotUrlFocusNode = FocusNode();
 
   BuildContext _showCaseContext;
 
@@ -40,13 +43,15 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
       if (shouldShow) {
         WidgetsBinding.instance.addPostFrameCallback((_) =>
             ShowCaseWidget.of(_showCaseContext)
-                .startShowCase([_urlKey, _refreshKey]));
+                .startShowCase([_urlKey, _refreshKey, _snapshotUrlKey]));
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    double inputHeight = 75.0;
+    double screenWidth = MediaQuery.of(context).size.width;
     return ShowCaseWidget(
       builder: Builder(builder: (ctx) {
         _showCaseContext = ctx;
@@ -58,8 +63,8 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Container(
-                  height: 75.0,
-                  width: MediaQuery.of(context).size.width,
+                  height: inputHeight,
+                  width: screenWidth,
                   padding: EdgeInsets.all(8.0),
                   child: TextFormField(
                     controller: _nameController,
@@ -80,8 +85,8 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
                   ),
                 ),
                 Container(
-                  height: 75.0,
-                  width: MediaQuery.of(context).size.width,
+                  height: inputHeight,
+                  width: screenWidth,
                   child: Showcase(
                     key: _urlKey,
                     title: "Enter URL",
@@ -110,8 +115,8 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
                   ),
                 ),
                 Container(
-                  height: 75.0,
-                  width: MediaQuery.of(context).size.width,
+                  height: inputHeight,
+                  width: screenWidth,
                   child: Showcase(
                     key: _refreshKey,
                     title: "Update interval in seconds",
@@ -135,6 +140,31 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
                         ),
                         maxLines: 1,
                         focusNode: _intervalFocusNode,
+                        textInputAction: TextInputAction.next,
+                        onFieldSubmitted: (value) => FocusScope.of(context)
+                            .requestFocus(_snapshotUrlFocusNode),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  height: inputHeight,
+                  width: screenWidth,
+                  child: Showcase(
+                    key: _snapshotUrlKey,
+                    title: "Webcam snapshot",
+                    description: "Enter the URL of a webcam",
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextFormField(
+                        keyboardType: TextInputType.url,
+                        controller: _snapshotUrlController,
+                        decoration: InputDecoration(
+                          labelText: "Webcam snapshot URL (opt.)",
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 1,
+                        focusNode: _snapshotUrlFocusNode,
                         textInputAction: TextInputAction.done,
                         onFieldSubmitted: (text) => _addPWS(),
                       ),
@@ -173,14 +203,16 @@ class _AddSourceDialogState extends State<AddSourceDialog> {
     FocusScope.of(context).requestFocus(FocusNode());
     if (_addFormKey.currentState.validate()) {
       _addFormKey.currentState.save();
-      Source source = Source(
-          Provider.of<ApplicationState>(
-            context,
-            listen: false,
-          ).countID++,
-          _nameController.text,
-          _urlController.text,
-          autoUpdateInterval: int.parse(_intervalController.text));
+      PWS source = PWS(
+        Provider.of<ApplicationState>(
+          context,
+          listen: false,
+        ).countID++,
+        _nameController.text,
+        _urlController.text,
+        autoUpdateInterval: int.parse(_intervalController.text),
+        snapshotUrl: _snapshotUrlController.text,
+      );
       PWSWatcher.navigatorKey.currentState.pop(source);
     }
   }

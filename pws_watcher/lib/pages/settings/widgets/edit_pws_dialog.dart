@@ -1,38 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:pws_watcher/model/source.dart';
+import 'package:pws_watcher/model/pws.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class EditSourceDialog extends StatefulWidget {
-  EditSourceDialog(this.source, this.context);
+class EditPWSDialog extends StatefulWidget {
+  EditPWSDialog(this.source, this.context);
 
-  final Source source;
+  final PWS source;
   final BuildContext context;
 
   @override
-  _EditSourceDialogState createState() => _EditSourceDialogState();
+  _EditPWSDialogState createState() => _EditPWSDialogState();
 }
 
-class _EditSourceDialogState extends State<EditSourceDialog> {
+class _EditPWSDialogState extends State<EditPWSDialog> {
   final GlobalKey<FormState> _editFormKey = GlobalKey<FormState>();
 
   final _nameController = TextEditingController();
   final _urlController = TextEditingController();
   final _intervalController = TextEditingController();
+  final _snapshotUrlController = TextEditingController();
 
   FocusNode _nameFocusNode = FocusNode();
   FocusNode _urlFocusNode = FocusNode();
   FocusNode _intervalFocusNode = FocusNode();
+  FocusNode _snapshotUrlFocusNode = FocusNode();
 
   @override
   void initState() {
     _nameController.text = widget.source.name;
     _urlController.text = widget.source.url;
     _intervalController.text = widget.source.autoUpdateInterval.toString();
+    _snapshotUrlController.text = widget.source.snapshotUrl ?? "";
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    double inputHeight = 75.0;
     return AlertDialog(
       title: Text("Edit " + widget.source.name),
       content: Form(
@@ -41,7 +45,7 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Container(
-              height: 75.0,
+              height: inputHeight,
               padding: EdgeInsets.all(8.0),
               child: TextFormField(
                 controller: _nameController,
@@ -62,7 +66,7 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
               ),
             ),
             Container(
-              height: 75.0,
+              height: inputHeight,
               padding: EdgeInsets.all(8.0),
               child: TextFormField(
                 keyboardType: TextInputType.url,
@@ -84,7 +88,7 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
               ),
             ),
             Container(
-              height: 75.0,
+              height: inputHeight,
               padding: EdgeInsets.all(8.0),
               child: TextFormField(
                 keyboardType: TextInputType.number,
@@ -103,6 +107,23 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
                 ),
                 maxLines: 1,
                 focusNode: _intervalFocusNode,
+                textInputAction: TextInputAction.next,
+                onFieldSubmitted: (value) =>
+                    FocusScope.of(context).requestFocus(_snapshotUrlFocusNode),
+              ),
+            ),
+            Container(
+              height: inputHeight,
+              padding: EdgeInsets.all(8.0),
+              child: TextFormField(
+                keyboardType: TextInputType.url,
+                controller: _snapshotUrlController,
+                decoration: InputDecoration(
+                  labelText: "Webcam snapshot URL (opt.)",
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 1,
+                focusNode: _snapshotUrlFocusNode,
                 textInputAction: TextInputAction.done,
                 onFieldSubmitted: (text) => _editPWS(),
               ),
@@ -139,6 +160,7 @@ class _EditSourceDialogState extends State<EditSourceDialog> {
       widget.source.name = _nameController.text;
       widget.source.url = _urlController.text;
       widget.source.autoUpdateInterval = int.parse(_intervalController.text);
+      widget.source.snapshotUrl = _snapshotUrlController.text;
       Navigator.of(widget.context).pop(widget.source);
     }
   }

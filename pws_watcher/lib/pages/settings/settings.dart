@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/model/state\.dart';
-import 'package:pws_watcher/pages/settings/widgets/add_source_dialog.dart';
-import 'package:pws_watcher/pages/settings/widgets/delete_source_dialog.dart';
-import 'package:pws_watcher/pages/settings/widgets/edit_source_dialog.dart';
+import 'package:pws_watcher/pages/settings/widgets/add_pws_dialog.dart';
+import 'package:pws_watcher/pages/settings/widgets/delete_pws_dialog.dart';
+import 'package:pws_watcher/pages/settings/widgets/edit_pws_dialog.dart';
 import 'package:pws_watcher/pages/settings/widgets/theme_settings_card.dart';
 import 'package:pws_watcher/pages/settings/widgets/unit_settings_card.dart';
 import 'package:pws_watcher/pages/settings/widgets/visibility_settings_card.dart';
@@ -14,7 +14,7 @@ import 'package:pws_watcher/services/theme_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:async';
-import 'package:pws_watcher/model/source.dart';
+import 'package:pws_watcher/model/pws.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -28,7 +28,7 @@ class _SettingsPageState extends State<SettingsPage>
     with TickerProviderStateMixin {
   final GlobalKey _fabKey = GlobalKey();
 
-  List<Source> _sources = List();
+  List<PWS> _sources = List();
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   BuildContext _showCaseContext;
@@ -221,16 +221,16 @@ class _SettingsPageState extends State<SettingsPage>
       builder: (ctx) {
         var provider = Provider<ApplicationState>.value(
           value: Provider.of<ApplicationState>(context, listen: false),
-          child: AddSourceDialog(_showCaseContext),
+          child: AddPWSDialog(_showCaseContext),
         );
         return provider;
       },
     );
-    if (source != null && source is Source) {
+    if (source != null && source is PWS) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       _sources.add(source);
       List<String> sourcesJSON = List();
-      for (Source source in _sources) {
+      for (PWS source in _sources) {
         String sourceJSON = jsonEncode(source);
         sourcesJSON.add(sourceJSON);
       }
@@ -249,15 +249,16 @@ class _SettingsPageState extends State<SettingsPage>
     var source = await showDialog(
         context: context,
         builder: (BuildContext ctx) {
-          return EditSourceDialog(_sources[position], context);
+          return EditPWSDialog(_sources[position], context);
         });
-    if (source != null && source is Source) {
+    if (source != null && source is PWS) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       _sources[position].name = source.name;
       _sources[position].url = source.url;
       _sources[position].autoUpdateInterval = source.autoUpdateInterval;
+      _sources[position].snapshotUrl = source.snapshotUrl;
       List<String> sourcesJSON = List();
-      for (Source source in _sources) {
+      for (PWS source in _sources) {
         String sourceJSON = jsonEncode(source);
         sourcesJSON.add(sourceJSON);
       }
@@ -270,7 +271,7 @@ class _SettingsPageState extends State<SettingsPage>
     var delete = await showDialog(
       context: context,
       builder: (BuildContext ctx) {
-        return DeleteSourceDialog(_sources[position], context);
+        return DeletePWSDialog(_sources[position], context);
       },
     );
     if (delete != null && delete is bool && delete) {
@@ -279,7 +280,7 @@ class _SettingsPageState extends State<SettingsPage>
       int index = prefs.getInt("last_used_source") ?? -1;
       if (index == _sources[position].id) prefs.remove("last_used_source");
       _sources.removeAt(position);
-      for (Source source in _sources) {
+      for (PWS source in _sources) {
         String sourceJSON = jsonEncode(source);
         sourcesJSON.add(sourceJSON);
       }
@@ -303,10 +304,15 @@ class _SettingsPageState extends State<SettingsPage>
         for (String sourceJSON in sources) {
           try {
             dynamic source = jsonDecode(sourceJSON);
-            _sources.add(Source(source["id"], source["name"], source["url"],
-                autoUpdateInterval: (source["autoUpdateInterval"] != null)
-                    ? source["autoUpdateInterval"]
-                    : 0));
+            _sources.add(PWS(
+              source["id"],
+              source["name"],
+              source["url"],
+              autoUpdateInterval: (source["autoUpdateInterval"] != null)
+                  ? source["autoUpdateInterval"]
+                  : 0,
+              snapshotUrl: source["snapshotUrl"],
+            ));
           } catch (Exception) {
             prefs.setStringList("sources", null);
           }

@@ -1,0 +1,155 @@
+import 'dart:async';
+import 'package:flushbar/flushbar.dart';
+import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:image_downloader/image_downloader.dart';
+
+class SnapshotPage extends StatefulWidget {
+  SnapshotPage(
+    this.urlImage,
+    this.title, {
+    this.description,
+    this.download = false,
+    this.downloadName,
+    this.padding,
+    this.backgroundColor,
+  });
+
+  final String title;
+  final String urlImage;
+  final String description;
+  final EdgeInsetsGeometry padding;
+  final Color backgroundColor;
+  final bool download;
+  final String downloadName;
+
+  @override
+  _SnapshotPageState createState() => _SnapshotPageState();
+}
+
+class _SnapshotPageState extends State<SnapshotPage> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey();
+  int _requestCounter = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    imageCache.clear();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dismissible(
+      key: Key('dismissible'),
+      direction: DismissDirection.vertical,
+      onDismissed: (direction) {
+        Navigator.pop(context);
+      },
+      background: Container(
+        color: widget.backgroundColor,
+      ),
+      movementDuration: Duration(milliseconds: 100),
+      resizeDuration: Duration(milliseconds: 100),
+      child: Scaffold(
+        key: _scaffoldKey,
+        backgroundColor: widget.backgroundColor,
+        appBar: widget.title != null
+            ? AppBar(
+                iconTheme: IconThemeData(color: Colors.white),
+                backgroundColor: Colors.black,
+                title: Text(
+                  widget.title,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20.0,
+                  ),
+                ),
+                actions: <Widget>[
+                  IconButton(
+                      icon: Icon(Icons.refresh),
+                      onPressed: () => this.setState(() {
+                            _requestCounter++;
+                          })),
+                  widget.download
+                      ? IconButton(
+                          icon: Icon(Icons.file_download),
+                          onPressed: () => _downloadImageFromUrl())
+                      : Container(),
+                ],
+              )
+            : null,
+        body: Stack(
+          fit: StackFit.expand,
+          children: <Widget>[
+            _getPhotoView(),
+            widget.description != null
+                ? Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Container(
+                      color: Colors.black45,
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        widget.description,
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                    ),
+                  )
+                : new Container(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<Null> _downloadImageFromUrl() async {
+    PermissionStatus permission = await PermissionHandler()
+        .checkPermissionStatus(PermissionGroup.storage);
+    if (permission != PermissionStatus.granted) {
+      Map<PermissionGroup, PermissionStatus> permissions =
+          await PermissionHandler()
+              .requestPermissions([PermissionGroup.storage]);
+      if (permissions[PermissionGroup.storage] != PermissionStatus.granted) {
+        Flushbar(
+          message: "Please grant the permissions to download the image 🙏🏻",
+          duration: Duration(seconds: 2),
+          animationDuration: Duration(milliseconds: 350),
+        )..show(context);
+        return;
+      }
+    }
+    try {
+      var imageId = await ImageDownloader.downloadImage(widget.urlImage,
+          destination: AndroidDestinationType.custom(
+              directory: 'Download',
+              subDirectory: widget.downloadName + ".png"));
+      if (imageId == null) {
+        return;
+      }
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  Widget _getPhotoView() {
+    String url = widget.urlImage +
+        (widget.urlImage.contains("?")
+            ? ("&n=" + _requestCounter.toString())
+            : ("?n=" + _requestCounter.toString()));
+    return PhotoView.customChild(
+      childSize: const Size(100, 100),
+      backgroundDecoration: BoxDecoration(
+        color: Colors.transparent,
+      ),
+      child: Container(
+        padding: widget.padding,
+        color: Colors.transparent,
+        child: Image.network(url),
+      ),
+    );
+  }
+}
