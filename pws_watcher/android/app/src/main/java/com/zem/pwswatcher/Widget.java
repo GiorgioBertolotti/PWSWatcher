@@ -287,14 +287,7 @@ public class Widget extends AppWidgetProvider {
                 }
                 setFontSizes(view);
                 setVisibilities(view, isClientRawTxt);
-                Intent configurationIntent = new Intent(context, WidgetConfigurationActivity.class);
-                configurationIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, this.id);
-                configurationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                configurationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                configurationIntent.setData(Uri.parse(configurationIntent.toUri(Intent.URI_INTENT_SCHEME)));
-                PendingIntent configurationPendingIntent = PendingIntent.getActivity(context, 0, configurationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                view.setOnClickPendingIntent(R.id.ib_setting, configurationPendingIntent);
-                view.setOnClickPendingIntent(R.id.ib_refresh, getPendingSelfIntent(context, onRefreshClick));
+                setOnClickListeners(view);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -302,12 +295,6 @@ public class Widget extends AppWidgetProvider {
                 AppWidgetManager manager = AppWidgetManager.getInstance(context);
                 manager.updateAppWidget(this.id, view);
             }
-        }
-
-        protected PendingIntent getPendingSelfIntent(Context context, String action) {
-            Intent intent = new Intent(context, Widget.class);
-            intent.setAction(action);
-            return PendingIntent.getBroadcast(context, 0, intent, 0);
         }
 
         private boolean visualizeDailyCSV(String resp, RemoteViews view) {
@@ -530,6 +517,26 @@ public class Widget extends AppWidgetProvider {
                 view.setViewVisibility(R.id.tv_temperature, View.VISIBLE);
                 view.setViewVisibility(R.id.rl_temperature, View.GONE);
             }
+        }
+
+        private void setOnClickListeners(RemoteViews view) {
+            Intent configurationIntent = new Intent(context, WidgetConfigurationActivity.class);
+            configurationIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, this.id);
+            configurationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            configurationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            configurationIntent.setData(Uri.parse(configurationIntent.toUri(Intent.URI_INTENT_SCHEME)));
+            PendingIntent configurationPendingIntent = PendingIntent.getActivity(context, 0, configurationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            view.setOnClickPendingIntent(R.id.ib_setting, configurationPendingIntent);
+            view.setOnClickPendingIntent(R.id.ib_refresh, getPendingSelfIntent(context, onRefreshClick));
+            Intent openAppIntent = new Intent(context, MainActivity.class);
+            PendingIntent openAppPendingIntent = PendingIntent.getActivity(context, 0, openAppIntent, 0);
+            view.setOnClickPendingIntent(R.id.rl_widget_container, openAppPendingIntent);
+        }
+
+        protected PendingIntent getPendingSelfIntent(Context context, String action) {
+            Intent intent = new Intent(context, Widget.class);
+            intent.setAction(action);
+            return PendingIntent.getBroadcast(context, 0, intent, 0);
         }
 
         private double convertWindSpeed(double value, String unit, String preferred) {

@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/rounded"
+    android:foreground="?android:attr/selectableItemBackground"
     android:id="@+id/rl_widget_container" >
 
     <ImageButton
@@ -12,7 +13,7 @@
         android:layout_height="22dp"
         android:layout_margin="14dp"
         android:src="@drawable/settings"
-        android:background="@drawable/settings" />
+        android:background="?android:attr/selectableItemBackgroundBorderless" />
         
     <TextView
         android:id="@+id/tv_location"
@@ -236,5 +237,5 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:src="@drawable/refresh"
-        android:background="@drawable/refresh" />
+        android:background="?android:attr/selectableItemBackgroundBorderless" />
 </RelativeLayout>
