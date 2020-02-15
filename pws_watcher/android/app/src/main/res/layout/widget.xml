@@ -6,33 +6,44 @@
     android:foreground="?android:attr/selectableItemBackground"
     android:id="@+id/rl_widget_container" >
 
-    <ImageButton
-        android:id="@+id/ib_setting"
-        android:scaleType="fitXY"
-        android:layout_width="22dp"
-        android:layout_height="22dp"
-        android:layout_margin="14dp"
-        android:src="@drawable/settings"
-        android:background="?android:attr/selectableItemBackgroundBorderless" />
-        
-    <TextView
-        android:id="@+id/tv_location"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/rl_location"
         android:layout_margin="10dp"
-        android:layout_gravity="right"
-        android:gravity="right"
-        android:text="Location"
-        android:textColor="#ffffff"
-        android:textSize="18sp"
-        android:textStyle="bold" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+
+        <ImageButton
+            android:id="@+id/ib_setting"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_marginEnd="10dp"
+            android:layout_centerVertical="true"
+            android:scaleType="fitXY"
+            android:src="@drawable/settings"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
+            
+        <TextView
+            android:id="@+id/tv_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@id/ib_setting"
+            android:layout_toEndOf="@id/ib_setting"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Location"
+            android:textColor="#ffffff"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/tv_temperature"
         android:layout_centerInParent="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tv_location"
+        android:layout_below="@id/rl_location"
         android:layout_gravity="center"
         android:gravity="center"
         android:text="Temperature"
@@ -47,7 +58,7 @@
         android:layout_marginEnd="6dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tv_location" >
+        android:layout_below="@id/rl_location" >
 
         <TextView
             android:id="@+id/tv_temperature_left"
@@ -224,7 +235,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:layout_alignParentBottom="true"
-        android:text="Location"
+        android:text="Datetime"
         android:textColor="#ffffff"
         android:textSize="14sp" />
 

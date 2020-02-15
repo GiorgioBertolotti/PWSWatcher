@@ -1,7 +1,7 @@
 name: pws_watcher
 description: Mobile application for Personal Weather Station monitoring.
 
-version: 1.8.1+28
+version: 1.8.2+29
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
@@ -38,10 +38,10 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-      - assets/
-      - assets/images/
-      - assets/images/current_weather/
-      - assets/flare/
+    - assets/
+    - assets/images/
+    - assets/images/current_weather/
+    - assets/flare/
   # fonts:
   #   - family: Schyler
   #     fonts:

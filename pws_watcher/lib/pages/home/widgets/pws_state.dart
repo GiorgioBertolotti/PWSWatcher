@@ -127,7 +127,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
           var currentConditionIndex =
               (int.parse(data["currentConditionIndex"] ?? "-1"));
           var currentConditionAsset;
-          if (currentConditionIndex > 0 &&
+          if (currentConditionIndex >= 0 &&
               currentConditionIndex < currentConditionDesc.length &&
               currentConditionMapping
                   .containsKey(currentConditionDesc[currentConditionIndex]))

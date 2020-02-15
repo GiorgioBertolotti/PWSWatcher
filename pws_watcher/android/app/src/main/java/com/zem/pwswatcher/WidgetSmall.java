@@ -29,7 +29,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import com.zem.pwswatcher.model.Source;
-import static com.zem.pwswatcher.WidgetConfigurationActivity.SHARED_PREFERENCES_NAME;
+import static com.zem.pwswatcher.WidgetSmallConfigurationActivity.SHARED_PREFERENCES_NAME;
 
 
 public class WidgetSmall extends AppWidgetProvider {
