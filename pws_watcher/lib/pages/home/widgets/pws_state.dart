@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:pws_watcher/model/parsing_utilities.dart';
 import 'package:pws_watcher/model/state\.dart';
