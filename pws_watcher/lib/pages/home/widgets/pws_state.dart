@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:pws_watcher/model/parsing_utilities.dart';
 import 'package:pws_watcher/model/state\.dart';
@@ -13,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pws_watcher/model/pws.dart';
 import 'dart:async';
 
+import 'pws_temperature_row.dart';
 import 'snapshot_preview.dart';
 
 class PWSStatePage extends StatefulWidget {
@@ -126,7 +128,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
 
           var currentConditionIndex =
               (int.parse(data["currentConditionIndex"] ?? "-1"));
-          var currentConditionAsset;
+          String currentConditionAsset;
           if (currentConditionIndex >= 0 &&
               currentConditionIndex < currentConditionDesc.length &&
               currentConditionMapping
@@ -136,7 +138,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
                     currentConditionDesc[currentConditionIndex]]);
 
           bool thereIsSnapshot = widget.source.snapshotUrl != null &&
-              widget.source.snapshotUrl.isNotEmpty;
+              widget.source.snapshotUrl.trim().isNotEmpty;
 
           return RefreshIndicator(
             color: Theme.of(context).primaryColor,
@@ -154,21 +156,13 @@ class _PWSStatePageState extends State<PWSStatePage> {
                 PWSStateHeader(
                   location,
                   datetime,
+                ),
+                SizedBox(height: 30.0),
+                PWSTemperatureRow(
+                  temperature + tempUnit,
                   asset: visibilityCurrentWeatherIcon
                       ? currentConditionAsset
                       : null,
-                ),
-                SizedBox(height: 30.0),
-                Center(
-                  child: Text(
-                    "$temperature$tempUnit",
-                    maxLines: 1,
-                    style: TextStyle(
-                      fontSize: 72,
-                      fontWeight: FontWeight.w900,
-                      color: Theme.of(context).accentColor,
-                    ),
-                  ),
                 ),
                 SizedBox(height: 50.0),
                 Padding(

@@ -1,7 +1,7 @@
 name: pws_watcher
 description: Mobile application for Personal Weather Station monitoring.
 
-version: 1.8.2+29
+version: 1.8.3+30
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
@@ -28,6 +28,7 @@ dependencies:
   photo_view: ^0.9.1
   permission_handler: ^4.2.0+hotfix.3
   image_downloader: ^0.19.1
+  auto_size_text: ^2.1.0
 
 dev_dependencies:
   flutter_test:
