@@ -1,7 +1,7 @@
 name: pws_watcher
 description: Mobile application for Personal Weather Station monitoring.
 
-version: 1.8.3+30
+version: 1.9+31
 
 environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
