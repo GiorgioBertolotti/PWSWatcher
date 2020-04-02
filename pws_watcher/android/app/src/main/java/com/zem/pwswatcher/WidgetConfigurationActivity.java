@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 import android.content.ComponentName;
 
+import top.defaults.colorpicker.ColorPickerPopup;
+import top.defaults.colorpicker.ColorPickerView;
+
 public class WidgetConfigurationActivity extends Activity {
     public static final String UPDATE_FILTER = "com.zem.pwswatcher.UPDATE";
     public static final String SHARED_PREFERENCES_NAME = "FlutterSharedPreferences";
@@ -45,12 +48,17 @@ public class WidgetConfigurationActivity extends Activity {
     private CheckBox cbPressure;
     private CheckBox cbRain;
     private CheckBox cbWindSpeed;
+    private Button btnBgColor;
+    private Button btnTextColor;
     private Button btnConfirm;
     private Source selectedSource;
     private AppWidgetManager widgetManager;
     private RemoteViews views;
     private SourcesListAdapter rAdapter;
     private PendingIntent service;
+
+    private int bgColor = android.graphics.Color.parseColor("#03A9F4");
+    private int textColor = android.graphics.Color.parseColor("#FFFFFF");
 
     @Override
     public void onCreate(Bundle icicle) {
@@ -136,12 +144,60 @@ public class WidgetConfigurationActivity extends Activity {
                 }
             };
             this.sbFontSize.setOnSeekBarChangeListener(seekBarChangeListener);
+            this.btnBgColor = findViewById(R.id.btn_bg_color);
+            this.btnBgColor.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    new ColorPickerPopup.Builder(getApplicationContext())
+                        .initialColor(bgColor)
+                        .enableBrightness(true)
+                        .enableAlpha(true)
+                        .okTitle("Confirm")
+                        .cancelTitle("Cancel")
+                        .showIndicator(true)
+                        .showValue(true)
+                        .build()
+                        .show(v, new ColorPickerPopup.ColorPickerObserver() {
+                            @Override
+                            public void onColorPicked(int color) {
+                                btnBgColor.setBackgroundColor(color);
+                                btnTextColor.setBackgroundColor(color);
+                                bgColor = color;
+                            }
+                        });
+                }
+            });
+            this.btnTextColor = findViewById(R.id.btn_text_color);
+            this.btnTextColor.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    new ColorPickerPopup.Builder(getApplicationContext())
+                        .initialColor(textColor)
+                        .enableBrightness(true)
+                        .enableAlpha(true)
+                        .okTitle("Confirm")
+                        .cancelTitle("Cancel")
+                        .showIndicator(true)
+                        .showValue(true)
+                        .build()
+                        .show(v, new ColorPickerPopup.ColorPickerObserver() {
+                            @Override
+                            public void onColorPicked(int color) {
+                                btnBgColor.setTextColor(color);
+                                btnTextColor.setTextColor(color);
+                                textColor = color;
+                            }
+                        });
+                }
+            });
             this.btnConfirm = findViewById(R.id.btn_confirm);
             this.btnConfirm.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     completeActivity();
                 }
             });
+            this.btnBgColor.setBackgroundColor(this.bgColor);
+            this.btnTextColor.setBackgroundColor(this.bgColor);
+            this.btnBgColor.setTextColor(this.textColor);
+            this.btnTextColor.setTextColor(this.textColor);
         });
     }
 
@@ -174,6 +230,8 @@ public class WidgetConfigurationActivity extends Activity {
             root.put("pressureVisible", this.cbPressure.isChecked());
             root.put("rainVisible", this.cbRain.isChecked());
             root.put("windspeedVisible", this.cbWindSpeed.isChecked());
+            root.put("bgColor", this.bgColor);
+            root.put("textColor", this.textColor);
             sharedPrefs.edit().putString("widget_" + mAppWidgetId, root.toString()).apply();
             Log.d("PWSWatcher", "Added Widget #" + mAppWidgetId);
         } catch (JSONException e) {

@@ -51,6 +51,8 @@ public class Widget extends AppWidgetProvider {
     private boolean pressureVisible = true;
     private boolean rainVisible = true;
     private boolean windspeedVisible = true;
+    private int bgColor = android.graphics.Color.parseColor("#03A9F4");
+    private int textColor = android.graphics.Color.parseColor("#FFFFFF");
 
     private void updateWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle widgetInfo) {
         int minWidth = widgetInfo.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
@@ -114,27 +116,29 @@ public class Widget extends AppWidgetProvider {
                         this.pressureVisible = rootObj.getBoolean("pressureVisible");
                         this.rainVisible = rootObj.getBoolean("rainVisible");
                         this.windspeedVisible = rootObj.getBoolean("windspeedVisible");
+                        this.bgColor = rootObj.getInt("bgColor");
+                        this.textColor = rootObj.getInt("textColor");
                     } catch (JSONException ignored) {
                         ignored.printStackTrace();
                     }
                     if (source != null) {
                         if (source.getUrl().endsWith(".txt") || source.getUrl().endsWith(".xml") || source.getUrl().endsWith(".csv")) {
                             DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
-                                this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
+                                this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible, this.bgColor, this.textColor);
                             dataElaborator.execute();
                         } else {
                             String originalSource = source.getUrl();
                             source.setUrl(originalSource + "/realtime.txt");
                             DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
-                                this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
+                                this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible, this.bgColor, this.textColor);
                             dataElaborator.execute();
                             source.setUrl(originalSource + "/realtime.xml");
                             dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
-                                this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
+                                this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible, this.bgColor, this.textColor);
                             dataElaborator.execute();
                             source.setUrl(originalSource + "/daily.csv");
                             dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
-                                this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
+                                this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible, this.bgColor, this.textColor);
                             dataElaborator.execute();
                         }
                     }
@@ -175,27 +179,29 @@ public class Widget extends AppWidgetProvider {
                         this.pressureVisible = rootObj.getBoolean("pressureVisible");
                         this.rainVisible = rootObj.getBoolean("rainVisible");
                         this.windspeedVisible = rootObj.getBoolean("windspeedVisible");
+                        this.bgColor = rootObj.getInt("bgColor");
+                        this.textColor = rootObj.getInt("textColor");
                     } catch (JSONException ignored) {
                         ignored.printStackTrace();
                     }
                     if (source != null) {
                         if (source.getUrl().endsWith(".txt") || source.getUrl().endsWith(".xml") || source.getUrl().endsWith(".csv")) {
                             DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
-                                    this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
+                                    this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible, this.bgColor, this.textColor);
                             dataElaborator.execute();
                         } else {
                             String originalSource = source.getUrl();
                             source.setUrl(originalSource + "/realtime.txt");
                             DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
-                                    this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
+                                    this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible, this.bgColor, this.textColor);
                             dataElaborator.execute();
                             source.setUrl(originalSource + "/realtime.xml");
                             dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
-                                    this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
+                                    this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible, this.bgColor, this.textColor);
                             dataElaborator.execute();
                             source.setUrl(originalSource + "/daily.csv");
                             dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier,
-                                    this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible);
+                                    this.humidityVisible, this.pressureVisible, this.rainVisible, this.windspeedVisible, this.bgColor, this.textColor);
                             dataElaborator.execute();
                         }
                     }
@@ -213,9 +219,11 @@ public class Widget extends AppWidgetProvider {
         private boolean pressureVisible = true;
         private boolean rainVisible = true;
         private boolean windspeedVisible = true;
+        private int bgColor;
+        private int textColor;
 
         public DataElaborator(Context context, Source source, int id, float fontSizeMultiplier, boolean humidityVisible,
-            boolean pressureVisible, boolean rainVisible, boolean windspeedVisible) {
+            boolean pressureVisible, boolean rainVisible, boolean windspeedVisible, int bgColor, int textColor) {
             this.context = context;
             this.source = source;
             this.id = id;
@@ -224,6 +232,8 @@ public class Widget extends AppWidgetProvider {
             this.pressureVisible = pressureVisible;
             this.rainVisible = rainVisible;
             this.windspeedVisible = windspeedVisible;
+            this.bgColor = bgColor;
+            this.textColor = textColor;
         }
 
         @Override
@@ -287,6 +297,7 @@ public class Widget extends AppWidgetProvider {
                 }
                 setFontSizes(view);
                 setVisibilities(view, isClientRawTxt);
+                setColors(view);
                 setOnClickListeners(view);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -517,6 +528,28 @@ public class Widget extends AppWidgetProvider {
                 view.setViewVisibility(R.id.tv_temperature, View.VISIBLE);
                 view.setViewVisibility(R.id.rl_temperature, View.GONE);
             }
+        }
+
+        private void setColors(RemoteViews view) {
+            view.setInt(R.id.rl_widget_container, "setBackgroundColor", this.bgColor);
+            view.setInt(R.id.tv_location, "setTextColor", this.textColor);
+            view.setInt(R.id.tv_temperature, "setTextColor", this.textColor);
+            view.setInt(R.id.tv_temperature_left, "setTextColor", this.textColor);
+            view.setInt(R.id.tv_humidity, "setTextColor", this.textColor);
+            view.setInt(R.id.tv_humidity_desc, "setTextColor", this.textColor);
+            view.setInt(R.id.tv_pressure, "setTextColor", this.textColor);
+            view.setInt(R.id.tv_pressure_desc, "setTextColor", this.textColor);
+            view.setInt(R.id.tv_rain, "setTextColor", this.textColor);
+            view.setInt(R.id.tv_rain_desc, "setTextColor", this.textColor);
+            view.setInt(R.id.tv_windspeed, "setTextColor", this.textColor);
+            view.setInt(R.id.tv_windspeed_desc, "setTextColor", this.textColor);
+            view.setInt(R.id.tv_datetime, "setTextColor", this.textColor);
+            view.setInt(R.id.iv_humidity, "setColorFilter", this.textColor);
+            view.setInt(R.id.iv_pressure, "setColorFilter", this.textColor);
+            view.setInt(R.id.iv_rain, "setColorFilter", this.textColor);
+            view.setInt(R.id.iv_windspeed, "setColorFilter", this.textColor);
+            view.setInt(R.id.ib_setting, "setColorFilter", this.textColor);
+            view.setInt(R.id.ib_refresh, "setColorFilter", this.textColor);
         }
 
         private void setOnClickListeners(RemoteViews view) {

@@ -31,12 +31,13 @@ import okhttp3.Response;
 import com.zem.pwswatcher.model.Source;
 import static com.zem.pwswatcher.WidgetSmallConfigurationActivity.SHARED_PREFERENCES_NAME;
 
-
 public class WidgetSmall extends AppWidgetProvider {
     static final String UPDATE_FILTER = "com.zem.pwswatcher.UPDATE";
     private static final String onRefreshClick = "REFRESH_SMALL_TAG";
     static String prefTempUnit = "°C";
     private float fontSizeMultiplier = 1.0f;
+    private int bgColor = android.graphics.Color.parseColor("#03A9F4");
+    private int textColor = android.graphics.Color.parseColor("#FFFFFF");
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -66,23 +67,25 @@ public class WidgetSmall extends AppWidgetProvider {
                         JSONObject sourceObj = rootObj.getJSONObject("source");
                         source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"));
                         this.fontSizeMultiplier = BigDecimal.valueOf(rootObj.getDouble("fontSizeMultiplier")).floatValue();
+                        this.bgColor = rootObj.getInt("bgColor");
+                        this.textColor = rootObj.getInt("textColor");
                     } catch (JSONException ignored) {
                         ignored.printStackTrace();
                     }
                     if (source != null) {
                         if (source.getUrl().endsWith(".txt") || source.getUrl().endsWith(".xml") || source.getUrl().endsWith(".csv")) {
-                            DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier);
+                            DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier, this.bgColor, this.textColor);
                             dataElaborator.execute();
                         } else {
                             String originalSource = source.getUrl();
                             source.setUrl(originalSource + "/realtime.txt");
-                            DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier);
+                            DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier, this.bgColor, this.textColor);
                             dataElaborator.execute();
                             source.setUrl(originalSource + "/realtime.xml");
-                            dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier);
+                            dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier, this.bgColor, this.textColor);
                             dataElaborator.execute();
                             source.setUrl(originalSource + "/daily.csv");
-                            dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier);
+                            dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier, this.bgColor, this.textColor);
                             dataElaborator.execute();
                         }
                     }
@@ -115,23 +118,25 @@ public class WidgetSmall extends AppWidgetProvider {
                         JSONObject sourceObj = rootObj.getJSONObject("source");
                         source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"));
                         this.fontSizeMultiplier = BigDecimal.valueOf(rootObj.getDouble("fontSizeMultiplier")).floatValue();
+                        this.bgColor = rootObj.getInt("bgColor");
+                        this.textColor = rootObj.getInt("textColor");
                     } catch (JSONException ignored) {
                         ignored.printStackTrace();
                     }
                     if (source != null) {
                         if (source.getUrl().endsWith(".txt") || source.getUrl().endsWith(".xml") || source.getUrl().endsWith(".csv")) {
-                            DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier);
+                            DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier, this.bgColor, this.textColor);
                             dataElaborator.execute();
                         } else {
                             String originalSource = source.getUrl();
                             source.setUrl(originalSource + "/realtime.txt");
-                            DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier);
+                            DataElaborator dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier, this.bgColor, this.textColor);
                             dataElaborator.execute();
                             source.setUrl(originalSource + "/realtime.xml");
-                            dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier);
+                            dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier, this.bgColor, this.textColor);
                             dataElaborator.execute();
                             source.setUrl(originalSource + "/daily.csv");
-                            dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier);
+                            dataElaborator = new DataElaborator(context, source, widgetId[i], this.fontSizeMultiplier, this.bgColor, this.textColor);
                             dataElaborator.execute();
                         }
                     }
@@ -145,12 +150,16 @@ public class WidgetSmall extends AppWidgetProvider {
         private Source source;
         private int id;
         private float fontSizeMultiplier;
+        private int bgColor;
+        private int textColor;
 
-        public DataElaborator(Context context, Source source, int id, float fontSizeMultiplier) {
+        public DataElaborator(Context context, Source source, int id, float fontSizeMultiplier, int bgColor, int textColor) {
             this.context = context;
             this.source = source;
             this.id = id;
             this.fontSizeMultiplier = fontSizeMultiplier;
+            this.bgColor = bgColor;
+            this.textColor = textColor;
         }
 
         @Override
@@ -211,6 +220,7 @@ public class WidgetSmall extends AppWidgetProvider {
                     done = visualizeDailyCSV(resp, view);
                 }
                 setFontSizes(view);
+                setColors(view);
                 setOnClickListeners(view);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -322,6 +332,14 @@ public class WidgetSmall extends AppWidgetProvider {
         private void setFontSizes(RemoteViews view) {
             view.setFloat(R.id.tv_location, "setTextSize", 18f * this.fontSizeMultiplier);
             view.setFloat(R.id.tv_temperature, "setTextSize", 24f * this.fontSizeMultiplier);
+        }
+
+        private void setColors(RemoteViews view) {
+            view.setInt(R.id.rl_widget_container, "setBackgroundColor", this.bgColor);
+            view.setInt(R.id.tv_location, "setTextColor", this.textColor);
+            view.setInt(R.id.tv_temperature, "setTextColor", this.textColor);
+            view.setInt(R.id.ib_setting, "setColorFilter", this.textColor);
+            view.setInt(R.id.ib_refresh, "setColorFilter", this.textColor);
         }
 
         private void setOnClickListeners(RemoteViews view) {
