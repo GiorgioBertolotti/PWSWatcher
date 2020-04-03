@@ -335,7 +335,7 @@ public class WidgetSmall extends AppWidgetProvider {
         }
 
         private void setColors(RemoteViews view) {
-            view.setInt(R.id.rl_widget_container, "setBackgroundColor", this.bgColor);
+            view.setInt(R.id.iv_bg, "setColorFilter", this.bgColor);
             view.setInt(R.id.tv_location, "setTextColor", this.textColor);
             view.setInt(R.id.tv_temperature, "setTextColor", this.textColor);
             view.setInt(R.id.ib_setting, "setColorFilter", this.textColor);
