@@ -19,39 +19,34 @@ There was already another application for the same purpose, but no updates have 
   - [Table of contents](#table-of-contents)
   - [Getting started](#getting-started)
     - [Download](#download)
-    - [Usage](#usage)
+    - [Add and monitor your PWS](#add-and-monitor-your-pws)
+    - [Add Android Widget](#add-android-widget)
   - [Other](#other)
     - [Contact](#contact)
     - [Credits](#credits)
 
 ## Getting started
 
-Before starting check out [this page](https://bertolotti.dev/PWSWatcher/compatibilities) to see how to connect your PWS to PWS Watcher.
+**IMPORTANT NOTE:** Before starting check out [this page](https://bertolotti.dev/PWSWatcher/compatibilities) to see how to connect your PWS to PWS Watcher.
 
 ### Download
 
-<center><a href='https://play.google.com/store/apps/details?id=com.zem.pwswatcher&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en/badges/images/generic/en_badge_web_generic.png' width='50%'/></a></center>
+<center><a href='https://play.google.com/store/apps/details?id=com.zem.pwswatcher&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1' target="_blank"><img alt='Get it on Google Play' src='https://play.google.com/intl/en/badges/images/generic/en_badge_web_generic.png' width='50%'/></a></center>
 
 **OR** you can download the latest *.apk* file from:  
-<center><a href='https://apt.izzysoft.de/fdroid/index/apk/com.zem.pwswatcher'><img alt='Get it on Google Play' src='https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png' width='50%'/></a></center>
+<center><a href='https://apt.izzysoft.de/fdroid/index/apk/com.zem.pwswatcher' target="_blank"><img alt='Get it on Google Play' src='https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png' width='50%'/></a></center>
 
 **OR** you can get all the previous releases [here](https://github.com/GiorgioBertolotti/PWSWatcher/releases).  
 
 **Note:** To install the *.apk* file on your Android device, you may have to [allow app installation from "Unknown Sources"](https://www.applivery.com/docs/troubleshooting/android-unknown-sources).
 
-### Usage
+### Add and monitor your PWS
 
-Monitor source from app
+![MonitorSource](gifs/1.gif)
 
-| **Head into settings<br />and add a new source**                                                       | **Check if the source<br />has been added**                                                              | **Select the source<br />from main page**                                                                 |
-| ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| ![Add source](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/1.jpg) | ![Source added](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/2.jpg) | ![Select source](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/3.jpg) |
+### Add Android Widget
 
-Add a new widget
-
-| **Find the widget<br />and place it**                                                                        | **Select a source<br />to monitor**                                                                       | **Resize the widget**                                                                                     |
-| ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| ![Place the widget](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/4.jpg) | ![Select source](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/5.jpg) | ![Resize widget](https://raw.githubusercontent.com/GiorgioBertolotti/PWSWatcher/master/screenshots/6.jpg) |
+![AddWidget](gifs/2.gif)
 
 ## Other
 
