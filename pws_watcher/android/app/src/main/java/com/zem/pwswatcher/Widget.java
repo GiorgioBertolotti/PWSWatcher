@@ -54,32 +54,6 @@ public class Widget extends AppWidgetProvider {
     private int bgColor = android.graphics.Color.parseColor("#03A9F4");
     private int textColor = android.graphics.Color.parseColor("#FFFFFF");
 
-    private void updateWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle widgetInfo) {
-        int minWidth = widgetInfo.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH);
-        int width = widgetInfo.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_WIDTH);
-        int minHeight = widgetInfo.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT);
-        int height = widgetInfo.getInt(AppWidgetManager.OPTION_APPWIDGET_MAX_HEIGHT);
-        int wCells = (int) ((minWidth + width) / 120);
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget);
-        if (wCells > 2) {
-            double prop = wCells / 3.0;
-            views.setTextViewTextSize(R.id.tv_location, TypedValue.COMPLEX_UNIT_SP, (float) (14 * prop));
-            views.setTextViewTextSize(R.id.tv_temperature, TypedValue.COMPLEX_UNIT_SP, (float) (18 * prop));
-            views.setTextViewTextSize(R.id.tv_datetime, TypedValue.COMPLEX_UNIT_SP, (float) (14 * prop));
-        } else {
-            views.setTextViewTextSize(R.id.tv_location, TypedValue.COMPLEX_UNIT_SP, 14f);
-            views.setTextViewTextSize(R.id.tv_temperature, TypedValue.COMPLEX_UNIT_SP, 18f);
-            views.setTextViewTextSize(R.id.tv_datetime, TypedValue.COMPLEX_UNIT_SP, 14f);
-        }
-        appWidgetManager.updateAppWidget(appWidgetId, views);
-    }
-
-    @Override
-    public void onAppWidgetOptionsChanged(Context context, AppWidgetManager appWidgetManager, int appWidgetId, Bundle widgetInfo) {
-        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, widgetInfo);
-        // updateWidget(context, appWidgetManager, appWidgetId, widgetInfo);
-    }
-
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent.getAction() == null)
@@ -356,7 +330,7 @@ public class Widget extends AppWidgetProvider {
                 try {
                     String date = values[74] + " " + values[29]+ ":" + values[30]+ ":" + values[31];
                     date = date.trim().replace("/", "-").replace(".", "-");
-                    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+                    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
                     Date newDate = format.parse(date);
                     stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
                 } catch (Exception e) {
@@ -389,7 +363,7 @@ public class Widget extends AppWidgetProvider {
                             Integer.toString(year).substring(0, 2) +
                             date.substring(6);
                     date = date.substring(6, 10) + "-" + date.substring(3, 5) + "-" + date.substring(0, 2) + " " + date.substring(11);
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     Date newDate = format.parse(date);
                     stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
                 } catch (Exception e) {
@@ -475,7 +449,7 @@ public class Widget extends AppWidgetProvider {
                 try {
                     String tmpDatetime = date.trim() + " " + time.trim();
                     tmpDatetime = tmpDatetime.trim().replace("/", "-").replace(".", "-");
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     Date newDate = format.parse(tmpDatetime);
                     stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
                 } catch (Exception e) {

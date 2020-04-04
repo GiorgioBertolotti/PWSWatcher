@@ -329,7 +329,7 @@ public class WidgetMedium extends AppWidgetProvider {
                 try {
                     String date = values[74] + " " + values[29]+ ":" + values[30]+ ":" + values[31];
                     date = date.trim().replace("/", "-").replace(".", "-");
-                    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy hh:mm:ss");
+                    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
                     Date newDate = format.parse(date);
                     stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
                 } catch (Exception e) {
@@ -362,7 +362,7 @@ public class WidgetMedium extends AppWidgetProvider {
                             Integer.toString(year).substring(0, 2) +
                             date.substring(6);
                     date = date.substring(6, 10) + "-" + date.substring(3, 5) + "-" + date.substring(0, 2) + " " + date.substring(11);
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     Date newDate = format.parse(date);
                     stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
                 } catch (Exception e) {
@@ -448,7 +448,7 @@ public class WidgetMedium extends AppWidgetProvider {
                 try {
                     String tmpDatetime = date.trim() + " " + time.trim();
                     tmpDatetime = tmpDatetime.trim().replace("/", "-").replace(".", "-");
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     Date newDate = format.parse(tmpDatetime);
                     stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
                 } catch (Exception e) {
