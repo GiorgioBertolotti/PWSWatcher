@@ -32,7 +32,11 @@ Before starting check out [this page](https://bertolotti.dev/PWSWatcher/compatib
 
 <center><a href='https://play.google.com/store/apps/details?id=com.zem.pwswatcher&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en/badges/images/generic/en_badge_web_generic.png' width='50%'/></a></center>
 
-**OR** you can download the latest *.apk* file [here](https://github.com/GiorgioBertolotti/PWSWatcher/releases).  
+**OR** you can download the latest *.apk* file from:  
+<center><a href='https://apt.izzysoft.de/fdroid/index/apk/com.zem.pwswatcher'><img alt='Get it on Google Play' src='https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png' width='50%'/></a></center>
+
+**OR** you can get all the previous releases [here](https://github.com/GiorgioBertolotti/PWSWatcher/releases).  
+
 **Note:** To install the *.apk* file on your Android device, you may have to [allow app installation from "Unknown Sources"](https://www.applivery.com/docs/troubleshooting/android-unknown-sources).
 
 ### Usage
