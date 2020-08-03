@@ -13,6 +13,8 @@ import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.os.Build;
+import android.graphics.Color;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -336,6 +338,12 @@ public class WidgetSmall extends AppWidgetProvider {
 
         private void setColors(RemoteViews view) {
             view.setInt(R.id.iv_bg, "setColorFilter", this.bgColor);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                view.setInt(R.id.iv_bg, "setImageAlpha", Color.alpha(this.bgColor));
+            } else {
+                view.setInt(R.id.iv_bg, "setAlpha", Color.alpha(this.bgColor));
+            }
+
             view.setInt(R.id.tv_location, "setTextColor", this.textColor);
             view.setInt(R.id.tv_temperature, "setTextColor", this.textColor);
             view.setInt(R.id.ib_setting, "setColorFilter", this.textColor);

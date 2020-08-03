@@ -26,9 +26,9 @@ static_analysis: &static_analysis
 #  name: "Unit tests"
 #  script: flutter test --no-pub $TRAVIS_BUILD_DIR/pws_watcher/test/
 
-widget_tests: &widget_tests
-  name: "Widget tests"
-  script: flutter test --no-pub $TRAVIS_BUILD_DIR/pws_watcher/test/widget_test.dart
+# widget_tests: &widget_tests
+#   name: "Widget tests"
+#   script: flutter test --no-pub $TRAVIS_BUILD_DIR/pws_watcher/test/widget_test.dart
 
 #integration_tests: &integration_tests
 #  name: "Integration tests"
@@ -102,22 +102,22 @@ google_play: &google_play
     - cd $TRAVIS_BUILD_DIR/pws_watcher/android
   script:
     - if [[ $TRAVIS_PULL_REQUEST_BRANCH == beta || $TRAVIS_PULL_REQUEST_BRANCH = alpha || $TRAVIS_PULL_REQUEST_BRANCH = internal ]]; then
-        bundle exec fastlane promote;
+      bundle exec fastlane promote;
       else
-        bundle exec fastlane release;
+      bundle exec fastlane release;
       fi
 
 jobs:
   include:
-  - <<: *static_analysis
-#  - <<: *unit_tests
-  - <<: *widget_tests
-#  - <<: *integration_tests
-  - stage: build
-    <<: *build_apk
-  - stage: deploy
-    <<: *google_play
-    
+    - <<: *static_analysis
+    #  - <<: *unit_tests
+    #  - <<: *widget_tests
+    #  - <<: *integration_tests
+    - stage: build
+      <<: *build_apk
+    - stage: deploy
+      <<: *google_play
+
 stages:
   - name: test
     if: (NOT branch =~ /^\d*\.\d*\.\d*$/) OR (NOT branch IN (internal, alpha, beta, prod))
@@ -128,4 +128,4 @@ stages:
 
 cache:
   directories:
-  - "$HOME/.pub-cache"
+    - "$HOME/.pub-cache"
