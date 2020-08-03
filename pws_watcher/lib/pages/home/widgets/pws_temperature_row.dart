@@ -32,11 +32,10 @@ class PWSTemperatureRow extends StatelessWidget {
               maxFontSize: 72.0,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 72,
-                fontWeight: FontWeight.w900,
-                color: Theme.of(context).accentColor,
-              ),
+              style: Theme.of(context)
+                  .textTheme
+                  .headline2
+                  .copyWith(color: Theme.of(context).accentColor),
             ),
           ),
           SvgPicture.asset(
@@ -59,11 +58,10 @@ class PWSTemperatureRow extends StatelessWidget {
           maxFontSize: 72.0,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 72,
-            fontWeight: FontWeight.w900,
-            color: Theme.of(context).accentColor,
-          ),
+          style: Theme.of(context)
+              .textTheme
+              .headline2
+              .copyWith(color: Theme.of(context).accentColor),
         ),
       ),
     );

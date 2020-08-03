@@ -37,20 +37,17 @@ class PWSStateHeader extends StatelessWidget {
                   maxFontSize: 40.0,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.w900,
-                    color: Theme.of(context).accentColor,
-                  ),
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline3
+                      .copyWith(color: Theme.of(context).accentColor),
                 ),
                 Text(
                   this.datetime,
                   maxLines: 1,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.normal,
-                    color: Theme.of(context).accentColor.withOpacity(0.8),
-                  ),
+                  style: Theme.of(context).textTheme.bodyText2.copyWith(
+                        color: Theme.of(context).accentColor.withOpacity(0.8),
+                      ),
                 ),
               ],
             ),
@@ -79,20 +76,17 @@ class PWSStateHeader extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 40,
-              fontWeight: FontWeight.w900,
-              color: Theme.of(context).accentColor,
-            ),
+            style: Theme.of(context)
+                .textTheme
+                .headline3
+                .copyWith(color: Theme.of(context).accentColor),
           ),
           Text(
             this.datetime,
             maxLines: 1,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.normal,
-              color: Theme.of(context).accentColor.withOpacity(0.8),
-            ),
+            style: Theme.of(context).textTheme.bodyText2.copyWith(
+                  color: Theme.of(context).accentColor.withOpacity(0.8),
+                ),
           ),
         ],
       ),

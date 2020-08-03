@@ -39,27 +39,27 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
               alignment: Alignment.center,
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.only(bottom: 16.0),
               child: Text(
-                'Visibility settings',
+                "Visibility settings",
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.headline6,
               ),
             ),
             SwitchListTile(
-              title: Text("Current weather icon visibility"),
+              title: Text(
+                "Current weather icon visibility",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
               value: visibilityCurrentWeatherIcon,
               onChanged: (value) async {
                 setState(() {
@@ -74,7 +74,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               },
             ),
             SwitchListTile(
-              title: Text("Update timer visibility"),
+              title: Text(
+                "Update timer visibility",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
               value: visibilityUpdateTimer,
               onChanged: (value) async {
                 setState(() {
@@ -89,7 +92,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               },
             ),
             SwitchListTile(
-              title: Text("Wind speed visibility"),
+              title: Text(
+                "Wind speed visibility",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
               value: visibilityWindSpeed,
               onChanged: (value) async {
                 setState(() {
@@ -104,7 +110,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               },
             ),
             SwitchListTile(
-              title: Text("Pressure visibility"),
+              title: Text(
+                "Pressure visibility",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
               value: visibilityPressure,
               onChanged: (value) async {
                 setState(() {
@@ -119,7 +128,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               },
             ),
             SwitchListTile(
-              title: Text("Wind direction visibility"),
+              title: Text(
+                "Wind direction visibility",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
               value: visibilityWindDirection,
               onChanged: (value) async {
                 setState(() {
@@ -134,7 +146,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               },
             ),
             SwitchListTile(
-              title: Text("Humidity visibility"),
+              title: Text(
+                "Humidity visibility",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
               value: visibilityHumidity,
               onChanged: (value) async {
                 setState(() {
@@ -149,7 +164,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               },
             ),
             SwitchListTile(
-              title: Text("Temperature (small) visibility"),
+              title: Text(
+                "Temperature (small) visibility",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
               value: visibilityTemperature,
               onChanged: (value) async {
                 setState(() {
@@ -164,7 +182,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               },
             ),
             SwitchListTile(
-              title: Text("Wind chill visibility"),
+              title: Text(
+                "Wind chill visibility",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
               value: visibilityWindChill,
               onChanged: (value) async {
                 setState(() {
@@ -179,7 +200,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               },
             ),
             SwitchListTile(
-              title: Text("Rain visibility"),
+              title: Text(
+                "Rain visibility",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
               value: visibilityRain,
               onChanged: (value) async {
                 setState(() {
@@ -194,7 +218,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               },
             ),
             SwitchListTile(
-              title: Text("Dew visibility"),
+              title: Text(
+                "Dew visibility",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
               value: visibilityDew,
               onChanged: (value) async {
                 setState(() {
@@ -209,7 +236,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               },
             ),
             SwitchListTile(
-              title: Text("Sunrise hour visibility"),
+              title: Text(
+                "Sunrise hour visibility",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
               value: visibilitySunrise,
               onChanged: (value) async {
                 setState(() {
@@ -224,7 +254,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               },
             ),
             SwitchListTile(
-              title: Text("Sunset hour visibility"),
+              title: Text(
+                "Sunset hour visibility",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
               value: visibilitySunset,
               onChanged: (value) async {
                 setState(() {
@@ -239,7 +272,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               },
             ),
             SwitchListTile(
-              title: Text("Moonrise hour visibility"),
+              title: Text(
+                "Moonrise hour visibility",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
               value: visibilityMoonrise,
               onChanged: (value) async {
                 setState(() {
@@ -254,7 +290,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               },
             ),
             SwitchListTile(
-              title: Text("Moonset hour visibility"),
+              title: Text(
+                "Moonset hour visibility",
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
               value: visibilityMoonset,
               onChanged: (value) async {
                 setState(() {

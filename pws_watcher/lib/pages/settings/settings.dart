@@ -116,11 +116,10 @@ class _SettingsPageState extends State<SettingsPage>
                   title: Text(
                     "Settings",
                     maxLines: 1,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline5
+                        .copyWith(color: Colors.white),
                   ),
                   centerTitle: true,
                 ),
@@ -134,12 +133,8 @@ class _SettingsPageState extends State<SettingsPage>
                   child: FloatingActionButton.extended(
                     onPressed: _addSource,
                     elevation: 2,
-                    icon: Icon(
-                      Icons.add,
-                    ),
-                    label: Text(
-                      "add",
-                    ),
+                    icon: Icon(Icons.add),
+                    label: Text("add"),
                   ),
                 ),
                 body: Builder(
@@ -162,17 +157,20 @@ class _SettingsPageState extends State<SettingsPage>
                             return Card(
                               elevation: 2,
                               margin: EdgeInsets.symmetric(
-                                  horizontal: 10.0, vertical: 6.0),
+                                horizontal: 16.0,
+                                vertical: 8.0,
+                              ),
                               child: ListTile(
                                   title: Text(
                                     _sources[position].name,
-                                    style: TextStyle(fontSize: 20.0),
+                                    style:
+                                        Theme.of(context).textTheme.subtitle1,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
                                   subtitle: Text(
                                     _sources[position].url,
-                                    style: TextStyle(fontSize: 12.0),
+                                    style: Theme.of(context).textTheme.caption,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),

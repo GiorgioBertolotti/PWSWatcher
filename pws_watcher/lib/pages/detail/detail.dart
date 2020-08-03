@@ -48,11 +48,10 @@ class _DetailPageState extends State<DetailPage> {
             title: Text(
               "Detail page",
               maxLines: 1,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(context)
+                  .textTheme
+                  .headline5
+                  .copyWith(color: Colors.white),
             ),
             centerTitle: true,
           ),
@@ -63,10 +62,14 @@ class _DetailPageState extends State<DetailPage> {
                 child: TextField(
                   decoration: InputDecoration(
                     labelText: "Search",
-                    labelStyle: TextStyle(fontSize: 20.0),
+                    labelStyle: TextStyle(
+                      fontSize: Theme.of(context).textTheme.headline6.fontSize,
+                    ),
                   ),
                   controller: controller,
-                  style: TextStyle(fontSize: 20.0),
+                  style: TextStyle(
+                    fontSize: Theme.of(context).textTheme.headline6.fontSize,
+                  ),
                 ),
               ),
               Expanded(
@@ -84,15 +87,14 @@ class _DetailPageState extends State<DetailPage> {
                       return ListTile(
                         title: Text(
                           key,
-                          style: TextStyle(
-                            fontSize: 20.0,
-                          ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headline6
+                              .copyWith(fontWeight: FontWeight.normal),
                         ),
                         subtitle: Text(
                           widget.data.entries.elementAt(position).value,
-                          style: TextStyle(
-                            fontSize: 16.0,
-                          ),
+                          style: Theme.of(context).textTheme.bodyText2,
                         ),
                       );
                     else

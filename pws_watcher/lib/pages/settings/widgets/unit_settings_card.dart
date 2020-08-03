@@ -55,48 +55,61 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
     }
     return Card(
       elevation: 2,
-      margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
               alignment: Alignment.center,
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.only(bottom: 16.0),
               child: Text(
-                'Units settings',
+                "Units settings",
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.headline6,
               ),
             ),
-            Text("Wind speed unit", style: TextStyle(fontSize: 16.0)),
+            Text(
+              "Wind speed unit:",
+              style: Theme.of(context).textTheme.subtitle1,
+            ),
             SizedBox(height: 10.0),
             _windSpeedUnitSelector(),
             SizedBox(height: 20.0),
-            Text("Rain unit", style: TextStyle(fontSize: 16.0)),
+            Text(
+              "Rain unit:",
+              style: Theme.of(context).textTheme.subtitle1,
+            ),
             SizedBox(height: 10.0),
             _rainUnitSelector(),
             SizedBox(height: 20.0),
-            Text("Pressure unit", style: TextStyle(fontSize: 16.0)),
+            Text(
+              "Pressure unit:",
+              style: Theme.of(context).textTheme.subtitle1,
+            ),
             SizedBox(height: 10.0),
             _pressUnitSelector(),
             SizedBox(height: 20.0),
-            Text("Temperature unit", style: TextStyle(fontSize: 16.0)),
+            Text(
+              "Temperature unit:",
+              style: Theme.of(context).textTheme.subtitle1,
+            ),
             SizedBox(height: 10.0),
             _tempUnitSelector(),
             SizedBox(height: 20.0),
-            Text("Dew point unit", style: TextStyle(fontSize: 16.0)),
+            Text(
+              "Dew point unit:",
+              style: Theme.of(context).textTheme.subtitle1,
+            ),
             SizedBox(height: 10.0),
             _dewUnitSelector(),
             SizedBox(height: 20.0),
             Text(
-                "* Some input source formats may not guarantee the correct functioning of the unit conversion.",
-                style: TextStyle(color: Colors.grey)),
+              "* Some input source formats may not guarantee the correct functioning of the unit conversion.",
+              style: Theme.of(context).textTheme.caption,
+            ),
           ],
         ),
       ),
@@ -276,14 +289,12 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
       padding: const EdgeInsets.all(8.0),
       child: Text(
         unit,
-        style: TextStyle(
-          fontSize: 20.0,
-          fontWeight: FontWeight.w700,
-          color: widget.themeService.themeSubject.value.brightness ==
-                  Brightness.dark
-              ? Colors.white
-              : Colors.black,
-        ),
+        style: Theme.of(context).textTheme.subtitle2.copyWith(
+              color: widget.themeService.themeSubject.value.brightness ==
+                      Brightness.dark
+                  ? Colors.white
+                  : Colors.black,
+            ),
       ),
     );
   }

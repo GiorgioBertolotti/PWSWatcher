@@ -43,11 +43,11 @@ class SnapshotPreview extends StatelessWidget {
             left: 20.0,
             bottom: 10.0,
             child: Text(
-              "WEBCAM PREVIEW",
-              style: TextStyle(
-                fontSize: 16.0,
-                color: Colors.white,
-              ),
+              "Webcam Preview",
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText2
+                  .copyWith(color: Colors.white),
             ),
           ),
           Material(

@@ -24,23 +24,20 @@ class _WidgetSettingsCardState extends State<WidgetSettingsCard> {
   Widget build(BuildContext context) {
     return Card(
       elevation: 2,
-      margin: EdgeInsets.symmetric(horizontal: 10.0, vertical: 6.0),
+      margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Container(
               alignment: Alignment.center,
-              padding: EdgeInsets.all(16.0),
+              padding: EdgeInsets.only(bottom: 16.0),
               child: Text(
-                'Widget settings',
+                "Widget settings",
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.headline6,
               ),
             ),
             Row(
@@ -50,6 +47,7 @@ class _WidgetSettingsCardState extends State<WidgetSettingsCard> {
                   "Widget refresh interval (min):",
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.subtitle1,
                 ),
                 Container(
                   margin: EdgeInsets.only(
@@ -58,6 +56,7 @@ class _WidgetSettingsCardState extends State<WidgetSettingsCard> {
                   child: Text(
                     '${refreshInterval.toInt()}',
                     maxLines: 1,
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                 ),
               ],

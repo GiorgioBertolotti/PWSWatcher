@@ -83,20 +83,18 @@ class VariableRow extends StatelessWidget {
           Text(
             value,
             maxLines: 1,
-            style: TextStyle(
-              fontSize: 25,
-              fontWeight: FontWeight.normal,
-              color: Theme.of(context).accentColor,
-            ),
+            style: Theme.of(context)
+                .textTheme
+                .headline5
+                .copyWith(color: Theme.of(context).accentColor),
           ),
           Text(
             unit,
             maxLines: 1,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.normal,
-              color: Theme.of(context).accentColor,
-            ),
+            style: Theme.of(context)
+                .textTheme
+                .subtitle1
+                .copyWith(color: Theme.of(context).accentColor),
           ),
         ],
       );
@@ -107,20 +105,18 @@ class VariableRow extends StatelessWidget {
           Text(
             value,
             maxLines: 1,
-            style: TextStyle(
-              fontSize: 25,
-              fontWeight: FontWeight.normal,
-              color: Theme.of(context).accentColor,
-            ),
+            style: Theme.of(context)
+                .textTheme
+                .headline5
+                .copyWith(color: Theme.of(context).accentColor),
           ),
           Text(
             unit,
             maxLines: 1,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.normal,
-              color: Theme.of(context).accentColor,
-            ),
+            style: Theme.of(context)
+                .textTheme
+                .subtitle1
+                .copyWith(color: Theme.of(context).accentColor),
           ),
           Padding(
             padding: EdgeInsets.only(left: 10),

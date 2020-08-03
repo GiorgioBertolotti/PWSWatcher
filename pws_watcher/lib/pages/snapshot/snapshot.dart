@@ -60,10 +60,10 @@ class _SnapshotPageState extends State<SnapshotPage> {
                 backgroundColor: Colors.black,
                 title: Text(
                   widget.title,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20.0,
-                  ),
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline6
+                      .copyWith(color: Colors.white),
                 ),
                 actions: <Widget>[
                   IconButton(
@@ -92,10 +92,10 @@ class _SnapshotPageState extends State<SnapshotPage> {
                       child: Text(
                         widget.description,
                         textAlign: TextAlign.start,
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16.0,
-                        ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .subtitle1
+                            .copyWith(color: Colors.white),
                       ),
                     ),
                   )
@@ -107,13 +107,12 @@ class _SnapshotPageState extends State<SnapshotPage> {
   }
 
   Future<Null> _downloadImageFromUrl() async {
-    PermissionStatus permission = await PermissionHandler()
-        .checkPermissionStatus(PermissionGroup.storage);
-    if (permission != PermissionStatus.granted) {
-      Map<PermissionGroup, PermissionStatus> permissions =
-          await PermissionHandler()
-              .requestPermissions([PermissionGroup.storage]);
-      if (permissions[PermissionGroup.storage] != PermissionStatus.granted) {
+    PermissionStatus permission = await Permission.storage.status;
+
+    if (!permission.isGranted) {
+      PermissionStatus response = await Permission.storage.request();
+
+      if (!response.isGranted) {
         Flushbar(
           message: "Please grant the permissions to download the image 🙏🏻",
           duration: Duration(seconds: 2),

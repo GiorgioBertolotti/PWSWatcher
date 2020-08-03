@@ -109,8 +109,10 @@ class _HomePageState extends State<HomePage> {
                               Text(
                                 "You are offline.",
                                 textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    fontSize: 20, color: Colors.white),
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .subtitle1
+                                    .copyWith(color: Colors.white),
                               ),
                               Container(
                                 height:

@@ -269,11 +269,10 @@ class _PWSStatePageState extends State<PWSStatePage> {
                       Text(
                         "SEE ALL",
                         maxLines: 1,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: Theme.of(context).accentColor,
-                        ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .subtitle1
+                            .copyWith(color: Theme.of(context).accentColor),
                       ),
                       IconButton(
                         icon: Icon(
