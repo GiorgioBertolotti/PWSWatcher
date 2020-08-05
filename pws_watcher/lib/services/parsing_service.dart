@@ -212,16 +212,23 @@ class ParsingService {
 
   Future<Map<String, String>> _parseClientRawTXT(String url) async {
     try {
+      // http request
       var rawResponse = await http.get(url);
       var response = rawResponse.body;
+
       // split values by space
       List properties = clientRawProperties;
       List values = response.trim().split(' ');
       var pwsInfo = <String, String>{};
+
+      // associate each value to a string key
       for (var counter = 0; counter < properties.length; counter++) {
-        if (counter < values.length)
+        if (counter < values.length) {
           pwsInfo[properties[counter]] = values[counter];
+        }
       }
+
+      // try to fetch extra info from clientrawextra.txt
       try {
         rawResponse = await http
             .get(url.replaceAll("clientraw.txt", "clientrawextra.txt"));
@@ -234,6 +241,7 @@ class ParsingService {
             pwsInfo[properties[counter]] = values[counter];
         }
       } catch (e) {}
+
       return pwsInfo;
     } catch (Exception) {
       return null;
