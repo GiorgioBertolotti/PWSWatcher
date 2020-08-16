@@ -156,7 +156,7 @@ class ParsingService {
     try {
       var rawResponse = await http.get(url);
       var response = rawResponse.body;
-      xml.XmlDocument document = xml.parse(response);
+      xml.XmlDocument document = xml.XmlDocument.parse(response);
       var pwsInfo = <String, String>{};
       document.findAllElements("misc").forEach((elem) {
         if (elem.attributes
