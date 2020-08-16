@@ -65,16 +65,26 @@ class _WidgetSettingsCardState extends State<WidgetSettingsCard> {
               children: <Widget>[
                 Flexible(
                   flex: 1,
-                  child: Slider(
-                    value: refreshInterval,
-                    onChanged: (value) async {
-                      setState(() => refreshInterval = value);
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      prefs.setInt("widget_refresh_interval", value.toInt());
-                    },
-                    min: 1,
-                    max: 60,
+                  child: SliderTheme(
+                    data: SliderThemeData(
+                      valueIndicatorTextStyle: Theme.of(context)
+                          .textTheme
+                          .bodyText1
+                          .copyWith(color: Colors.white),
+                    ),
+                    child: Slider(
+                      value: refreshInterval,
+                      onChanged: (value) async {
+                        setState(() => refreshInterval = value);
+                        SharedPreferences prefs =
+                            await SharedPreferences.getInstance();
+                        prefs.setInt("widget_refresh_interval", value.toInt());
+                      },
+                      label: refreshInterval.round().toString(),
+                      divisions: 59,
+                      min: 1,
+                      max: 60,
+                    ),
                   ),
                 ),
               ],
