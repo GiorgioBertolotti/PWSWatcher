@@ -257,10 +257,13 @@ public class Widget extends AppWidgetProvider {
         protected void onPostExecute(String resp) {
             if (resp == null)
                 return;
+
             RemoteViews view = new RemoteViews(context.getPackageName(), R.layout.widget);
             boolean done = false;
+
             try {
                 boolean isClientRawTxt = false;
+
                 if (this.source.getUrl().endsWith("clientraw.txt")) {
                     done = visualizeClientRawTXT(resp, view);
                     isClientRawTxt = true;
@@ -271,6 +274,7 @@ public class Widget extends AppWidgetProvider {
                 } else if (this.source.getUrl().endsWith(".csv")) {
                     done = visualizeDailyCSV(resp, view);
                 }
+
                 setFontSizes(view);
                 setVisibilities(view, isClientRawTxt);
                 setColors(view);
@@ -278,6 +282,7 @@ public class Widget extends AppWidgetProvider {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
             if (done) {
                 AppWidgetManager manager = AppWidgetManager.getInstance(context);
                 manager.updateAppWidget(this.id, view);
@@ -556,108 +561,105 @@ public class Widget extends AppWidgetProvider {
 
         private double convertWindSpeed(double value, String unit, String preferred) {
             double kmh = 0.0;
+
             switch (unit.trim().replaceAll("/", "").toLowerCase()) {
-            case "kts":
-            case "kn":
-                {
-                kmh = ktsToKmh(value);
-                break;
+                case "kts":
+                case "kn": {
+                    kmh = ktsToKmh(value);
+                    break;
                 }
-            case "mph":
-                {
-                kmh = mphToKmh(value);
-                break;
+                case "mph": {
+                    kmh = mphToKmh(value);
+                    break;
                 }
-            case "ms":
-                {
-                kmh = msToKmh(value);
-                break;
+                case "ms": {
+                    kmh = msToKmh(value);
+                    break;
                 }
-            default:
-                {
-                kmh = value;
-                break;
+                default: {
+                    kmh = value;
+                    break;
                 }
             }
+
             double toReturn = 0.0;
+
             switch (preferred.trim().replaceAll("/", "").toLowerCase()) {
-            case "kts":
-            case "kn":
-                {
-                toReturn = roundTo2Decimal(kmhToKts(kmh));
-                break;
+                case "kts":
+                case "kn": {
+                    toReturn = roundTo2Decimal(kmhToKts(kmh));
+                    break;
                 }
-            case "mph":
-                {
-                toReturn = roundTo2Decimal(kmhToMph(kmh));
-                break;
+                case "mph": {
+                    toReturn = roundTo2Decimal(kmhToMph(kmh));
+                    break;
                 }
-            case "ms":
-                {
-                toReturn = roundTo2Decimal(kmhToMs(kmh));
-                break;
+                case "ms": {
+                    toReturn = roundTo2Decimal(kmhToMs(kmh));
+                    break;
                 }
-            default:
-                {
-                toReturn = roundTo2Decimal(kmh);
-                break;
+                default: {
+                    toReturn = roundTo2Decimal(kmh);
+                    break;
                 }
             }
+
             return toReturn;
         }
 
         private double convertRain(double value, String unit, String preferred) {
             double toReturn = 0.0;
-            if (unit.trim().replaceAll("/", "").toLowerCase() != preferred.trim().replaceAll("/", "").toLowerCase()) {
-                if (unit.trim().replaceAll("/", "").toLowerCase() == "mm") {
+
+            if (!unit.trim().replaceAll("/", "").equalsIgnoreCase(preferred.trim().replaceAll("/", ""))) {
+                if (unit.trim().replaceAll("/", "").equalsIgnoreCase("mm")) {
                     toReturn = roundTo2Decimal(mmToIn(value));
                 } else {
                     toReturn = roundTo2Decimal(inToMm(value));
                 }
-            } else
+            } else {
                 toReturn = value;
+            }
+
             return toReturn;
         }
 
         private double convertPressure(double value, String unit, String preferred) {
             double hPa;
+
             switch (unit.trim().replaceAll("/", "").toLowerCase()) {
-            case "in":
-            case "inhg":
-                {
-                hPa = inhgToHPa(value);
-                break;
+                case "in":
+                case "inhg": {
+                    hPa = inhgToHPa(value);
+                    break;
                 }
-            case "mb":
-                {
-                hPa = mbToHPa(value);
-                break;
+                case "mb": {
+                    hPa = mbToHPa(value);
+                    break;
                 }
-            default:
-                {
-                hPa = value;
-                break;
+                default: {
+                    hPa = value;
+                    break;
                 }
             }
+
             double toReturn = 0.0;
+
             switch (preferred.trim().replaceAll("/", "").toLowerCase()) {
-            case "in":
-            case "inhg":
-                {
-                toReturn = roundTo2Decimal(hPaToInhg(hPa));
-                break;
+                case "in":
+                case "inhg": {
+                    toReturn = roundTo2Decimal(hPaToInhg(hPa));
+                    break;
                 }
-            case "mb":
-                {
-                toReturn = roundTo2Decimal(hPaToMb(hPa));
-                break;
+                case "mb": {
+                    toReturn = roundTo2Decimal(hPaToMb(hPa));
+                    break;
                 }
-            default:
-                {
-                toReturn = roundTo2Decimal(hPa);
-                break;
+                default: {
+                    toReturn = roundTo2Decimal(hPa);
+                    break;
                 }
             }
+
             return toReturn;
         }
 
@@ -665,6 +667,7 @@ public class Widget extends AppWidgetProvider {
             double toReturn = 0.0;
             String newUnit = unit.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase();
             String newPref = preferred.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase();
+
             if (newUnit.charAt(newUnit.length() - 1) != newPref.charAt(newPref.length() - 1)) {
                 if (newUnit.charAt(newUnit.length() - 1) == 'f') {
                     toReturn = roundTo2Decimal(fToC(value));
@@ -674,6 +677,7 @@ public class Widget extends AppWidgetProvider {
             } else {
                 toReturn = value;
             }
+
             return toReturn;
         }
 

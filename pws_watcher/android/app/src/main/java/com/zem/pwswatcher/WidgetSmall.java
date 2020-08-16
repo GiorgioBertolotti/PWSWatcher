@@ -209,8 +209,10 @@ public class WidgetSmall extends AppWidgetProvider {
         protected void onPostExecute(String resp) {
             if (resp == null)
                 return;
+
             RemoteViews view = new RemoteViews(context.getPackageName(), R.layout.widget_small);
             boolean done = false;
+
             try {
                 if (this.source.getUrl().endsWith("clientraw.txt")) {
                     done = visualizeClientRawTXT(resp, view);
@@ -221,12 +223,14 @@ public class WidgetSmall extends AppWidgetProvider {
                 } else if (this.source.getUrl().endsWith(".csv")) {
                     done = visualizeDailyCSV(resp, view);
                 }
+
                 setFontSizes(view);
                 setColors(view);
                 setOnClickListeners(view);
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
             if (done) {
                 AppWidgetManager manager = AppWidgetManager.getInstance(context);
                 manager.updateAppWidget(this.id, view);
@@ -374,6 +378,7 @@ public class WidgetSmall extends AppWidgetProvider {
             double toReturn = 0.0;
             String newUnit = unit.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase();
             String newPref = preferred.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase();
+
             if (newUnit.charAt(newUnit.length() - 1) != newPref.charAt(newPref.length() - 1)) {
                 if (newUnit.charAt(newUnit.length() - 1) == 'f') {
                     toReturn = roundTo2Decimal(fToC(value));
@@ -383,6 +388,7 @@ public class WidgetSmall extends AppWidgetProvider {
             } else {
                 toReturn = value;
             }
+
             return toReturn;
         }
 
