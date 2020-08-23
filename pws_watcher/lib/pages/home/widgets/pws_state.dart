@@ -1,8 +1,9 @@
-import 'dart:math';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pws_watcher/model/parsing_utilities.dart';
+import 'package:pws_watcher/model/pws.dart';
 import 'package:pws_watcher/model/state\.dart';
 import 'package:pws_watcher/pages/detail/detail.dart';
 import 'package:pws_watcher/pages/home/widgets/pws_state_header.dart';
@@ -10,8 +11,6 @@ import 'package:pws_watcher/pages/home/widgets/update_timer.dart';
 import 'package:pws_watcher/pages/home/widgets/variable_row.dart';
 import 'package:pws_watcher/services/parsing_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:pws_watcher/model/pws.dart';
-import 'dart:async';
 
 import 'pws_temperature_row.dart';
 import 'snapshot_preview.dart';
