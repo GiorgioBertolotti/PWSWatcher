@@ -36,14 +36,31 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+
+    // Checks if the app has internet connection
     ConnectionStatusSingleton connectionStatus =
         ConnectionStatusSingleton.getInstance();
+
     setState(() {
       isOffline = !connectionStatus.hasConnection;
     });
+
     _connectionChangeStream =
         connectionStatus.connectionChange.listen(connectionChanged);
+
+    // Checks if the user should be requested of a review
     checkReviewRequest();
+
+    // Fetches the PWSs
+    _populateSources().then((sources) {
+      _pages.clear();
+      if (sources != null) {
+        for (PWS s in sources) {
+          _pages.add(PWSStatePage(s));
+        }
+        setState(() {});
+      }
+    });
   }
 
   void connectionChanged(dynamic hasConnection) {
@@ -60,24 +77,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (Provider.of<ApplicationState>(
-      context,
-      listen: false,
-    ).updateSources) {
-      Provider.of<ApplicationState>(
-        context,
-        listen: false,
-      ).updateSources = false;
-      _populateSources().then((sources) {
-        _pages.clear();
-        if (sources != null) {
-          for (PWS s in sources) {
-            _pages.add(PWSStatePage(s));
-          }
-          setState(() {});
-        }
-      });
-    }
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -147,8 +146,8 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.white,
                       ),
                       padding: EdgeInsets.all(0),
-                      onPressed: () {
-                        Navigator.push(
+                      onPressed: () async {
+                        await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (ctx) => Provider<ApplicationState>.value(
@@ -160,6 +159,19 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         );
+
+                        // Fetches the PWSs
+                        List<PWS> sources = await _populateSources();
+
+                        _pages.clear();
+
+                        if (sources != null) {
+                          for (PWS s in sources) {
+                            _pages.add(PWSStatePage(s));
+                          }
+
+                          setState(() {});
+                        }
                       },
                     ),
                   ),
@@ -199,8 +211,9 @@ class _HomePageState extends State<HomePage> {
     List<PWS> toReturn;
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> sources = prefs.getStringList("sources");
+
     if (sources == null || sources.length == 0) {
-      Navigator.push(
+      await Navigator.push(
         context,
         MaterialPageRoute(
           builder: (ctx) => Provider<ApplicationState>.value(
@@ -212,17 +225,21 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       );
-    } else {
-      toReturn = List();
-      for (String sourceJSON in sources) {
-        try {
-          dynamic source = jsonDecode(sourceJSON);
-          toReturn.add(await _getSourceData(source["id"]));
-        } catch (e) {
-          print(e);
-        }
+
+      await prefs.reload();
+      sources = prefs.getStringList("sources");
+    }
+
+    toReturn = List();
+    for (String sourceJSON in sources) {
+      try {
+        dynamic source = jsonDecode(sourceJSON);
+        toReturn.add(await _getSourceData(source["id"]));
+      } catch (e) {
+        print(e);
       }
     }
+
     return toReturn;
   }
 

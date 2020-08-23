@@ -23,7 +23,7 @@ class DeletePWSDialog extends StatelessWidget {
         ),
         FlatButton(
           textColor: Colors.white,
-          color: Theme.of(context).buttonColor,
+          color: Theme.of(context).primaryColor,
           child: Text("Close"),
           onPressed: () {
             Navigator.of(context).pop(false);

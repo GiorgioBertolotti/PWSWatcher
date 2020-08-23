@@ -148,7 +148,7 @@ class _EditPWSDialogState extends State<EditPWSDialog> {
         ),
         FlatButton(
           textColor: Colors.white,
-          color: Theme.of(widget.context).buttonColor,
+          color: Theme.of(widget.context).primaryColor,
           child: Text("Edit"),
           onPressed: _editPWS,
         ),

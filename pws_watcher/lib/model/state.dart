@@ -1,8 +1,6 @@
 class ApplicationState {
   ApplicationState({
-    this.settingsOpen = false,
     this.countID = 0,
-    this.updateSources = true,
     this.updatePreferences = true,
     this.prefWindUnit = "km/h",
     this.prefRainUnit = "mm",
@@ -11,9 +9,7 @@ class ApplicationState {
     this.prefDewUnit = "°C",
   });
 
-  bool updateSources;
   bool updatePreferences;
-  bool settingsOpen;
   int countID;
   String prefWindUnit;
   String prefRainUnit;

@@ -39,37 +39,24 @@ class _SettingsPageState extends State<SettingsPage>
     _retrieveSources();
   }
 
+  //triggered on device's back button click
   Future<bool> _onWillPop() async {
-    //triggered on device's back button click
     if (_sources.length == 0) {
       _showNoPWSFlushbar();
       return false;
     }
-    Provider.of<ApplicationState>(context, listen: false).settingsOpen = false;
-    setState(() {
-      Provider.of<ApplicationState>(context, listen: false).updateSources =
-          true;
-    });
+
     return true;
   }
 
+  //triggered on AppBar back button click
   void closeSettings() {
     if (_sources.length == 0) {
       _showNoPWSFlushbar();
       return;
     }
-    //triggered on AppBar back button click
-    Provider.of<ApplicationState>(
-      context,
-      listen: false,
-    ).settingsOpen = false;
+
     Navigator.of(context).pop(false);
-    setState(() {
-      Provider.of<ApplicationState>(
-        context,
-        listen: false,
-      ).updateSources = true;
-    });
   }
 
   _showNoPWSFlushbar() {
@@ -224,6 +211,7 @@ class _SettingsPageState extends State<SettingsPage>
         return provider;
       },
     );
+
     if (source != null && source is PWS) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       _sources.add(source);

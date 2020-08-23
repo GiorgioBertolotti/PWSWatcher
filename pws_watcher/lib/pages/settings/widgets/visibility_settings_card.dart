@@ -65,12 +65,8 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                 setState(() {
                   visibilityCurrentWeatherIcon = value;
                 });
-                Provider.of<ApplicationState>(
-                  context,
-                  listen: false,
-                ).updatePreferences = true;
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("visibilityCurrentWeatherIcon", value);
+
+                _setVisibility("visibilityCurrentWeatherIcon", value);
               },
             ),
             SwitchListTile(
@@ -83,12 +79,8 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                 setState(() {
                   visibilityUpdateTimer = value;
                 });
-                Provider.of<ApplicationState>(
-                  context,
-                  listen: false,
-                ).updatePreferences = true;
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("visibilityUpdateTimer", value);
+
+                _setVisibility("visibilityUpdateTimer", value);
               },
             ),
             SwitchListTile(
@@ -101,12 +93,8 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                 setState(() {
                   visibilityWindSpeed = value;
                 });
-                Provider.of<ApplicationState>(
-                  context,
-                  listen: false,
-                ).updatePreferences = true;
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("visibilityWindSpeed", value);
+
+                _setVisibility("visibilityWindSpeed", value);
               },
             ),
             SwitchListTile(
@@ -119,12 +107,8 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                 setState(() {
                   visibilityPressure = value;
                 });
-                Provider.of<ApplicationState>(
-                  context,
-                  listen: false,
-                ).updatePreferences = true;
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("visibilityPressure", value);
+
+                _setVisibility("visibilityPressure", value);
               },
             ),
             SwitchListTile(
@@ -137,12 +121,8 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                 setState(() {
                   visibilityWindDirection = value;
                 });
-                Provider.of<ApplicationState>(
-                  context,
-                  listen: false,
-                ).updatePreferences = true;
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("visibilityWindDirection", value);
+
+                _setVisibility("visibilityWindDirection", value);
               },
             ),
             SwitchListTile(
@@ -155,12 +135,8 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                 setState(() {
                   visibilityHumidity = value;
                 });
-                Provider.of<ApplicationState>(
-                  context,
-                  listen: false,
-                ).updatePreferences = true;
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("visibilityHumidity", value);
+
+                _setVisibility("visibilityHumidity", value);
               },
             ),
             SwitchListTile(
@@ -173,12 +149,8 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                 setState(() {
                   visibilityTemperature = value;
                 });
-                Provider.of<ApplicationState>(
-                  context,
-                  listen: false,
-                ).updatePreferences = true;
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("visibilityTemperature", value);
+
+                _setVisibility("visibilityTemperature", value);
               },
             ),
             SwitchListTile(
@@ -191,12 +163,8 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                 setState(() {
                   visibilityWindChill = value;
                 });
-                Provider.of<ApplicationState>(
-                  context,
-                  listen: false,
-                ).updatePreferences = true;
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("visibilityWindChill", value);
+
+                _setVisibility("visibilityWindChill", value);
               },
             ),
             SwitchListTile(
@@ -209,12 +177,8 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                 setState(() {
                   visibilityRain = value;
                 });
-                Provider.of<ApplicationState>(
-                  context,
-                  listen: false,
-                ).updatePreferences = true;
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("visibilityRain", value);
+
+                _setVisibility("visibilityRain", value);
               },
             ),
             SwitchListTile(
@@ -227,12 +191,8 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                 setState(() {
                   visibilityDew = value;
                 });
-                Provider.of<ApplicationState>(
-                  context,
-                  listen: false,
-                ).updatePreferences = true;
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("visibilityDew", value);
+
+                _setVisibility("visibilityDew", value);
               },
             ),
             SwitchListTile(
@@ -245,12 +205,8 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                 setState(() {
                   visibilitySunrise = value;
                 });
-                Provider.of<ApplicationState>(
-                  context,
-                  listen: false,
-                ).updatePreferences = true;
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("visibilitySunrise", value);
+
+                _setVisibility("visibilitySunrise", value);
               },
             ),
             SwitchListTile(
@@ -263,12 +219,8 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                 setState(() {
                   visibilitySunset = value;
                 });
-                Provider.of<ApplicationState>(
-                  context,
-                  listen: false,
-                ).updatePreferences = true;
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("visibilitySunset", value);
+
+                _setVisibility("visibilitySunset", value);
               },
             ),
             SwitchListTile(
@@ -281,12 +233,8 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                 setState(() {
                   visibilityMoonrise = value;
                 });
-                Provider.of<ApplicationState>(
-                  context,
-                  listen: false,
-                ).updatePreferences = true;
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("visibilityMoonrise", value);
+
+                _setVisibility("visibilityMoonrise", value);
               },
             ),
             SwitchListTile(
@@ -299,18 +247,24 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
                 setState(() {
                   visibilityMoonset = value;
                 });
-                Provider.of<ApplicationState>(
-                  context,
-                  listen: false,
-                ).updatePreferences = true;
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool("visibilityMoonset", value);
+
+                _setVisibility("visibilityMoonset", value);
               },
             ),
           ],
         ),
       ),
     );
+  }
+
+  Future<Null> _setVisibility(String name, bool value) async {
+    Provider.of<ApplicationState>(
+      context,
+      listen: false,
+    ).updatePreferences = true;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setBool(name, value);
   }
 
   Future<Null> _getSettings() async {

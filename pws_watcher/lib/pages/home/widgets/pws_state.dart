@@ -27,8 +27,7 @@ class PWSStatePage extends StatefulWidget {
 
 class _PWSStatePageState extends State<PWSStatePage> {
   GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
-  ParsingService parsingService;
-  PWS _source;
+  ParsingService _parsingService;
 
   var visibilityCurrentWeatherIcon = true;
   var visibilityUpdateTimer = true;
@@ -45,36 +44,42 @@ class _PWSStatePageState extends State<PWSStatePage> {
   var visibilityMoonrise = true;
   var visibilityMoonset = true;
 
-  bool _first = true;
-
   @override
   void initState() {
     super.initState();
-    _source = widget.source;
+
     _updatePreferences();
+
+    _parsingService = ParsingService(
+      widget.source,
+      Provider.of<ApplicationState>(context, listen: false),
+    );
+  }
+
+  @override
+  void didUpdateWidget(PWSStatePage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.source != widget.source) {
+      _parsingService.setSource(widget.source);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_first) {
-      _first = false;
-      parsingService = ParsingService(
-          _source, Provider.of<ApplicationState>(context, listen: false));
-    }
     if (Provider.of<ApplicationState>(context, listen: false)
         .updatePreferences) {
       Provider.of<ApplicationState>(context, listen: false).updatePreferences =
           false;
+
       _updatePreferences();
-      parsingService.setApplicationState(
+
+      _parsingService.setApplicationState(
           Provider.of<ApplicationState>(context, listen: false));
     }
-    if (_source != widget.source) {
-      _source = widget.source;
-      parsingService.setSource(_source);
-    }
+
     return StreamBuilder<Object>(
-        stream: parsingService.variables$,
+        stream: _parsingService.variables$,
         builder: (context, snapshot) {
           if (snapshot.hasError || !snapshot.hasData) {
             return RefreshIndicator(
@@ -88,7 +93,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
                 ),
                 shrinkWrap: true,
                 children: <Widget>[
-                  _buildUpdateIndicator(_source),
+                  _buildUpdateIndicator(widget.source),
                   SizedBox(height: 50.0),
                   Center(
                     child: Container(
@@ -150,7 +155,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
               ),
               shrinkWrap: true,
               children: <Widget>[
-                _buildUpdateIndicator(_source),
+                _buildUpdateIndicator(widget.source),
                 SizedBox(height: 20.0),
                 PWSStateHeader(
                   location,
@@ -292,8 +297,8 @@ class _PWSStatePageState extends State<PWSStatePage> {
 
   Future<void> _refresh() async {
     _refreshKey.currentState.show();
-    parsingService.setSource(_source);
-    await Future.delayed(Duration(milliseconds: Random().nextInt(1000) + 500));
+
+    await _parsingService.updateData(force: true);
   }
 
   dynamic _buildUpdateIndicator(PWS source) {
@@ -318,7 +323,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
             message: "Update timer",
             child: UpdateTimer(
               Duration(seconds: source.autoUpdateInterval),
-              () => parsingService.setSource(_source),
+              () => _parsingService.setSource(widget.source),
             ),
           ),
         );
@@ -329,13 +334,13 @@ class _PWSStatePageState extends State<PWSStatePage> {
   }
 
   _openDetailPage() async {
-    if (parsingService.allDataSubject.value != null) {
+    if (_parsingService.allDataSubject.value != null) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (ctx) => Provider<ApplicationState>.value(
             value: Provider.of<ApplicationState>(context, listen: false),
-            child: DetailPage(parsingService.allDataSubject.value),
+            child: DetailPage(_parsingService.allDataSubject.value),
           ),
         ),
       );

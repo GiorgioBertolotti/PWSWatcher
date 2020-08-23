@@ -255,11 +255,15 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
   }
 
   Future<String> _unitSelectorCallback(
-      int index, List<bool> selectionList, List<String> units) async {
+    int index,
+    List<bool> selectionList,
+    List<String> units,
+  ) async {
     Provider.of<ApplicationState>(
       context,
       listen: false,
     ).updatePreferences = true;
+
     if (selectionList[index]) {
       // deselect
       for (int buttonIndex = 0;
