@@ -285,13 +285,14 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
   }
 
   Widget _unitToggleButton(String unit) {
+    ThemeData theme = widget.themeService.themeSubject.value;
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Text(
         unit,
         style: Theme.of(context).textTheme.subtitle2.copyWith(
-              color: widget.themeService.themeSubject.value.brightness ==
-                      Brightness.dark
+              color: theme != null && theme.brightness == Brightness.dark
                   ? Colors.white
                   : Colors.black,
             ),

@@ -191,7 +191,7 @@ class _AddPWSDialogState extends State<AddPWSDialog> {
             ),
             FlatButton(
               textColor: Colors.white,
-              color: Theme.of(widget.context).buttonColor,
+              color: Theme.of(widget.context).primaryColor,
               child: Text("Add"),
               onPressed: _addPWS,
             ),

@@ -16,6 +16,9 @@ ThemeData dayTheme = ThemeData(
   buttonColor: Colors.lightBlue,
   iconTheme: IconThemeData(color: Colors.lightBlue),
   colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.lightBlue),
+  floatingActionButtonTheme: FloatingActionButtonThemeData(
+    foregroundColor: Colors.white,
+  ),
   accentIconTheme: IconThemeData(color: Colors.white),
   cardColor: Colors.white,
   disabledColor: Color(0xFFCCCCCC),
@@ -34,6 +37,9 @@ ThemeData eveningTheme = ThemeData(
   buttonColor: Colors.deepOrange,
   iconTheme: IconThemeData(color: Colors.deepOrange),
   colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepOrange),
+  floatingActionButtonTheme: FloatingActionButtonThemeData(
+    foregroundColor: Colors.white,
+  ),
   accentIconTheme: IconThemeData(color: Colors.white),
   cardColor: Colors.white,
   disabledColor: Color(0xFFCCCCCC),
@@ -52,6 +58,9 @@ ThemeData nightTheme = ThemeData(
   buttonColor: Colors.deepPurple,
   iconTheme: IconThemeData(color: Colors.deepPurple),
   colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepPurple),
+  floatingActionButtonTheme: FloatingActionButtonThemeData(
+    foregroundColor: Colors.white,
+  ),
   accentIconTheme: IconThemeData(color: Colors.white),
   cardColor: Colors.white,
   disabledColor: Color(0xFFCCCCCC),
@@ -70,6 +79,9 @@ ThemeData greyTheme = ThemeData(
   buttonColor: Colors.blueGrey,
   iconTheme: IconThemeData(color: Colors.blueGrey),
   colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blueGrey),
+  floatingActionButtonTheme: FloatingActionButtonThemeData(
+    foregroundColor: Colors.white,
+  ),
   accentIconTheme: IconThemeData(color: Colors.white),
   cardColor: Colors.white,
   disabledColor: Color(0xFFCCCCCC),
@@ -101,9 +113,16 @@ ThemeData blackedTheme = ThemeData(
   scaffoldBackgroundColor: Colors.black,
   cursorColor: Colors.black,
   toggleableActiveColor: Colors.black,
-  buttonColor: Colors.black,
+  buttonColor: Colors.white,
   iconTheme: IconThemeData(color: Colors.black),
-  colorScheme: ColorScheme.fromSwatch(primarySwatch: _black),
+  colorScheme: ColorScheme.fromSwatch(
+    primarySwatch: _black,
+    brightness: Brightness.dark,
+  ),
+  floatingActionButtonTheme: FloatingActionButtonThemeData(
+    foregroundColor: Colors.white,
+    backgroundColor: Colors.black,
+  ),
   accentIconTheme: IconThemeData(color: Colors.white),
   disabledColor: Color(0xFFCCCCCC),
 );
