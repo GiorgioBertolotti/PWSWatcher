@@ -45,6 +45,9 @@ jobs:
       uses: juliangruber/read-file-action@v1
       with:
         path: version1.txt
+    - name: Generate keystore file from secrets base64
+      working-directory: pws_watcher
+      run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > key.jks
     - name: Update version in YAML
       working-directory: pws_watcher
       run: sed -i 's/99.99.99+99/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
