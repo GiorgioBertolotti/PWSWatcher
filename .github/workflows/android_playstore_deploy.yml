@@ -45,8 +45,8 @@ jobs:
       uses: juliangruber/read-file-action@v1
       with:
         path: version1.txt
-    - run: cd pws_watcher
     - name: Update version in YAML
+      working-directory: pws_watcher
       run: sed -i 's/99.99.99+99/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
     - name: Set KeyStore password in gradle properties
       run: export UPLOAD_KEY_PASSWORD="{{ secrets.KEYSTORE_PASS }}"
@@ -57,13 +57,17 @@ jobs:
       with:
         flutter-version: '1.20.2'
     - run: flutter pub get
+      working-directory: pws_watcher
     - run: flutter test
+      working-directory: pws_watcher
     - run: flutter build apk --release --split-per-abi
+      working-directory: pws_watcher
     - run: flutter build appbundle --release
+      working-directory: pws_watcher
     - name: Create a Release in GitHub
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "build/app/outputs/apk/release/*.apk,build/app/outputs/bundle/release/app-release.aab"
+        artifacts: "pws_watcher/build/app/outputs/apk/release/*.apk,pws_watcher/build/app/outputs/bundle/release/app-release.aab"
         token: ${{ secrets.GH_TOKEN }}
         tag: ${{ steps.version.outputs.content }}
         commit: ${{ github.sha }}
@@ -71,7 +75,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: appbundle
-        path: build/app/outputs/bundle/release/app-release.aab
+        path: pws_watcher/build/app/outputs/bundle/release/app-release.aab
   release:
     name: Release app to internal track
     needs: [ build ]
