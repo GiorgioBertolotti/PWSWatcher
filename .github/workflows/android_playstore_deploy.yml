@@ -65,11 +65,11 @@ jobs:
     - run: flutter build apk --release --split-per-abi
       working-directory: pws_watcher
       env:
-        UPLOAD_KEY_PASSWORD: "{{ secrets.KEYSTORE_PASS }}"
+        UPLOAD_KEY_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
     - run: flutter build appbundle --release
       working-directory: pws_watcher
       env:
-        UPLOAD_KEY_PASSWORD: "{{ secrets.KEYSTORE_PASS }}"
+        UPLOAD_KEY_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
     - name: Create a Release in GitHub
       uses: ncipollo/release-action@v1
       with:
