@@ -1,4 +1,4 @@
-name: PWS Watcher PlayStore Release
+name: PlayStore Release
 
 on:
   push:
@@ -45,6 +45,7 @@ jobs:
       uses: juliangruber/read-file-action@v1
       with:
         path: version1.txt
+    - run: cd pws_watcher
     - name: Update version in YAML
       run: sed -i 's/99.99.99+99/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
     - name: Set KeyStore password in gradle properties
