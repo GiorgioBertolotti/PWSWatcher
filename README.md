@@ -2,10 +2,10 @@
 
 # PWSWatcher
 
-[![Build Status](https://travis-ci.com/GiorgioBertolotti/PWSWatcher.svg?branch=master)](https://travis-ci.com/GiorgioBertolotti/PWSWatcher)
 [![Stars](https://img.shields.io/github/stars/GiorgioBertolotti/PWSWatcher.svg)](https://github.com/GiorgioBertolotti/PWSWatcher/stargazers)
 [![Forks](https://img.shields.io/github/forks/GiorgioBertolotti/PWSWatcher.svg)](https://github.com/GiorgioBertolotti/PWSWatcher/network/members)
 [![Issues](https://img.shields.io/github/issues/GiorgioBertolotti/PWSWatcher.svg)](https://github.com/GiorgioBertolotti/PWSWatcher/issues)
+![PlayStore Release](https://github.com/GiorgioBertolotti/PWSWatcher/workflows/PlayStore%20Release/badge.svg)
 
 ## Why?
 
