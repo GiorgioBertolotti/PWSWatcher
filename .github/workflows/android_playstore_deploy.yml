@@ -50,7 +50,7 @@ jobs:
       run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > key.jks
     - name: Update version in YAML
       working-directory: pws_watcher
-      run: sed -i 's/99.99.99+99/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
+      run: sed -i 's/99.99.99+99/${{ steps.version.outputs.content }}+${{ github.run_number + 35 }}/g' pubspec.yaml
     - uses: actions/setup-java@v1
       with:
         java-version: '12.x'
