@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/model/state\.dart';
-import 'package:pws_watcher/pages/settings/widgets/add_pws_dialog.dart';
+import 'package:pws_watcher/pages/settings/widgets/pws_dialog.dart';
 import 'package:pws_watcher/pages/settings/widgets/delete_pws_dialog.dart';
-import 'package:pws_watcher/pages/settings/widgets/edit_pws_dialog.dart';
 import 'package:pws_watcher/pages/settings/widgets/theme_settings_card.dart';
 import 'package:pws_watcher/pages/settings/widgets/unit_settings_card.dart';
 import 'package:pws_watcher/pages/settings/widgets/visibility_settings_card.dart';
@@ -206,7 +205,10 @@ class _SettingsPageState extends State<SettingsPage>
       builder: (ctx) {
         var provider = Provider<ApplicationState>.value(
           value: Provider.of<ApplicationState>(context, listen: false),
-          child: AddPWSDialog(_showCaseContext),
+          child: PWSDialog(
+            mode: PWSDialogMode.ADD,
+            theme: Theme.of(context),
+          ),
         );
         return provider;
       },
@@ -235,7 +237,11 @@ class _SettingsPageState extends State<SettingsPage>
     var source = await showDialog(
         context: context,
         builder: (BuildContext ctx) {
-          return EditPWSDialog(_sources[position], context);
+          return PWSDialog(
+            mode: PWSDialogMode.EDIT,
+            source: _sources[position],
+            theme: Theme.of(context),
+          );
         });
     if (source != null && source is PWS) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -307,17 +313,22 @@ class _SettingsPageState extends State<SettingsPage>
   }
 
   Future<bool> _shouldShowcase() async {
+    // showcase_1 indicates whether the showcase around the FAB should be shown
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool shouldShow = !(prefs.getBool("showcase_1") ?? false);
+
     if (shouldShow) {
       prefs.setBool("showcase_1", true);
     }
+
     return shouldShow;
   }
 
   _showShowcase() async {
+    // showcase_2 indicates whether the showcase in the PWSDialog should be shown
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool("showcase_2", false);
+
     ShowCaseWidget.of(_showCaseContext).startShowCase([_fabKey]);
   }
 }

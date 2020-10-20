@@ -9,17 +9,31 @@ import 'package:showcaseview/showcase_widget.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class AddPWSDialog extends StatefulWidget {
-  AddPWSDialog(this.context);
+enum PWSDialogMode { ADD, EDIT }
 
-  final BuildContext context;
+const double inputHeight = 75.0;
+
+class PWSDialog extends StatefulWidget {
+  final PWSDialogMode mode;
+  final PWS source;
+  final ThemeData theme;
+
+  PWSDialog({
+    @required this.mode,
+    this.source,
+    this.theme,
+  }) {
+    if (this.mode == PWSDialogMode.EDIT && this.source == null) {
+      throw Exception('If the mode is EDIT you should set the original source');
+    }
+  }
 
   @override
-  _AddPWSDialogState createState() => _AddPWSDialogState();
+  _PWSDialogState createState() => _PWSDialogState();
 }
 
-class _AddPWSDialogState extends State<AddPWSDialog> {
-  final GlobalKey<FormState> _addFormKey = GlobalKey<FormState>();
+class _PWSDialogState extends State<PWSDialog> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final GlobalKey _urlKey = GlobalKey();
   final GlobalKey _refreshKey = GlobalKey();
   final GlobalKey _snapshotUrlKey = GlobalKey();
@@ -38,7 +52,13 @@ class _AddPWSDialogState extends State<AddPWSDialog> {
 
   @override
   void initState() {
-    super.initState();
+    if (widget.mode == PWSDialogMode.EDIT) {
+      _nameController.text = widget.source.name;
+      _urlController.text = widget.source.url;
+      _intervalController.text = widget.source.autoUpdateInterval.toString();
+      _snapshotUrlController.text = widget.source.snapshotUrl ?? "";
+    }
+
     _shouldShowcase().then((shouldShow) {
       if (shouldShow) {
         WidgetsBinding.instance.addPostFrameCallback((_) =>
@@ -46,19 +66,24 @@ class _AddPWSDialogState extends State<AddPWSDialog> {
                 .startShowCase([_urlKey, _refreshKey, _snapshotUrlKey]));
       }
     });
+
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    double inputHeight = 75.0;
-    double screenWidth = MediaQuery.of(context).size.width;
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final PWSDialogMode mode = widget.mode;
+
     return ShowCaseWidget(
       builder: Builder(builder: (ctx) {
         _showCaseContext = ctx;
         return AlertDialog(
-          title: Text("Add PWS"),
+          title: Text(mode == PWSDialogMode.ADD
+              ? "Add PWS"
+              : "Edit ${widget.source.name}"),
           content: Form(
-            key: _addFormKey,
+            key: _formKey,
             child: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -75,7 +100,7 @@ class _AddPWSDialogState extends State<AddPWSDialog> {
                         return null;
                       },
                       decoration: InputDecoration(
-                        labelText: "PWS name",
+                        labelText: "Name *",
                         border: OutlineInputBorder(),
                       ),
                       maxLines: 1,
@@ -103,7 +128,7 @@ class _AddPWSDialogState extends State<AddPWSDialog> {
                             return null;
                           },
                           decoration: InputDecoration(
-                            labelText: "Realtime file URL",
+                            labelText: "Realtime file URL *",
                             border: OutlineInputBorder(),
                           ),
                           maxLines: 1,
@@ -136,7 +161,7 @@ class _AddPWSDialogState extends State<AddPWSDialog> {
                             return null;
                           },
                           decoration: InputDecoration(
-                            labelText: "Update interval (sec).",
+                            labelText: "Update interval (sec.) *",
                             border: OutlineInputBorder(),
                           ),
                           maxLines: 1,
@@ -161,13 +186,13 @@ class _AddPWSDialogState extends State<AddPWSDialog> {
                           keyboardType: TextInputType.url,
                           controller: _snapshotUrlController,
                           decoration: InputDecoration(
-                            labelText: "Webcam snapshot URL (opt.)",
+                            labelText: "Webcam snapshot URL",
                             border: OutlineInputBorder(),
                           ),
                           maxLines: 1,
                           focusNode: _snapshotUrlFocusNode,
                           textInputAction: TextInputAction.done,
-                          onFieldSubmitted: (text) => _addPWS(),
+                          onFieldSubmitted: (text) => _save(),
                         ),
                       ),
                     ),
@@ -178,22 +203,22 @@ class _AddPWSDialogState extends State<AddPWSDialog> {
           ),
           actions: <Widget>[
             FlatButton(
-              textColor: Theme.of(widget.context).buttonColor,
+              textColor: widget.theme.buttonColor,
               child: Text("Help"),
               onPressed: _openHelp,
             ),
             FlatButton(
-              textColor: Theme.of(widget.context).buttonColor,
+              textColor: widget.theme.buttonColor,
               child: Text("Close"),
               onPressed: () {
-                Navigator.of(widget.context).pop();
+                Navigator.of(context).pop();
               },
             ),
             FlatButton(
               textColor: Colors.white,
-              color: Theme.of(widget.context).primaryColor,
-              child: Text("Add"),
-              onPressed: _addPWS,
+              color: widget.theme.primaryColor,
+              child: Text(mode == PWSDialogMode.ADD ? "Add" : "Edit"),
+              onPressed: _save,
             ),
           ],
         );
@@ -201,21 +226,36 @@ class _AddPWSDialogState extends State<AddPWSDialog> {
     );
   }
 
-  _addPWS() {
+  _save() {
+    // Closes keyboard
     FocusScope.of(context).requestFocus(FocusNode());
-    if (_addFormKey.currentState.validate()) {
-      _addFormKey.currentState.save();
-      PWS source = PWS(
-        Provider.of<ApplicationState>(
-          context,
-          listen: false,
-        ).countID++,
-        _nameController.text,
-        _urlController.text,
-        autoUpdateInterval: int.parse(_intervalController.text),
-        snapshotUrl: _snapshotUrlController.text,
-      );
-      PWSWatcher.navigatorKey.currentState.pop(source);
+
+    if (_formKey.currentState.validate()) {
+      _formKey.currentState.save();
+
+      PWS source;
+
+      if (widget.mode == PWSDialogMode.ADD) {
+        source = PWS(
+          Provider.of<ApplicationState>(
+            context,
+            listen: false,
+          ).countID++,
+          _nameController.text,
+          _urlController.text,
+          autoUpdateInterval: int.parse(_intervalController.text),
+          snapshotUrl: _snapshotUrlController.text,
+        );
+      } else {
+        source = widget.source;
+
+        source.name = _nameController.text;
+        source.url = _urlController.text;
+        source.autoUpdateInterval = int.parse(_intervalController.text);
+        source.snapshotUrl = _snapshotUrlController.text;
+      }
+
+      Navigator.of(context).pop(source);
     }
   }
 
@@ -229,11 +269,14 @@ class _AddPWSDialogState extends State<AddPWSDialog> {
   }
 
   Future<bool> _shouldShowcase() async {
+    // showcase_2 indicates whether the showcase in the PWSDialog should be shown
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool shouldShow = !(prefs.getBool("showcase_2") ?? false);
+
     if (shouldShow) {
       prefs.setBool("showcase_2", true);
     }
+
     return shouldShow;
   }
 }
