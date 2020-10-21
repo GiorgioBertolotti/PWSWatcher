@@ -62,11 +62,11 @@ jobs:
     # UNCOMMENT WHEN TESTS WILL BE ADDED
     #- run: flutter test
     #  working-directory: pws_watcher
-    - run: flutter build apk --release --split-per-abi
+    - run: flutter build apk --release --split-per-abi --verbose
       working-directory: pws_watcher
       env:
         UPLOAD_KEY_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
-    - run: flutter build appbundle --release
+    - run: flutter build appbundle --release --verbose
       working-directory: pws_watcher
       env:
         UPLOAD_KEY_PASSWORD: ${{ secrets.KEYSTORE_PASS }}
