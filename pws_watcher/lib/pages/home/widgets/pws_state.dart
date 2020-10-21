@@ -1,7 +1,6 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/model/parsing_utilities.dart';
 import 'package:pws_watcher/model/pws.dart';
 import 'package:pws_watcher/model/state\.dart';
@@ -11,7 +10,6 @@ import 'package:pws_watcher/pages/home/widgets/update_timer.dart';
 import 'package:pws_watcher/pages/home/widgets/variable_row.dart';
 import 'package:pws_watcher/services/parsing_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'pws_temperature_row.dart';
 import 'snapshot_preview.dart';
 
@@ -51,7 +49,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
 
     _parsingService = ParsingService(
       widget.source,
-      Provider.of<ApplicationState>(context, listen: false),
+      provider.Provider.of<ApplicationState>(context, listen: false),
     );
   }
 
@@ -66,15 +64,15 @@ class _PWSStatePageState extends State<PWSStatePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (Provider.of<ApplicationState>(context, listen: false)
+    if (provider.Provider.of<ApplicationState>(context, listen: false)
         .updatePreferences) {
-      Provider.of<ApplicationState>(context, listen: false).updatePreferences =
-          false;
+      provider.Provider.of<ApplicationState>(context, listen: false)
+          .updatePreferences = false;
 
       _updatePreferences();
 
       _parsingService.setApplicationState(
-          Provider.of<ApplicationState>(context, listen: false));
+          provider.Provider.of<ApplicationState>(context, listen: false));
     }
 
     return StreamBuilder<Object>(
@@ -337,8 +335,9 @@ class _PWSStatePageState extends State<PWSStatePage> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (ctx) => Provider<ApplicationState>.value(
-            value: Provider.of<ApplicationState>(context, listen: false),
+          builder: (ctx) => provider.Provider<ApplicationState>.value(
+            value:
+                provider.Provider.of<ApplicationState>(context, listen: false),
             child: DetailPage(_parsingService.allDataSubject.value),
           ),
         ),

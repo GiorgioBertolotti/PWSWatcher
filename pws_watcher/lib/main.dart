@@ -6,10 +6,15 @@ import 'package:pws_watcher/services/connection_status\.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Setup get_it
   await setupGetIt();
+
+  // Initialize connection status singleton
   ConnectionStatusSingleton connectionStatus =
       ConnectionStatusSingleton.getInstance();
   connectionStatus.initialize();
+
   runApp(PWSWatcher());
 }
 

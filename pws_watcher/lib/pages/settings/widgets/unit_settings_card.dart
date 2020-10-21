@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/model/state.dart';
 import 'package:pws_watcher/services/theme_service.dart';
@@ -25,7 +25,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
   Widget build(BuildContext context) {
     if (_first) {
       _first = false;
-      ApplicationState appState = Provider.of<ApplicationState>(
+      ApplicationState appState = provider.Provider.of<ApplicationState>(
         context,
         listen: false,
       );
@@ -129,7 +129,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
         onPressed: (int index) async {
           String unit = await _unitSelectorCallback(
               index, _windUnitSelection, ["km/h", "mph", "kts", "m/s"]);
-          Provider.of<ApplicationState>(
+          provider.Provider.of<ApplicationState>(
             context,
             listen: false,
           ).prefWindUnit = unit;
@@ -156,7 +156,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
         onPressed: (int index) async {
           String unit = await _unitSelectorCallback(
               index, _rainUnitSelection, ["mm", "in"]);
-          Provider.of<ApplicationState>(
+          provider.Provider.of<ApplicationState>(
             context,
             listen: false,
           ).prefRainUnit = unit;
@@ -184,7 +184,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
         onPressed: (int index) async {
           String unit = await _unitSelectorCallback(
               index, _pressUnitSelection, ["hPa", "mb", "inHg"]);
-          Provider.of<ApplicationState>(
+          provider.Provider.of<ApplicationState>(
             context,
             listen: false,
           ).prefPressUnit = unit;
@@ -211,7 +211,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
         onPressed: (int index) async {
           String unit = await _unitSelectorCallback(
               index, _tempUnitSelection, ["°C", "°F"]);
-          Provider.of<ApplicationState>(
+          provider.Provider.of<ApplicationState>(
             context,
             listen: false,
           ).prefTempUnit = unit;
@@ -238,7 +238,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
         onPressed: (int index) async {
           String unit = await _unitSelectorCallback(
               index, _dewUnitSelection, ["°C", "°F"]);
-          Provider.of<ApplicationState>(
+          provider.Provider.of<ApplicationState>(
             context,
             listen: false,
           ).prefDewUnit = unit;
@@ -259,7 +259,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
     List<bool> selectionList,
     List<String> units,
   ) async {
-    Provider.of<ApplicationState>(
+    provider.Provider.of<ApplicationState>(
       context,
       listen: false,
     ).updatePreferences = true;

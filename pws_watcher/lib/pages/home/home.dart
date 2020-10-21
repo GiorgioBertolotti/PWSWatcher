@@ -1,7 +1,7 @@
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:launch_review/launch_review.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/pages/home/widgets/dots_indicator.dart';
 import 'package:pws_watcher/model/state\.dart';
 import 'package:pws_watcher/pages/home/widgets/pws_state.dart';
@@ -91,8 +91,8 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Builder(
-          builder: (context) => Provider<ApplicationState>.value(
-            value: Provider.of<ApplicationState>(
+          builder: (context) => provider.Provider<ApplicationState>.value(
+            value: provider.Provider.of<ApplicationState>(
               context,
               listen: false,
             ),
@@ -150,8 +150,9 @@ class _HomePageState extends State<HomePage> {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (ctx) => Provider<ApplicationState>.value(
-                              value: Provider.of<ApplicationState>(
+                            builder: (ctx) =>
+                                provider.Provider<ApplicationState>.value(
+                              value: provider.Provider.of<ApplicationState>(
                                 context,
                                 listen: false,
                               ),
@@ -216,8 +217,8 @@ class _HomePageState extends State<HomePage> {
       await Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (ctx) => Provider<ApplicationState>.value(
-            value: Provider.of<ApplicationState>(
+          builder: (ctx) => provider.Provider<ApplicationState>.value(
+            value: provider.Provider.of<ApplicationState>(
               context,
               listen: false,
             ),

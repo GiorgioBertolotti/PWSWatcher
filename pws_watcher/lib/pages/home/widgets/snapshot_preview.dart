@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/model/pws.dart';
 import 'package:pws_watcher/model/state.dart';
 import 'package:pws_watcher/pages/snapshot/snapshot.dart';
@@ -57,9 +57,9 @@ class SnapshotPreview extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (ctx) => Provider<ApplicationState>.value(
-                      value:
-                          Provider.of<ApplicationState>(context, listen: false),
+                    builder: (ctx) => provider.Provider<ApplicationState>.value(
+                      value: provider.Provider.of<ApplicationState>(context,
+                          listen: false),
                       child: SnapshotPage(
                         this.pws.snapshotUrl,
                         this.pws.name,

@@ -8,7 +8,9 @@ GetIt getIt = GetIt.instance;
 
 Future<void> setupGetIt() async {
   final dir = await getApplicationDocumentsDirectory();
+
   Hive.init(dir.path);
   final themeBox = await Hive.openBox('themeBox');
+
   getIt.registerLazySingleton(() => ThemeService(themeBox));
 }

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:pws_watcher/main.dart';
+import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/model/pws.dart';
 import 'package:pws_watcher/model/state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -237,7 +236,7 @@ class _PWSDialogState extends State<PWSDialog> {
 
       if (widget.mode == PWSDialogMode.ADD) {
         source = PWS(
-          Provider.of<ApplicationState>(
+          provider.Provider.of<ApplicationState>(
             context,
             listen: false,
           ).countID++,

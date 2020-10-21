@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/model/state.dart';
 import 'package:pws_watcher/services/theme_service.dart';
@@ -258,7 +258,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
   }
 
   Future<Null> _setVisibility(String name, bool value) async {
-    Provider.of<ApplicationState>(
+    provider.Provider.of<ApplicationState>(
       context,
       listen: false,
     ).updatePreferences = true;

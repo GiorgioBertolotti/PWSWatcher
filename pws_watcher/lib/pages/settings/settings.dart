@@ -1,6 +1,6 @@
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/model/state\.dart';
 import 'package:pws_watcher/pages/settings/widgets/pws_dialog.dart';
@@ -203,14 +203,15 @@ class _SettingsPageState extends State<SettingsPage>
     var source = await showDialog(
       context: context,
       builder: (ctx) {
-        var provider = Provider<ApplicationState>.value(
-          value: Provider.of<ApplicationState>(context, listen: false),
+        Widget dialog = provider.Provider<ApplicationState>.value(
+          value: provider.Provider.of<ApplicationState>(context, listen: false),
           child: PWSDialog(
             mode: PWSDialogMode.ADD,
             theme: Theme.of(context),
           ),
         );
-        return provider;
+
+        return dialog;
       },
     );
 
@@ -225,7 +226,7 @@ class _SettingsPageState extends State<SettingsPage>
       prefs.setStringList("sources", sourcesJSON);
       prefs.setInt(
           "count_id",
-          Provider.of<ApplicationState>(
+          provider.Provider.of<ApplicationState>(
             context,
             listen: false,
           ).countID);

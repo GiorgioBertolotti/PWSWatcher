@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:provider/provider.dart';
+import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/model/state\.dart';
 import 'package:pws_watcher/pages/home/home.dart';
@@ -53,7 +53,7 @@ class _SplashPageState extends State<SplashPage> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (ctx) => Provider<ApplicationState>.value(
+        builder: (ctx) => provider.Provider<ApplicationState>.value(
           value: appState,
           child: HomePage(),
         ),
