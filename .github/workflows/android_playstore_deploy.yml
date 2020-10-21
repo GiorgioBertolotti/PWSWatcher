@@ -73,7 +73,7 @@ jobs:
     - name: Create a Release in GitHub
       uses: ncipollo/release-action@v1
       with:
-        artifacts: "pws_watcher/build/app/outputs/apk/release/*.apk,pws_watcher/build/app/outputs/bundle/release/app-release.aab"
+        artifacts: "pws_watcher/build/app/outputs/apk/release/*.apk,pws_watcher/build/app/outputs/bundle/release/app.aab"
         token: ${{ secrets.GH_TOKEN }}
         tag: ${{ steps.version.outputs.content }}
         commit: ${{ github.sha }}
@@ -81,7 +81,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: appbundle
-        path: pws_watcher/build/app/outputs/bundle/release/app-release.aab
+        path: pws_watcher/build/app/outputs/bundle/release/app.aab
   release:
     name: Release app to internal track
     needs: [ build ]
@@ -97,6 +97,6 @@ jobs:
       with:
         serviceAccountJsonPlainText: ${{ secrets.PLAYSTORE_ACCOUNT_KEY }}
         packageName: com.zem.pwswatcher
-        releaseFile: app-release.aab
+        releaseFile: app.aab
         track: internal
         whatsNewDirectory: whatsNew
