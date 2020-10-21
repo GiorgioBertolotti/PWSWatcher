@@ -42,7 +42,7 @@ jobs:
       run: tr -d '\n' < version.txt > version1.txt
     - name: Read version
       id: version
-      uses: juliangruber/read-file-action@v1
+      uses: juliangruber/read-file-action@v1.0.0
       with:
         path: version1.txt
     - name: Generate keystore file from secrets base64
