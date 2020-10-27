@@ -346,16 +346,16 @@ class _PWSStatePageState extends State<PWSStatePage> {
             leftSetting.asset,
             values[leftSetting.valueVarName] ?? leftSetting.valueDefaultValue,
             values[leftSetting.unitVarName] ?? leftSetting.unitDefaultValue,
-            rightSetting != null ? rightSetting.name : null,
-            rightSetting != null ? rightSetting.asset : null,
+            rightSetting != null ? rightSetting.name : "",
+            rightSetting != null ? rightSetting.asset : "",
             rightSetting != null
                 ? (values[rightSetting.valueVarName] ??
                     rightSetting.valueDefaultValue)
-                : null,
+                : "",
             rightSetting != null
                 ? (values[rightSetting.unitVarName] ??
                     rightSetting.unitDefaultValue)
-                : null,
+                : "",
             visibilityLeft: _visibilityMap[leftSetting.visibilityVarName],
             visibilityRight: rightSetting != null
                 ? _visibilityMap[rightSetting.visibilityVarName]
