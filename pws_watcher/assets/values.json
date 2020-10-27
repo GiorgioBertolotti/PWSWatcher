@@ -1,0 +1,122 @@
+[
+  {
+    "name": "Wind speed",
+    "asset": "assets/images/windspeed.svg",
+    "valueVarName": "windspeed",
+    "unitVarName": "windUnit",
+    "visibilityVarName": "visibilityWindSpeed",
+    "valueDefaultValue": "-",
+    "unitDefaultValue": "km/h",
+    "visibilityDefaultValue": true
+  },
+  {
+    "name": "Pressure",
+    "asset": "assets/images/barometer.svg",
+    "valueVarName": "press",
+    "unitVarName": "pressUnit",
+    "visibilityVarName": "visibilityPressure",
+    "valueDefaultValue": "-",
+    "unitDefaultValue": "mb",
+    "visibilityDefaultValue": true
+  },
+  {
+    "name": "Wind direction",
+    "asset": "assets/images/winddir.svg",
+    "valueVarName": "winddir",
+    "unitVarName": "",
+    "visibilityVarName": "visibilityWindDirection",
+    "valueDefaultValue": "-",
+    "unitDefaultValue": "",
+    "visibilityDefaultValue": true
+  },
+  {
+    "name": "Humidity",
+    "asset": "assets/images/humidity.svg",
+    "valueVarName": "humidity",
+    "unitVarName": "humUnit",
+    "visibilityVarName": "visibilityHumidity",
+    "valueDefaultValue": "-",
+    "unitDefaultValue": "%",
+    "visibilityDefaultValue": true
+  },
+  {
+    "name": "Temperature",
+    "asset": "assets/images/temperature.svg",
+    "valueVarName": "temperature",
+    "unitVarName": "tempUnit",
+    "visibilityVarName": "visibilityTemperature",
+    "valueDefaultValue": "-",
+    "unitDefaultValue": "°C",
+    "visibilityDefaultValue": true
+  },
+  {
+    "name": "Wind chill",
+    "asset": "assets/images/windchill.svg",
+    "valueVarName": "windchill",
+    "unitVarName": "tempUnit",
+    "visibilityVarName": "visibilityWindChill",
+    "valueDefaultValue": "-",
+    "unitDefaultValue": "",
+    "visibilityDefaultValue": true
+  },
+  {
+    "name": "Rain",
+    "asset": "assets/images/rain.svg",
+    "valueVarName": "rain",
+    "unitVarName": "rainUnit",
+    "visibilityVarName": "visibilityRain",
+    "valueDefaultValue": "-",
+    "unitDefaultValue": "mm",
+    "visibilityDefaultValue": true
+  },
+  {
+    "name": "Dew",
+    "asset": "assets/images/dew.svg",
+    "valueVarName": "dew",
+    "unitVarName": "dewUnit",
+    "visibilityVarName": "visibilityDew",
+    "valueDefaultValue": "-",
+    "unitDefaultValue": "°",
+    "visibilityDefaultValue": true
+  },
+  {
+    "name": "Sunrise",
+    "asset": "assets/images/sunrise.svg",
+    "valueVarName": "sunrise",
+    "unitVarName": "",
+    "visibilityVarName": "visibilitySunrise",
+    "valueDefaultValue": "--:--",
+    "unitDefaultValue": "",
+    "visibilityDefaultValue": true
+  },
+  {
+    "name": "Moonrise",
+    "asset": "assets/images/moonrise.svg",
+    "valueVarName": "moonrise",
+    "unitVarName": "",
+    "visibilityVarName": "visibilityMoonrise",
+    "valueDefaultValue": "--:--",
+    "unitDefaultValue": "",
+    "visibilityDefaultValue": true
+  },
+  {
+    "name": "Sunset",
+    "asset": "assets/images/sunset.svg",
+    "valueVarName": "sunset",
+    "unitVarName": "",
+    "visibilityVarName": "visibilitySunset",
+    "valueDefaultValue": "--:--",
+    "unitDefaultValue": "",
+    "visibilityDefaultValue": true
+  },
+  {
+    "name": "Moonset",
+    "asset": "assets/images/moonset.svg",
+    "valueVarName": "moonset",
+    "unitVarName": "",
+    "visibilityVarName": "visibilityMoonset",
+    "valueDefaultValue": "--:--",
+    "unitDefaultValue": "",
+    "visibilityDefaultValue": true
+  }
+]

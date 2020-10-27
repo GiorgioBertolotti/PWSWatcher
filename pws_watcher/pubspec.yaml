@@ -43,6 +43,7 @@ flutter:
     - assets/images/
     - assets/images/current_weather/
     - assets/flare/
+    - assets/values.json
   # fonts:
   #   - family: Schyler
   #     fonts:

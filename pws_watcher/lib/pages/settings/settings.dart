@@ -27,7 +27,7 @@ class _SettingsPageState extends State<SettingsPage>
     with TickerProviderStateMixin {
   final GlobalKey _fabKey = GlobalKey();
 
-  List<PWS> _sources = List();
+  List<PWS> _sources = [];
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   BuildContext _showCaseContext;
@@ -96,6 +96,8 @@ class _SettingsPageState extends State<SettingsPage>
       ),
     );
   }
+
+  // FUNCTIONS
 
   _addSource() async {
     PWS source = await showDialog(
@@ -192,6 +194,8 @@ class _SettingsPageState extends State<SettingsPage>
 
     ShowCaseWidget.of(_showCaseContext).startShowCase([_fabKey]);
   }
+
+  // WIDGETS
 
   Widget _buildAppBar() {
     return AppBar(

@@ -48,8 +48,11 @@ class _HomePageState extends State<HomePage> {
       _isOffline = !connectionStatus.hasConnection;
     });
 
-    _connectionChangeStream =
-        connectionStatus.connectionChange.listen(connectionChanged);
+    _connectionChangeStream = connectionStatus.connectionChange.listen(
+      (hasConnection) => setState(() {
+        _isOffline = !hasConnection;
+      }),
+    );
 
     // Checks if the user should be requested of a review
     _checkReviewRequest();
@@ -66,16 +69,10 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void connectionChanged(dynamic hasConnection) {
-    setState(() {
-      _isOffline = !hasConnection;
-    });
-  }
-
   @override
   void dispose() {
-    super.dispose();
     _connectionChangeStream.cancel();
+    super.dispose();
   }
 
   @override
@@ -102,105 +99,10 @@ class _HomePageState extends State<HomePage> {
             child: SafeArea(
               child: Stack(
                 children: <Widget>[
-                  _isOffline
-                      ? Padding(
-                          padding: EdgeInsets.all(20),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Text(
-                                "You are offline.",
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .subtitle1
-                                    .copyWith(color: Colors.white),
-                              ),
-                              Container(
-                                height:
-                                    (MediaQuery.of(context).size.height) - 200,
-                                width: MediaQuery.of(context).size.width,
-                                child: FlareActor(
-                                  "assets/flare/offline.flr",
-                                  alignment: Alignment.center,
-                                  fit: BoxFit.contain,
-                                  animation: "go",
-                                ),
-                              ),
-                            ],
-                          ),
-                        )
-                      : PageView.builder(
-                          itemCount: _pages.length,
-                          physics: AlwaysScrollableScrollPhysics(),
-                          controller: _controller,
-                          itemBuilder: (BuildContext context, int index) {
-                            if (_pages.length == 0) return Container();
-                            return _pages[index % _pages.length];
-                          },
-                        ),
-                  Positioned(
-                    top: 0.0,
-                    right: 0.0,
-                    child: IconButton(
-                      tooltip: "Settings",
-                      icon: Icon(
-                        Icons.settings,
-                        color: Colors.white,
-                      ),
-                      padding: EdgeInsets.all(0),
-                      onPressed: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (ctx) =>
-                                provider.Provider<ApplicationState>.value(
-                              value: provider.Provider.of<ApplicationState>(
-                                context,
-                                listen: false,
-                              ),
-                              child: SettingsPage(),
-                            ),
-                          ),
-                        );
-
-                        // Fetches the PWSs
-                        List<PWS> sources = await _populateSources();
-
-                        _pages.clear();
-
-                        if (sources != null) {
-                          for (PWS s in sources) {
-                            _pages.add(PWSStatePage(s));
-                          }
-
-                          setState(() {});
-                        }
-                      },
-                    ),
-                  ),
+                  _buildBody(),
+                  _buildSettingsButton(),
                   _pages.length > 1 && !_isOffline
-                      ? Positioned(
-                          top: 20.0,
-                          right: 0.0,
-                          left: 0.0,
-                          child: Center(
-                            child: Container(
-                              key: _dotsIndicator,
-                              child: DotsIndicator(
-                                controller: _controller,
-                                itemCount: _pages.length,
-                                onPageSelected: (int page) {
-                                  _controller.animateToPage(
-                                    page,
-                                    duration: _kDuration,
-                                    curve: _kCurve,
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        )
+                      ? _buildDotsIndicator()
                       : Container(),
                 ],
               ),
@@ -210,6 +112,8 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  // FUNCTIONS
 
   Future<List<PWS>> _populateSources() async {
     List<PWS> toReturn = [];
@@ -289,5 +193,115 @@ class _HomePageState extends State<HomePage> {
         )..show(context);
       }
     }
+  }
+
+  // WIDGETS
+
+  Widget _buildBody() {
+    if (_isOffline) {
+      // Show the flare animation
+      return Padding(
+        padding: EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              "You are offline.",
+              textAlign: TextAlign.center,
+              style: Theme.of(context)
+                  .textTheme
+                  .subtitle1
+                  .copyWith(color: Colors.white),
+            ),
+            Container(
+              height: (MediaQuery.of(context).size.height) - 200,
+              width: MediaQuery.of(context).size.width,
+              child: FlareActor(
+                "assets/flare/offline.flr",
+                alignment: Alignment.center,
+                fit: BoxFit.contain,
+                animation: "go",
+              ),
+            ),
+          ],
+        ),
+      );
+    } else {
+      return PageView.builder(
+        itemCount: _pages.length,
+        physics: AlwaysScrollableScrollPhysics(),
+        controller: _controller,
+        itemBuilder: (BuildContext context, int index) {
+          if (_pages.length == 0) return Container();
+          return _pages[index % _pages.length];
+        },
+      );
+    }
+  }
+
+  Widget _buildSettingsButton() {
+    return Positioned(
+      top: 0.0,
+      right: 0.0,
+      child: IconButton(
+        tooltip: "Settings",
+        icon: Icon(
+          Icons.settings,
+          color: Colors.white,
+        ),
+        padding: EdgeInsets.all(0),
+        onPressed: () async {
+          await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (ctx) => provider.Provider<ApplicationState>.value(
+                value: provider.Provider.of<ApplicationState>(
+                  context,
+                  listen: false,
+                ),
+                child: SettingsPage(),
+              ),
+            ),
+          );
+
+          // Fetches the PWSs
+          List<PWS> sources = await _populateSources();
+
+          _pages.clear();
+
+          if (sources != null && sources.isNotEmpty) {
+            for (PWS s in sources) {
+              _pages.add(PWSStatePage(s));
+            }
+          }
+
+          setState(() {});
+        },
+      ),
+    );
+  }
+
+  Widget _buildDotsIndicator() {
+    return Positioned(
+      top: 20.0,
+      right: 0.0,
+      left: 0.0,
+      child: Center(
+        child: Container(
+          key: _dotsIndicator,
+          child: DotsIndicator(
+            controller: _controller,
+            itemCount: _pages.length,
+            onPageSelected: (int page) {
+              _controller.animateToPage(
+                page,
+                duration: _kDuration,
+                curve: _kCurve,
+              );
+            },
+          ),
+        ),
+      ),
+    );
   }
 }
