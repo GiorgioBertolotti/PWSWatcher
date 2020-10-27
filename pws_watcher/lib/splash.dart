@@ -42,6 +42,14 @@ class _SplashPageState extends State<SplashPage> {
 
   _loadPrefs() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Set the default refresh interval in shared preferences
+    int refreshInterval = prefs.getInt("widget_refresh_interval");
+    if (refreshInterval == null) {
+      await prefs.setInt("widget_refresh_interval", 15);
+    }
+
+    // Initialize application state
     ApplicationState appState = ApplicationState(
       countID: prefs.getInt("count_id") ?? 0,
       prefWindUnit: prefs.getString("prefWindUnit"),
@@ -50,6 +58,8 @@ class _SplashPageState extends State<SplashPage> {
       prefTempUnit: prefs.getString("prefTempUnit"),
       prefDewUnit: prefs.getString("prefDewUnit"),
     );
+
+    // Route to home page
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
@@ -59,7 +69,5 @@ class _SplashPageState extends State<SplashPage> {
         ),
       ),
     );
-    prefs.getInt("widget_refresh_interval") ??
-        prefs.setInt("widget_refresh_interval", 15);
   }
 }

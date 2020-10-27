@@ -23,13 +23,16 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static const _kDuration = const Duration(milliseconds: 300);
-  static const _kCurve = Curves.ease;
-  final int visitsBeforeReviewRequest = 3;
-  final _controller = PageController();
-  final List<Widget> _pages = List();
+  final PageController _controller = PageController();
+  final List<Widget> _pages = [];
+  final int _visitsBeforeReviewRequest = 3;
+
+  // Dots indicator variables
+  final _kDuration = const Duration(milliseconds: 300);
+  final _kCurve = Curves.ease;
+
   StreamSubscription _connectionChangeStream;
-  bool isOffline = false;
+  bool _isOffline = false;
 
   final GlobalKey _dotsIndicator = GlobalKey();
 
@@ -42,14 +45,14 @@ class _HomePageState extends State<HomePage> {
         ConnectionStatusSingleton.getInstance();
 
     setState(() {
-      isOffline = !connectionStatus.hasConnection;
+      _isOffline = !connectionStatus.hasConnection;
     });
 
     _connectionChangeStream =
         connectionStatus.connectionChange.listen(connectionChanged);
 
     // Checks if the user should be requested of a review
-    checkReviewRequest();
+    _checkReviewRequest();
 
     // Fetches the PWSs
     _populateSources().then((sources) {
@@ -65,7 +68,7 @@ class _HomePageState extends State<HomePage> {
 
   void connectionChanged(dynamic hasConnection) {
     setState(() {
-      isOffline = !hasConnection;
+      _isOffline = !hasConnection;
     });
   }
 
@@ -99,7 +102,7 @@ class _HomePageState extends State<HomePage> {
             child: SafeArea(
               child: Stack(
                 children: <Widget>[
-                  isOffline
+                  _isOffline
                       ? Padding(
                           padding: EdgeInsets.all(20),
                           child: Column(
@@ -176,7 +179,7 @@ class _HomePageState extends State<HomePage> {
                       },
                     ),
                   ),
-                  _pages.length > 1 && !isOffline
+                  _pages.length > 1 && !_isOffline
                       ? Positioned(
                           top: 20.0,
                           right: 0.0,
@@ -209,11 +212,13 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<PWS>> _populateSources() async {
-    List<PWS> toReturn;
+    List<PWS> toReturn = [];
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String> sources = prefs.getStringList("sources");
 
-    if (sources == null || sources.length == 0) {
+    if (sources == null || sources.isEmpty) {
+      // If there are no sources to show, route the user to the settings page
       await Navigator.push(
         context,
         MaterialPageRoute(
@@ -227,15 +232,16 @@ class _HomePageState extends State<HomePage> {
         ),
       );
 
+      // When he's back, reload the preferences
       await prefs.reload();
       sources = prefs.getStringList("sources");
     }
 
-    toReturn = List();
+    // Populate PWS list from a list of JSONs stored in shared prefs
     for (String sourceJSON in sources) {
       try {
         dynamic source = jsonDecode(sourceJSON);
-        toReturn.add(await _getSourceData(source["id"]));
+        toReturn.add(_parsePWS(source));
       } catch (e) {
         print(e);
       }
@@ -244,42 +250,31 @@ class _HomePageState extends State<HomePage> {
     return toReturn;
   }
 
-  Future<PWS> _getSourceData(int id) async {
-    if (id != null && id != -1) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> sources = prefs.getStringList("sources");
-      PWS source;
-      if (sources == null || sources.length < 1)
-        source = null;
-      else {
-        for (String sourceJSON in sources) {
-          dynamic parsed = jsonDecode(sourceJSON);
-          if (parsed["id"] == id) {
-            source = PWS(
-              parsed["id"],
-              parsed["name"],
-              parsed["url"],
-              autoUpdateInterval: (parsed["autoUpdateInterval"] != null)
-                  ? parsed["autoUpdateInterval"]
-                  : 0,
-              snapshotUrl: parsed["snapshotUrl"],
-            );
-            break;
-          }
-        }
-      }
-      return source;
-    } else
+  PWS _parsePWS(dynamic rawSource) {
+    int id = rawSource['id'];
+
+    if (id == null || id < 0) {
+      // Invalid id
       return null;
+    }
+
+    return PWS(
+      rawSource["id"],
+      rawSource["name"],
+      rawSource["url"],
+      autoUpdateInterval: rawSource["autoUpdateInterval"] ?? 0,
+      snapshotUrl: rawSource["snapshotUrl"],
+    );
   }
 
-  checkReviewRequest() async {
+  _checkReviewRequest() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     int homepageCounter = prefs.getInt("homepageCounter") ?? 0;
-    if (homepageCounter < visitsBeforeReviewRequest) {
-      homepageCounter++;
-      prefs.setInt("homepageCounter", homepageCounter);
-      if (homepageCounter == visitsBeforeReviewRequest) {
+
+    if (homepageCounter < _visitsBeforeReviewRequest) {
+      await prefs.setInt("homepageCounter", ++homepageCounter);
+
+      if (homepageCounter == _visitsBeforeReviewRequest) {
         Flushbar(
           message: "Please leave a 5 star review ❤️",
           duration: null,
