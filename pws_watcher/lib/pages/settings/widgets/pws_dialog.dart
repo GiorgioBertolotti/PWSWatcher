@@ -10,7 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 enum PWSDialogMode { ADD, EDIT }
 
-const double inputHeight = 75.0;
+const double inputHeight = 59.0;
 
 class PWSDialog extends StatefulWidget {
   final PWSDialogMode mode;
@@ -90,7 +90,7 @@ class _PWSDialogState extends State<PWSDialog> {
                   Container(
                     height: inputHeight,
                     width: screenWidth,
-                    padding: EdgeInsets.all(8.0),
+                    margin: const EdgeInsets.only(bottom: 12.0),
                     child: TextFormField(
                       controller: _nameController,
                       validator: (value) {
@@ -112,63 +112,59 @@ class _PWSDialogState extends State<PWSDialog> {
                   Container(
                     height: inputHeight,
                     width: screenWidth,
+                    margin: const EdgeInsets.only(bottom: 12.0),
                     child: Showcase(
                       key: _urlKey,
                       title: "Enter URL",
                       description: "Tap on HELP for more info",
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          keyboardType: TextInputType.url,
-                          controller: _urlController,
-                          validator: (value) {
-                            if (value == null || value.isEmpty)
-                              return "You must set a url.";
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            labelText: "Realtime file URL *",
-                            border: OutlineInputBorder(),
-                          ),
-                          maxLines: 1,
-                          focusNode: _urlFocusNode,
-                          textInputAction: TextInputAction.next,
-                          onFieldSubmitted: (value) => FocusScope.of(context)
-                              .requestFocus(_intervalFocusNode),
+                      child: TextFormField(
+                        keyboardType: TextInputType.url,
+                        controller: _urlController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty)
+                            return "You must set a url.";
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          labelText: "Realtime file URL *",
+                          border: OutlineInputBorder(),
                         ),
+                        maxLines: 1,
+                        focusNode: _urlFocusNode,
+                        textInputAction: TextInputAction.next,
+                        onFieldSubmitted: (value) => FocusScope.of(context)
+                            .requestFocus(_intervalFocusNode),
                       ),
                     ),
                   ),
                   Container(
                     height: inputHeight,
                     width: screenWidth,
+                    margin: const EdgeInsets.only(bottom: 12.0),
                     child: Showcase(
                       key: _refreshKey,
                       title: "Update interval in seconds",
                       description: "If it's 0 the update will be manual",
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          keyboardType: TextInputType.number,
-                          controller: _intervalController,
-                          validator: (value) {
-                            if (value == null ||
-                                value.isEmpty ||
-                                int.tryParse(value) == null ||
-                                int.tryParse(value) < 0)
-                              return "Please set a valid interval.";
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            labelText: "Update interval (sec.) *",
-                            border: OutlineInputBorder(),
-                          ),
-                          maxLines: 1,
-                          focusNode: _intervalFocusNode,
-                          textInputAction: TextInputAction.next,
-                          onFieldSubmitted: (value) => FocusScope.of(context)
-                              .requestFocus(_snapshotUrlFocusNode),
+                      child: TextFormField(
+                        keyboardType: TextInputType.number,
+                        controller: _intervalController,
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              int.tryParse(value) == null ||
+                              int.tryParse(value) < 0)
+                            return "Please set a valid interval.";
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          labelText: "Update interval (sec.) *",
+                          border: OutlineInputBorder(),
                         ),
+                        maxLines: 1,
+                        focusNode: _intervalFocusNode,
+                        textInputAction: TextInputAction.next,
+                        onFieldSubmitted: (value) => FocusScope.of(context)
+                            .requestFocus(_snapshotUrlFocusNode),
                       ),
                     ),
                   ),
@@ -179,20 +175,17 @@ class _PWSDialogState extends State<PWSDialog> {
                       key: _snapshotUrlKey,
                       title: "Webcam snapshot",
                       description: "Enter the URL of a webcam",
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          keyboardType: TextInputType.url,
-                          controller: _snapshotUrlController,
-                          decoration: InputDecoration(
-                            labelText: "Webcam snapshot URL",
-                            border: OutlineInputBorder(),
-                          ),
-                          maxLines: 1,
-                          focusNode: _snapshotUrlFocusNode,
-                          textInputAction: TextInputAction.done,
-                          onFieldSubmitted: (text) => _save(),
+                      child: TextFormField(
+                        keyboardType: TextInputType.url,
+                        controller: _snapshotUrlController,
+                        decoration: InputDecoration(
+                          labelText: "Webcam snapshot URL",
+                          border: OutlineInputBorder(),
                         ),
+                        maxLines: 1,
+                        focusNode: _snapshotUrlFocusNode,
+                        textInputAction: TextInputAction.done,
+                        onFieldSubmitted: (text) => _save(),
                       ),
                     ),
                   ),
@@ -209,9 +202,7 @@ class _PWSDialogState extends State<PWSDialog> {
             FlatButton(
               textColor: widget.theme.buttonColor,
               child: Text("Close"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+              onPressed: () => Navigator.of(context).pop(),
             ),
             FlatButton(
               textColor: Colors.white,

@@ -66,7 +66,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
               alignment: Alignment.center,
               padding: EdgeInsets.only(bottom: 16.0),
               child: Text(
-                "Units settings",
+                "Units of measure",
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headline6,
               ),

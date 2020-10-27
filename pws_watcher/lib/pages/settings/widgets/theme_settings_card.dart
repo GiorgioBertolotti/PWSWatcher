@@ -40,7 +40,7 @@ class _ThemeSettingsCardState extends State<ThemeSettingsCard> {
               alignment: Alignment.center,
               padding: EdgeInsets.only(bottom: 16.0),
               child: Text(
-                "Theme settings",
+                "Theme",
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headline6,
               ),

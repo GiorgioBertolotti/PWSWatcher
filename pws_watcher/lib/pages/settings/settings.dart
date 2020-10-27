@@ -4,7 +4,7 @@ import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/model/state\.dart';
 import 'package:pws_watcher/pages/settings/widgets/pws_dialog.dart';
-import 'package:pws_watcher/pages/settings/widgets/delete_pws_dialog.dart';
+import 'package:pws_watcher/pages/settings/widgets/sources_settings_card.dart';
 import 'package:pws_watcher/pages/settings/widgets/theme_settings_card.dart';
 import 'package:pws_watcher/pages/settings/widgets/unit_settings_card.dart';
 import 'package:pws_watcher/pages/settings/widgets/visibility_settings_card.dart';
@@ -40,8 +40,8 @@ class _SettingsPageState extends State<SettingsPage>
 
   //triggered on device's back button click
   Future<bool> _onWillPop() async {
-    if (_sources.length == 0) {
-      _showNoPWSFlushbar();
+    if (_sources.isEmpty) {
+      _emptySourcesError();
       return false;
     }
 
@@ -49,16 +49,16 @@ class _SettingsPageState extends State<SettingsPage>
   }
 
   //triggered on AppBar back button click
-  void closeSettings() {
-    if (_sources.length == 0) {
-      _showNoPWSFlushbar();
+  void _closeSettings() {
+    if (_sources.isEmpty) {
+      _emptySourcesError();
       return;
     }
 
     Navigator.of(context).pop(false);
   }
 
-  _showNoPWSFlushbar() {
+  _emptySourcesError() {
     Flushbar(
       title: "Wait a second",
       message: "You should add a PWS to monitor",
@@ -86,111 +86,9 @@ class _SettingsPageState extends State<SettingsPage>
               iconColor: Theme.of(context).iconTheme.color,
               child: Scaffold(
                 key: _scaffoldKey,
-                appBar: AppBar(
-                  brightness: Brightness.dark,
-                  leading: IconButton(
-                    icon: Icon(Icons.arrow_back, color: Colors.white),
-                    onPressed: () => closeSettings(),
-                  ),
-                  actions: <Widget>[
-                    IconButton(
-                      icon: Icon(Icons.help, color: Colors.white),
-                      onPressed: () => _showShowcase(),
-                      tooltip: "Show tutorial",
-                    )
-                  ],
-                  title: Text(
-                    "Settings",
-                    maxLines: 1,
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline5
-                        .copyWith(color: Colors.white),
-                  ),
-                  centerTitle: true,
-                ),
-                floatingActionButton: Showcase(
-                  onTargetClick: _addSource,
-                  disposeOnTap: true,
-                  key: _fabKey,
-                  title: "Add PWS",
-                  description: "Tap here to add your PWS info",
-                  shapeBorder: CircleBorder(),
-                  child: FloatingActionButton.extended(
-                    onPressed: _addSource,
-                    elevation: 2,
-                    icon: Icon(Icons.add),
-                    label: Text("add"),
-                  ),
-                ),
-                body: Builder(
-                  builder: (context) => ListView(
-                    addAutomaticKeepAlives: true,
-                    children: <Widget>[
-                      ThemeSettingsCard(),
-                      UnitSettingsCard(),
-                      VisibilitySettingsCard(),
-                      WidgetSettingsCard(),
-                      const Divider(),
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 65),
-                        child: ListView.builder(
-                          physics: ScrollPhysics(),
-                          scrollDirection: Axis.vertical,
-                          shrinkWrap: true,
-                          itemCount: _sources.length,
-                          itemBuilder: (context, position) {
-                            return Card(
-                              elevation: 2,
-                              margin: EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                                vertical: 8.0,
-                              ),
-                              child: ListTile(
-                                  title: Text(
-                                    _sources[position].name,
-                                    style:
-                                        Theme.of(context).textTheme.subtitle1,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  subtitle: Text(
-                                    _sources[position].url,
-                                    style: Theme.of(context).textTheme.caption,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  trailing: Container(
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: <Widget>[
-                                        IconButton(
-                                          icon: Icon(
-                                            Icons.edit,
-                                          ),
-                                          onPressed: () {
-                                            _editSource(position);
-                                          },
-                                        ),
-                                        IconButton(
-                                          icon: Icon(
-                                            Icons.delete,
-                                            color: Colors.red[700],
-                                          ),
-                                          onPressed: () {
-                                            _deleteSource(position);
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  )),
-                            );
-                          },
-                        ),
-                      )
-                    ],
-                  ),
-                ),
+                appBar: _buildAppBar(),
+                floatingActionButton: _buildFAB(),
+                body: _buildBody(),
               ),
             );
           },
@@ -200,117 +98,79 @@ class _SettingsPageState extends State<SettingsPage>
   }
 
   _addSource() async {
-    var source = await showDialog(
+    PWS source = await showDialog(
       context: context,
-      builder: (ctx) {
-        Widget dialog = provider.Provider<ApplicationState>.value(
-          value: provider.Provider.of<ApplicationState>(context, listen: false),
-          child: PWSDialog(
-            mode: PWSDialogMode.ADD,
-            theme: Theme.of(context),
-          ),
-        );
-
-        return dialog;
-      },
+      builder: (ctx) => provider.Provider<ApplicationState>.value(
+        value: provider.Provider.of<ApplicationState>(context, listen: false),
+        child: PWSDialog(
+          mode: PWSDialogMode.ADD,
+          theme: Theme.of(context),
+        ),
+      ),
     );
 
-    if (source != null && source is PWS) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+    if (source != null) {
       _sources.add(source);
-      List<String> sourcesJSON = List();
-      for (PWS source in _sources) {
-        String sourceJSON = jsonEncode(source);
-        sourcesJSON.add(sourceJSON);
-      }
-      prefs.setStringList("sources", sourcesJSON);
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setStringList("sources", _encodeSources());
       prefs.setInt(
-          "count_id",
-          provider.Provider.of<ApplicationState>(
-            context,
-            listen: false,
-          ).countID);
+        "count_id",
+        provider.Provider.of<ApplicationState>(
+          context,
+          listen: false,
+        ).countID,
+      );
+
       _retrieveSources();
     }
   }
 
-  _editSource(int position) async {
-    var source = await showDialog(
-        context: context,
-        builder: (BuildContext ctx) {
-          return PWSDialog(
-            mode: PWSDialogMode.EDIT,
-            source: _sources[position],
-            theme: Theme.of(context),
-          );
-        });
-    if (source != null && source is PWS) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      _sources[position].name = source.name;
-      _sources[position].url = source.url;
-      _sources[position].autoUpdateInterval = source.autoUpdateInterval;
-      _sources[position].snapshotUrl = source.snapshotUrl;
-      List<String> sourcesJSON = List();
-      for (PWS source in _sources) {
-        String sourceJSON = jsonEncode(source);
-        sourcesJSON.add(sourceJSON);
-      }
-      prefs.setStringList("sources", sourcesJSON);
-      _retrieveSources();
-    }
-  }
+  // Populate sources list as a list of JSONS to be stored in shared prefs
+  List<String> _encodeSources() {
+    List<String> sourcesJSON = List();
 
-  _deleteSource(int position) async {
-    var delete = await showDialog(
-      context: context,
-      builder: (BuildContext ctx) {
-        return DeletePWSDialog(_sources[position], context);
-      },
-    );
-    if (delete != null && delete is bool && delete) {
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      List<String> sourcesJSON = List();
-      int index = prefs.getInt("last_used_source") ?? -1;
-      if (index == _sources[position].id) prefs.remove("last_used_source");
-      _sources.removeAt(position);
-      for (PWS source in _sources) {
-        String sourceJSON = jsonEncode(source);
-        sourcesJSON.add(sourceJSON);
-      }
-      prefs.setStringList("sources", sourcesJSON);
-      _retrieveSources();
+    for (PWS source in _sources) {
+      String sourceJSON = jsonEncode(source);
+      sourcesJSON.add(sourceJSON);
     }
+
+    return sourcesJSON;
   }
 
   _retrieveSources() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _sources = List();
-      List<String> sources = prefs.getStringList("sources");
-      if (sources == null || sources.length == 0) {
-        _shouldShowcase().then((shouldShow) {
-          if (shouldShow) {
-            ShowCaseWidget.of(_showCaseContext).startShowCase([_fabKey]);
-          }
-        });
-      } else
-        for (String sourceJSON in sources) {
-          try {
-            dynamic source = jsonDecode(sourceJSON);
-            _sources.add(PWS(
-              source["id"],
-              source["name"],
-              source["url"],
-              autoUpdateInterval: (source["autoUpdateInterval"] != null)
-                  ? source["autoUpdateInterval"]
-                  : 0,
-              snapshotUrl: source["snapshotUrl"],
-            ));
-          } catch (Exception) {
-            prefs.setStringList("sources", null);
-          }
+
+    // Clear the list of sources before retrieving the new one
+    _sources = List();
+
+    List<String> sources = prefs.getStringList("sources");
+
+    if (sources == null || sources.isEmpty) {
+      _shouldShowcase().then((shouldShow) {
+        if (shouldShow) {
+          ShowCaseWidget.of(_showCaseContext).startShowCase([_fabKey]);
         }
-    });
+      });
+    } else {
+      for (String sourceJSON in sources) {
+        try {
+          dynamic source = jsonDecode(sourceJSON);
+
+          _sources.add(PWS(
+            source["id"],
+            source["name"],
+            source["url"],
+            autoUpdateInterval: source["autoUpdateInterval"] ?? 0,
+            snapshotUrl: source["snapshotUrl"],
+          ));
+        } catch (Exception) {
+          prefs.setStringList("sources", null);
+        }
+      }
+    }
+
+    setState(() {});
   }
 
   Future<bool> _shouldShowcase() async {
@@ -331,5 +191,64 @@ class _SettingsPageState extends State<SettingsPage>
     prefs.setBool("showcase_2", false);
 
     ShowCaseWidget.of(_showCaseContext).startShowCase([_fabKey]);
+  }
+
+  Widget _buildAppBar() {
+    return AppBar(
+      brightness: Brightness.dark,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back, color: Colors.white),
+        onPressed: () => _closeSettings(),
+      ),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.help, color: Colors.white),
+          onPressed: () => _showShowcase(),
+          tooltip: "Show tutorial",
+        )
+      ],
+      title: Text(
+        "Settings",
+        maxLines: 1,
+        style:
+            Theme.of(context).textTheme.headline5.copyWith(color: Colors.white),
+      ),
+      centerTitle: true,
+    );
+  }
+
+  Widget _buildFAB() {
+    return Showcase(
+      onTargetClick: _addSource,
+      disposeOnTap: true,
+      key: _fabKey,
+      title: "Add PWS",
+      description: "Tap here to add your PWS info",
+      shapeBorder: CircleBorder(),
+      child: FloatingActionButton.extended(
+        onPressed: _addSource,
+        elevation: 2,
+        icon: Icon(Icons.add),
+        label: Text("add"),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    return Builder(
+      builder: (context) => ListView(
+        addAutomaticKeepAlives: true,
+        children: <Widget>[
+          _sources.isNotEmpty
+              ? SourcesSettingsCard(_sources, _retrieveSources)
+              : Container(),
+          ThemeSettingsCard(),
+          UnitSettingsCard(),
+          VisibilitySettingsCard(),
+          WidgetSettingsCard(),
+          SizedBox(height: 65.0),
+        ],
+      ),
+    );
   }
 }

@@ -40,219 +40,232 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
     return Card(
       elevation: 2,
       margin: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.only(bottom: 16.0),
-              child: Text(
-                "Visibility settings",
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headline6,
-              ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(height: 24.0),
+          Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.only(bottom: 16.0),
+            child: Text(
+              "Visibility",
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headline6,
             ),
-            SwitchListTile(
-              title: Text(
-                "Current weather icon visibility",
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
-              value: visibilityCurrentWeatherIcon,
-              onChanged: (value) async {
-                setState(() {
-                  visibilityCurrentWeatherIcon = value;
-                });
+          ),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+            title: Text(
+              "Current weather icon visibility",
+              style: Theme.of(context).textTheme.subtitle1,
+            ),
+            value: visibilityCurrentWeatherIcon,
+            onChanged: (value) async {
+              setState(() {
+                visibilityCurrentWeatherIcon = value;
+              });
 
-                _setVisibility("visibilityCurrentWeatherIcon", value);
-              },
+              _setVisibility("visibilityCurrentWeatherIcon", value);
+            },
+          ),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+            title: Text(
+              "Update timer visibility",
+              style: Theme.of(context).textTheme.subtitle1,
             ),
-            SwitchListTile(
-              title: Text(
-                "Update timer visibility",
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
-              value: visibilityUpdateTimer,
-              onChanged: (value) async {
-                setState(() {
-                  visibilityUpdateTimer = value;
-                });
+            value: visibilityUpdateTimer,
+            onChanged: (value) async {
+              setState(() {
+                visibilityUpdateTimer = value;
+              });
 
-                _setVisibility("visibilityUpdateTimer", value);
-              },
+              _setVisibility("visibilityUpdateTimer", value);
+            },
+          ),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+            title: Text(
+              "Wind speed visibility",
+              style: Theme.of(context).textTheme.subtitle1,
             ),
-            SwitchListTile(
-              title: Text(
-                "Wind speed visibility",
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
-              value: visibilityWindSpeed,
-              onChanged: (value) async {
-                setState(() {
-                  visibilityWindSpeed = value;
-                });
+            value: visibilityWindSpeed,
+            onChanged: (value) async {
+              setState(() {
+                visibilityWindSpeed = value;
+              });
 
-                _setVisibility("visibilityWindSpeed", value);
-              },
+              _setVisibility("visibilityWindSpeed", value);
+            },
+          ),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+            title: Text(
+              "Pressure visibility",
+              style: Theme.of(context).textTheme.subtitle1,
             ),
-            SwitchListTile(
-              title: Text(
-                "Pressure visibility",
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
-              value: visibilityPressure,
-              onChanged: (value) async {
-                setState(() {
-                  visibilityPressure = value;
-                });
+            value: visibilityPressure,
+            onChanged: (value) async {
+              setState(() {
+                visibilityPressure = value;
+              });
 
-                _setVisibility("visibilityPressure", value);
-              },
+              _setVisibility("visibilityPressure", value);
+            },
+          ),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+            title: Text(
+              "Wind direction visibility",
+              style: Theme.of(context).textTheme.subtitle1,
             ),
-            SwitchListTile(
-              title: Text(
-                "Wind direction visibility",
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
-              value: visibilityWindDirection,
-              onChanged: (value) async {
-                setState(() {
-                  visibilityWindDirection = value;
-                });
+            value: visibilityWindDirection,
+            onChanged: (value) async {
+              setState(() {
+                visibilityWindDirection = value;
+              });
 
-                _setVisibility("visibilityWindDirection", value);
-              },
+              _setVisibility("visibilityWindDirection", value);
+            },
+          ),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+            title: Text(
+              "Humidity visibility",
+              style: Theme.of(context).textTheme.subtitle1,
             ),
-            SwitchListTile(
-              title: Text(
-                "Humidity visibility",
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
-              value: visibilityHumidity,
-              onChanged: (value) async {
-                setState(() {
-                  visibilityHumidity = value;
-                });
+            value: visibilityHumidity,
+            onChanged: (value) async {
+              setState(() {
+                visibilityHumidity = value;
+              });
 
-                _setVisibility("visibilityHumidity", value);
-              },
+              _setVisibility("visibilityHumidity", value);
+            },
+          ),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+            title: Text(
+              "Temperature (small) visibility",
+              style: Theme.of(context).textTheme.subtitle1,
             ),
-            SwitchListTile(
-              title: Text(
-                "Temperature (small) visibility",
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
-              value: visibilityTemperature,
-              onChanged: (value) async {
-                setState(() {
-                  visibilityTemperature = value;
-                });
+            value: visibilityTemperature,
+            onChanged: (value) async {
+              setState(() {
+                visibilityTemperature = value;
+              });
 
-                _setVisibility("visibilityTemperature", value);
-              },
+              _setVisibility("visibilityTemperature", value);
+            },
+          ),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+            title: Text(
+              "Wind chill visibility",
+              style: Theme.of(context).textTheme.subtitle1,
             ),
-            SwitchListTile(
-              title: Text(
-                "Wind chill visibility",
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
-              value: visibilityWindChill,
-              onChanged: (value) async {
-                setState(() {
-                  visibilityWindChill = value;
-                });
+            value: visibilityWindChill,
+            onChanged: (value) async {
+              setState(() {
+                visibilityWindChill = value;
+              });
 
-                _setVisibility("visibilityWindChill", value);
-              },
+              _setVisibility("visibilityWindChill", value);
+            },
+          ),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+            title: Text(
+              "Rain visibility",
+              style: Theme.of(context).textTheme.subtitle1,
             ),
-            SwitchListTile(
-              title: Text(
-                "Rain visibility",
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
-              value: visibilityRain,
-              onChanged: (value) async {
-                setState(() {
-                  visibilityRain = value;
-                });
+            value: visibilityRain,
+            onChanged: (value) async {
+              setState(() {
+                visibilityRain = value;
+              });
 
-                _setVisibility("visibilityRain", value);
-              },
+              _setVisibility("visibilityRain", value);
+            },
+          ),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+            title: Text(
+              "Dew visibility",
+              style: Theme.of(context).textTheme.subtitle1,
             ),
-            SwitchListTile(
-              title: Text(
-                "Dew visibility",
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
-              value: visibilityDew,
-              onChanged: (value) async {
-                setState(() {
-                  visibilityDew = value;
-                });
+            value: visibilityDew,
+            onChanged: (value) async {
+              setState(() {
+                visibilityDew = value;
+              });
 
-                _setVisibility("visibilityDew", value);
-              },
+              _setVisibility("visibilityDew", value);
+            },
+          ),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+            title: Text(
+              "Sunrise hour visibility",
+              style: Theme.of(context).textTheme.subtitle1,
             ),
-            SwitchListTile(
-              title: Text(
-                "Sunrise hour visibility",
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
-              value: visibilitySunrise,
-              onChanged: (value) async {
-                setState(() {
-                  visibilitySunrise = value;
-                });
+            value: visibilitySunrise,
+            onChanged: (value) async {
+              setState(() {
+                visibilitySunrise = value;
+              });
 
-                _setVisibility("visibilitySunrise", value);
-              },
+              _setVisibility("visibilitySunrise", value);
+            },
+          ),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+            title: Text(
+              "Sunset hour visibility",
+              style: Theme.of(context).textTheme.subtitle1,
             ),
-            SwitchListTile(
-              title: Text(
-                "Sunset hour visibility",
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
-              value: visibilitySunset,
-              onChanged: (value) async {
-                setState(() {
-                  visibilitySunset = value;
-                });
+            value: visibilitySunset,
+            onChanged: (value) async {
+              setState(() {
+                visibilitySunset = value;
+              });
 
-                _setVisibility("visibilitySunset", value);
-              },
+              _setVisibility("visibilitySunset", value);
+            },
+          ),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+            title: Text(
+              "Moonrise hour visibility",
+              style: Theme.of(context).textTheme.subtitle1,
             ),
-            SwitchListTile(
-              title: Text(
-                "Moonrise hour visibility",
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
-              value: visibilityMoonrise,
-              onChanged: (value) async {
-                setState(() {
-                  visibilityMoonrise = value;
-                });
+            value: visibilityMoonrise,
+            onChanged: (value) async {
+              setState(() {
+                visibilityMoonrise = value;
+              });
 
-                _setVisibility("visibilityMoonrise", value);
-              },
+              _setVisibility("visibilityMoonrise", value);
+            },
+          ),
+          SwitchListTile(
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+            title: Text(
+              "Moonset hour visibility",
+              style: Theme.of(context).textTheme.subtitle1,
             ),
-            SwitchListTile(
-              title: Text(
-                "Moonset hour visibility",
-                style: Theme.of(context).textTheme.subtitle1,
-              ),
-              value: visibilityMoonset,
-              onChanged: (value) async {
-                setState(() {
-                  visibilityMoonset = value;
-                });
+            value: visibilityMoonset,
+            onChanged: (value) async {
+              setState(() {
+                visibilityMoonset = value;
+              });
 
-                _setVisibility("visibilityMoonset", value);
-              },
-            ),
-          ],
-        ),
+              _setVisibility("visibilityMoonset", value);
+            },
+          ),
+          SizedBox(height: 24.0),
+        ],
       ),
     );
   }

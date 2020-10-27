@@ -35,7 +35,7 @@ class _WidgetSettingsCardState extends State<WidgetSettingsCard> {
               alignment: Alignment.center,
               padding: EdgeInsets.only(bottom: 16.0),
               child: Text(
-                "Widget settings",
+                "Widget",
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.headline6,
               ),
