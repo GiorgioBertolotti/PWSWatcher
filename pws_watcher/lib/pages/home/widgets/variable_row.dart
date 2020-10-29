@@ -2,29 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class DoubleVariableRow extends StatelessWidget {
-  DoubleVariableRow(
-    this.labelLeft,
-    this.assetLeft,
-    this.valueLeft,
-    this.unitLeft,
-    this.labelRight,
-    this.assetRight,
-    this.valueRight,
-    this.unitRight, {
-    this.visibilityLeft = true,
-    this.visibilityRight = true,
-  });
-
   final bool visibilityLeft;
   final String labelLeft;
   final String assetLeft;
+  final IconData iconLeft;
   final String valueLeft;
   final String unitLeft;
   final bool visibilityRight;
   final String labelRight;
   final String assetRight;
+  final IconData iconRight;
   final String valueRight;
   final String unitRight;
+
+  DoubleVariableRow({
+    @required this.labelLeft,
+    this.assetLeft,
+    this.iconLeft,
+    @required this.valueLeft,
+    @required this.unitLeft,
+    @required this.labelRight,
+    this.assetRight,
+    this.iconRight,
+    @required this.valueRight,
+    @required this.unitRight,
+    this.visibilityLeft = true,
+    this.visibilityRight = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,17 +38,24 @@ class DoubleVariableRow extends StatelessWidget {
         Tooltip(
           message: labelLeft,
           child: visibilityLeft
-              ? VariableRow(valueLeft, unitLeft, assetLeft, labelLeft)
+              ? VariableRow(
+                  value: valueLeft,
+                  unit: unitLeft,
+                  icon: iconLeft,
+                  asset: assetLeft,
+                  label: labelLeft,
+                )
               : Container(),
         ),
         Tooltip(
           message: labelRight,
           child: visibilityRight
               ? VariableRow(
-                  valueRight,
-                  unitRight,
-                  assetRight,
-                  labelRight,
+                  value: valueRight,
+                  unit: unitRight,
+                  icon: iconRight,
+                  asset: assetRight,
+                  label: labelRight,
                   leftAlign: false,
                 )
               : Container(),
@@ -55,14 +66,21 @@ class DoubleVariableRow extends StatelessWidget {
 }
 
 class VariableRow extends StatelessWidget {
-  VariableRow(this.value, this.unit, this.asset, this.label,
-      {this.leftAlign = true});
-
   final String value;
   final String unit;
+  final IconData icon;
   final String asset;
   final String label;
   final bool leftAlign;
+
+  VariableRow({
+    @required this.value,
+    @required this.unit,
+    this.icon,
+    this.asset,
+    @required this.label,
+    this.leftAlign = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -72,13 +90,19 @@ class VariableRow extends StatelessWidget {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(right: 10),
-            child: SvgPicture.asset(
-              asset,
-              width: 30,
-              height: 30,
-              semanticsLabel: label,
-              color: Theme.of(context).accentColor,
-            ),
+            child: icon != null
+                ? Icon(
+                    icon,
+                    size: 30,
+                    color: Theme.of(context).accentColor,
+                  )
+                : SvgPicture.asset(
+                    asset,
+                    width: 30,
+                    height: 30,
+                    semanticsLabel: label,
+                    color: Theme.of(context).accentColor,
+                  ),
           ),
           Text(
             value,
@@ -120,13 +144,19 @@ class VariableRow extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.only(left: 10),
-            child: SvgPicture.asset(
-              asset,
-              width: 30,
-              height: 30,
-              semanticsLabel: label,
-              color: Theme.of(context).accentColor,
-            ),
+            child: icon != null
+                ? Icon(
+                    icon,
+                    size: 30,
+                    color: Theme.of(context).accentColor,
+                  )
+                : SvgPicture.asset(
+                    asset,
+                    width: 30,
+                    height: 30,
+                    semanticsLabel: label,
+                    color: Theme.of(context).accentColor,
+                  ),
           ),
         ],
       );

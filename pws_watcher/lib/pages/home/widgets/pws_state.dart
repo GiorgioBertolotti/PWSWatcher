@@ -407,20 +407,18 @@ class _PWSStatePageState extends State<PWSStatePage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: DoubleVariableRow(
-              leftSetting.name,
-              leftSetting.asset,
-              values[leftSetting.valueVarName] ?? leftSetting.valueDefaultValue,
-              values[leftSetting.unitVarName] ?? leftSetting.unitDefaultValue,
-              rightSetting != null ? rightSetting.name : "",
-              rightSetting != null ? rightSetting.asset : "",
-              rightSetting != null
-                  ? (values[rightSetting.valueVarName] ??
-                      rightSetting.valueDefaultValue)
-                  : "",
-              rightSetting != null
-                  ? (values[rightSetting.unitVarName] ??
-                      rightSetting.unitDefaultValue)
-                  : "",
+              labelLeft: leftSetting.name,
+              assetLeft: leftSetting.asset,
+              valueLeft: values[leftSetting.valueVarName] ??
+                  leftSetting.valueDefaultValue,
+              unitLeft: values[leftSetting.unitVarName] ??
+                  leftSetting.unitDefaultValue,
+              labelRight: rightSetting?.name ?? "",
+              assetRight: rightSetting?.asset ?? "",
+              valueRight: values[rightSetting?.valueVarName] ??
+                  rightSetting.valueDefaultValue,
+              unitRight: values[rightSetting?.unitVarName] ??
+                  rightSetting.unitDefaultValue,
               visibilityLeft: visibilityLeft,
               visibilityRight: visibilityRight,
             ),
@@ -452,14 +450,16 @@ class _PWSStatePageState extends State<PWSStatePage> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: DoubleVariableRow(
-            leftData.name,
-            "assets/images/settings.svg",
-            values[leftData.name] ?? "-",
-            leftData.unit ?? "",
-            rightData != null ? rightData.name : "",
-            rightData != null ? "assets/images/settings.svg" : "",
-            rightData != null ? (values[rightData.name] ?? "-") : "",
-            rightData != null ? (rightData.unit ?? "") : "",
+            labelLeft: leftData.name,
+            iconLeft: leftData.icon,
+            assetLeft: "assets/images/settings.svg",
+            valueLeft: values[leftData.name] ?? "-",
+            unitLeft: leftData.unit ?? "",
+            labelRight: rightData != null ? rightData.name : "",
+            iconRight: rightData?.icon ?? null,
+            assetRight: "assets/images/settings.svg",
+            valueRight: values[rightData?.name] ?? "-",
+            unitRight: rightData?.unit ?? "",
             visibilityLeft: leftData != null,
             visibilityRight: rightData != null,
           ),
