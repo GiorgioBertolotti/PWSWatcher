@@ -356,7 +356,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
       itemBuilder: (ctx, index) => ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
         title: Text(
-          "${_customData[index]} (Custom)",
+          _customData[index],
           style: Theme.of(context).textTheme.subtitle1,
         ),
         trailing: IconButton(
