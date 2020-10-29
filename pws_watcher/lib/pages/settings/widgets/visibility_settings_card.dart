@@ -6,6 +6,7 @@ import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/model/custom_data.dart';
 import 'package:pws_watcher/model/state.dart';
 import 'package:pws_watcher/pages/settings/widgets/custom_data_dialog.dart';
+import 'package:pws_watcher/pages/settings/widgets/delete_custom_data_dialog.dart';
 import 'package:pws_watcher/services/theme_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -345,7 +346,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
   _addCustomData() async {
     CustomData customData = await showDialog(
       context: context,
-      builder: (ctx) => CustomDataDialog(theme: Theme.of(context)),
+      builder: (ctx) => CustomDataDialog(
+        mode: CustomDataDialogMode.ADD,
+        theme: Theme.of(context),
+      ),
     );
 
     if (customData != null) {
@@ -363,18 +367,55 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
     }
   }
 
+  _editCustomData(int index) async {
+    CustomData customData = await showDialog(
+      context: context,
+      builder: (BuildContext ctx) => CustomDataDialog(
+        mode: CustomDataDialogMode.EDIT,
+        original: _customData[index],
+        theme: Theme.of(context),
+      ),
+    );
+
+    if (customData != null) {
+      setState(() {
+        _customData[index].name = customData.name;
+        _customData[index].unit = customData.unit;
+        _customData[index].icon = customData.icon;
+      });
+
+      provider.Provider.of<ApplicationState>(
+        context,
+        listen: false,
+      ).updatePreferences = true;
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setStringList("customData", _encodeCustomData());
+    }
+  }
+
   _removeCustomData(int index) async {
-    setState(() {
-      _customData.removeAt(index);
-    });
+    bool delete = await showDialog(
+      context: context,
+      builder: (BuildContext ctx) => DeleteCustomDataDialog(
+        _customData[index],
+        context,
+      ),
+    );
 
-    provider.Provider.of<ApplicationState>(
-      context,
-      listen: false,
-    ).updatePreferences = true;
+    if (delete != null && delete) {
+      setState(() {
+        _customData.removeAt(index);
+      });
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setStringList("customData", _encodeCustomData());
+      provider.Provider.of<ApplicationState>(
+        context,
+        listen: false,
+      ).updatePreferences = true;
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setStringList("customData", _encodeCustomData());
+    }
   }
 
   List<String> _encodeCustomData() {
@@ -400,12 +441,25 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
           _customData[index].name,
           style: Theme.of(context).textTheme.subtitle1,
         ),
-        trailing: IconButton(
-          icon: Icon(
-            Icons.delete,
-            color: Colors.red[700],
+        trailing: Container(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              IconButton(
+                icon: Icon(
+                  Icons.edit,
+                ),
+                onPressed: () => _editCustomData(index),
+              ),
+              IconButton(
+                icon: Icon(
+                  Icons.delete,
+                  color: Colors.red[700],
+                ),
+                onPressed: () => _removeCustomData(index),
+              ),
+            ],
           ),
-          onPressed: () => _removeCustomData(index),
         ),
       ),
     );

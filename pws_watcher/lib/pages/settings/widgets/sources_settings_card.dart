@@ -45,42 +45,43 @@ class _SourcesSettingsCardState extends State<SourcesSettingsCard> {
             separatorBuilder: (context, position) => Divider(),
             itemBuilder: (context, position) {
               return ListTile(
-                  contentPadding: const EdgeInsets.only(
-                    left: 24.0,
-                    right: 8.0,
-                  ),
-                  title: Text(
-                    widget.sources[position].name,
-                    style: Theme.of(context).textTheme.subtitle1,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  subtitle: Text(
-                    widget.sources[position].url,
-                    style: Theme.of(context).textTheme.caption,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  trailing: Container(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        IconButton(
-                          icon: Icon(
-                            Icons.edit,
-                          ),
-                          onPressed: () => _editSource(position),
+                contentPadding: const EdgeInsets.only(
+                  left: 24.0,
+                  right: 8.0,
+                ),
+                title: Text(
+                  widget.sources[position].name,
+                  style: Theme.of(context).textTheme.subtitle1,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(
+                  widget.sources[position].url,
+                  style: Theme.of(context).textTheme.caption,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                trailing: Container(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      IconButton(
+                        icon: Icon(
+                          Icons.edit,
                         ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.delete,
-                            color: Colors.red[700],
-                          ),
-                          onPressed: () => _deleteSource(position),
+                        onPressed: () => _editSource(position),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.delete,
+                          color: Colors.red[700],
                         ),
-                      ],
-                    ),
-                  ));
+                        onPressed: () => _deleteSource(position),
+                      ),
+                    ],
+                  ),
+                ),
+              );
             },
           ),
           SizedBox(height: 24.0),

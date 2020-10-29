@@ -2,12 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 import 'package:pws_watcher/model/custom_data.dart';
 
+enum CustomDataDialogMode { ADD, EDIT }
+
 const double inputHeight = 59.0;
 
 class CustomDataDialog extends StatefulWidget {
+  final CustomDataDialogMode mode;
+  final CustomData original;
   final ThemeData theme;
 
-  CustomDataDialog({this.theme});
+  CustomDataDialog({
+    @required this.mode,
+    this.original,
+    this.theme,
+  }) {
+    if (this.mode == CustomDataDialogMode.EDIT && this.original == null) {
+      throw Exception(
+        'If the mode is EDIT you should set the original custom data',
+      );
+    }
+  }
 
   @override
   _CustomDataDialogState createState() => _CustomDataDialogState();
@@ -24,11 +38,25 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
   FocusNode _unitFocusNode = FocusNode();
 
   @override
+  void initState() {
+    if (widget.mode == CustomDataDialogMode.EDIT) {
+      _nameController.text = widget.original.name;
+      _unitController.text = widget.original.unit;
+      _icon = widget.original.icon;
+    }
+
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
+    final CustomDataDialogMode mode = widget.mode;
 
     return AlertDialog(
-      title: Text("Add custom data"),
+      title: Text(mode == CustomDataDialogMode.ADD
+          ? "Add custom data"
+          : "Edit ${widget.original.name}"),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -104,7 +132,7 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
         FlatButton(
           textColor: Colors.white,
           color: widget.theme.primaryColor,
-          child: Text("Add"),
+          child: Text(mode == CustomDataDialogMode.ADD ? "Add" : "Edit"),
           onPressed: _save,
         ),
       ],
@@ -116,8 +144,9 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
   _pickIcon() async {
     IconData icon = await FlutterIconPicker.showIconPicker(
       context,
-      iconPackMode: IconPack.material,
+      iconPackMode: IconPack.lineAwesomeIcons,
       iconColor: Colors.black,
+      showTooltips: true,
     );
 
     _icon = icon;
@@ -131,11 +160,23 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
     if (_formKey.currentState.validate()) {
       _formKey.currentState.save();
 
-      Navigator.of(context).pop(CustomData(
-        name: _nameController.text,
-        unit: _unitController.text,
-        icon: _icon,
-      ));
+      CustomData customData;
+
+      if (widget.mode == CustomDataDialogMode.ADD) {
+        customData = CustomData(
+          name: _nameController.text,
+          unit: _unitController.text,
+          icon: _icon,
+        );
+      } else {
+        customData = widget.original;
+
+        customData.name = _nameController.text;
+        customData.unit = _unitController.text;
+        customData.icon = _icon;
+      }
+
+      Navigator.of(context).pop(customData);
     }
   }
 }
