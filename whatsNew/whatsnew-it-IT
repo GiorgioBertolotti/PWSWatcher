@@ -1,4 +1,1 @@
-* Aggiunto il rilascio automatico con GitHub Actions
-* Refactoring della pagina delle impostazioni
-* Refactoring della home
-* Refactoring dello splash screen
+* Aggiunta la possibilità di mostrare in home delle variabili custom tra quelle nella Detail Page
