@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/get_it_setup.dart';
+import 'package:pws_watcher/model/custom_data.dart';
 import 'package:pws_watcher/model/state.dart';
 import 'package:pws_watcher/pages/settings/widgets/custom_data_dialog.dart';
 import 'package:pws_watcher/services/theme_service.dart';
@@ -29,7 +31,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
   bool _visibilitySunset = true;
   bool _visibilityMoonrise = true;
   bool _visibilityMoonset = true;
-  List<String> _customData = [];
+  List<CustomData> _customData = [];
 
   @override
   void initState() {
@@ -305,7 +307,26 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
         _visibilitySunset = prefs.getBool("visibilitySunset") ?? true;
         _visibilityMoonrise = prefs.getBool("visibilityMoonrise") ?? true;
         _visibilityMoonset = prefs.getBool("visibilityMoonset") ?? true;
-        _customData = prefs.getStringList("customData") ?? [];
+
+        try {
+          _customData.clear();
+          List<String> customDataJSON = prefs.getStringList("customData") ?? [];
+
+          // Populate CustomData list from a list of JSONs stored in shared prefs
+          for (String dataJSON in customDataJSON) {
+            dynamic data = jsonDecode(dataJSON);
+            _customData.add(CustomData(
+              name: data["name"],
+              unit: data["unit"],
+              icon: data["icon"],
+            ));
+          }
+        } catch (e) {
+          _customData.clear();
+
+          // If there's an exception clear the settings in preferences
+          prefs.remove("customData");
+        }
       });
     } catch (e) {
       print(e);
@@ -313,7 +334,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
   }
 
   _addCustomData() async {
-    String customData = await showDialog(
+    CustomData customData = await showDialog(
       context: context,
       builder: (ctx) => CustomDataDialog(theme: Theme.of(context)),
     );
@@ -329,7 +350,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
       ).updatePreferences = true;
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setStringList("customData", _customData);
+      prefs.setStringList("customData", _encodeCustomData());
     }
   }
 
@@ -344,7 +365,18 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
     ).updatePreferences = true;
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setStringList("customData", _customData);
+    prefs.setStringList("customData", _encodeCustomData());
+  }
+
+  List<String> _encodeCustomData() {
+    List<String> customDataJSON = List();
+
+    for (CustomData customData in _customData) {
+      String dataJSON = jsonEncode(customData);
+      customDataJSON.add(dataJSON);
+    }
+
+    return customDataJSON;
   }
 
   // WIDGETS
@@ -356,7 +388,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
       itemBuilder: (ctx, index) => ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
         title: Text(
-          _customData[index],
+          _customData[index].name,
           style: Theme.of(context).textTheme.subtitle1,
         ),
         trailing: IconButton(

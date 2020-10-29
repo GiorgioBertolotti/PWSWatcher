@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart' as provider;
+import 'package:pws_watcher/model/custom_data.dart';
 import 'package:pws_watcher/model/parsing_utilities.dart';
 import 'package:pws_watcher/model/pws.dart';
 import 'package:pws_watcher/model/state\.dart';
@@ -32,7 +33,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
   Map<String, bool> _visibilityMap = {};
   bool _visibilityCurrentWeatherIcon = true;
   bool _visibilityUpdateTimer = true;
-  List<String> _customData = [];
+  List<CustomData> _customData = [];
 
   @override
   void initState() {
@@ -215,15 +216,23 @@ class _PWSStatePageState extends State<PWSStatePage> {
   }
 
   Future<Null> _retrievePreferences() async {
+    List<ValueSetting> settings = await _retrieveValueSettings();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
     try {
-      List<ValueSetting> settings = await _retrieveValueSettings();
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-
       _visibilityCurrentWeatherIcon =
           prefs.getBool("visibilityCurrentWeatherIcon") ?? true;
       _visibilityUpdateTimer = prefs.getBool("visibilityUpdateTimer") ?? true;
+    } catch (e) {
+      _visibilityCurrentWeatherIcon = true;
+      _visibilityUpdateTimer = true;
 
+      // If there's an exception clear the settings in preferences
+      prefs.remove("visibilityCurrentWeatherIcon");
+      prefs.remove("visibilityUpdateTimer");
+    }
+
+    try {
       // Populate visibility map
       _visibilityMap.clear();
       for (ValueSetting setting in settings) {
@@ -231,13 +240,36 @@ class _PWSStatePageState extends State<PWSStatePage> {
             prefs.getBool(setting.visibilityVarName) ??
                 setting.visibilityDefaultValue;
       }
-
-      _customData = prefs.getStringList("customData") ?? [];
-
-      setState(() {});
     } catch (e) {
-      print(e);
+      _visibilityMap.clear();
+
+      // If there's an exception clear the settings in preferences
+      for (ValueSetting setting in settings) {
+        prefs.remove(setting.visibilityVarName);
+      }
     }
+
+    try {
+      _customData.clear();
+      List<String> customDataJSON = prefs.getStringList("customData") ?? [];
+
+      // Populate CustomData list from a list of JSONs stored in shared prefs
+      for (String dataJSON in customDataJSON) {
+        dynamic data = jsonDecode(dataJSON);
+        _customData.add(CustomData(
+          name: data["name"],
+          unit: data["unit"],
+          icon: data["icon"],
+        ));
+      }
+    } catch (e) {
+      _customData.clear();
+
+      // If there's an exception clear the settings in preferences
+      prefs.remove("customData");
+    }
+
+    setState(() {});
   }
 
   Future<List<ValueSetting>> _retrieveValueSettings() async {
@@ -403,23 +435,24 @@ class _PWSStatePageState extends State<PWSStatePage> {
 
     // Build the values table according to the settings and visibility map
     for (int i = 0; i < _customData.length; i += 2) {
-      String leftVar = _customData[i];
-      String rightVar = i + 1 < _customData.length ? _customData[i + 1] : null;
+      CustomData leftData = _customData[i];
+      CustomData rightData =
+          i + 1 < _customData.length ? _customData[i + 1] : null;
 
       toReturn.add(
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: DoubleVariableRow(
-            leftVar,
+            leftData.name,
             "assets/images/settings.svg",
-            values[leftVar] ?? "-",
-            "",
-            rightVar ?? "",
-            rightVar != null ? "assets/images/settings.svg" : "",
-            rightVar != null ? values[rightVar] ?? "-" : "",
-            "",
-            visibilityLeft: leftVar != null,
-            visibilityRight: rightVar != null,
+            values[leftData.name] ?? "-",
+            leftData.unit ?? "",
+            rightData != null ? rightData.name : "",
+            rightData != null ? "assets/images/settings.svg" : "",
+            rightData != null ? (values[rightData.name] ?? "-") : "",
+            rightData != null ? (rightData.unit ?? "") : "",
+            visibilityLeft: leftData != null,
+            visibilityRight: rightData != null,
           ),
         ),
       );
