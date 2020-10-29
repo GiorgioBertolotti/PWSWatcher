@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/model/state.dart';
+import 'package:pws_watcher/pages/settings/widgets/custom_data_dialog.dart';
 import 'package:pws_watcher/services/theme_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,20 +15,21 @@ class VisibilitySettingsCard extends StatefulWidget {
 }
 
 class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
-  var visibilityCurrentWeatherIcon = true;
-  var visibilityUpdateTimer = true;
-  var visibilityWindSpeed = true;
-  var visibilityPressure = true;
-  var visibilityWindDirection = true;
-  var visibilityHumidity = true;
-  var visibilityTemperature = true;
-  var visibilityWindChill = true;
-  var visibilityRain = true;
-  var visibilityDew = true;
-  var visibilitySunrise = true;
-  var visibilitySunset = true;
-  var visibilityMoonrise = true;
-  var visibilityMoonset = true;
+  bool _visibilityCurrentWeatherIcon = true;
+  bool _visibilityUpdateTimer = true;
+  bool _visibilityWindSpeed = true;
+  bool _visibilityPressure = true;
+  bool _visibilityWindDirection = true;
+  bool _visibilityHumidity = true;
+  bool _visibilityTemperature = true;
+  bool _visibilityWindChill = true;
+  bool _visibilityRain = true;
+  bool _visibilityDew = true;
+  bool _visibilitySunrise = true;
+  bool _visibilitySunset = true;
+  bool _visibilityMoonrise = true;
+  bool _visibilityMoonset = true;
+  List<String> _customData = [];
 
   @override
   void initState() {
@@ -60,10 +62,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               "Current weather icon visibility",
               style: Theme.of(context).textTheme.subtitle1,
             ),
-            value: visibilityCurrentWeatherIcon,
+            value: _visibilityCurrentWeatherIcon,
             onChanged: (value) async {
               setState(() {
-                visibilityCurrentWeatherIcon = value;
+                _visibilityCurrentWeatherIcon = value;
               });
 
               _setVisibility("visibilityCurrentWeatherIcon", value);
@@ -75,10 +77,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               "Update timer visibility",
               style: Theme.of(context).textTheme.subtitle1,
             ),
-            value: visibilityUpdateTimer,
+            value: _visibilityUpdateTimer,
             onChanged: (value) async {
               setState(() {
-                visibilityUpdateTimer = value;
+                _visibilityUpdateTimer = value;
               });
 
               _setVisibility("visibilityUpdateTimer", value);
@@ -90,10 +92,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               "Wind speed visibility",
               style: Theme.of(context).textTheme.subtitle1,
             ),
-            value: visibilityWindSpeed,
+            value: _visibilityWindSpeed,
             onChanged: (value) async {
               setState(() {
-                visibilityWindSpeed = value;
+                _visibilityWindSpeed = value;
               });
 
               _setVisibility("visibilityWindSpeed", value);
@@ -105,10 +107,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               "Pressure visibility",
               style: Theme.of(context).textTheme.subtitle1,
             ),
-            value: visibilityPressure,
+            value: _visibilityPressure,
             onChanged: (value) async {
               setState(() {
-                visibilityPressure = value;
+                _visibilityPressure = value;
               });
 
               _setVisibility("visibilityPressure", value);
@@ -120,10 +122,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               "Wind direction visibility",
               style: Theme.of(context).textTheme.subtitle1,
             ),
-            value: visibilityWindDirection,
+            value: _visibilityWindDirection,
             onChanged: (value) async {
               setState(() {
-                visibilityWindDirection = value;
+                _visibilityWindDirection = value;
               });
 
               _setVisibility("visibilityWindDirection", value);
@@ -135,10 +137,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               "Humidity visibility",
               style: Theme.of(context).textTheme.subtitle1,
             ),
-            value: visibilityHumidity,
+            value: _visibilityHumidity,
             onChanged: (value) async {
               setState(() {
-                visibilityHumidity = value;
+                _visibilityHumidity = value;
               });
 
               _setVisibility("visibilityHumidity", value);
@@ -150,10 +152,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               "Temperature (small) visibility",
               style: Theme.of(context).textTheme.subtitle1,
             ),
-            value: visibilityTemperature,
+            value: _visibilityTemperature,
             onChanged: (value) async {
               setState(() {
-                visibilityTemperature = value;
+                _visibilityTemperature = value;
               });
 
               _setVisibility("visibilityTemperature", value);
@@ -165,10 +167,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               "Wind chill visibility",
               style: Theme.of(context).textTheme.subtitle1,
             ),
-            value: visibilityWindChill,
+            value: _visibilityWindChill,
             onChanged: (value) async {
               setState(() {
-                visibilityWindChill = value;
+                _visibilityWindChill = value;
               });
 
               _setVisibility("visibilityWindChill", value);
@@ -180,10 +182,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               "Rain visibility",
               style: Theme.of(context).textTheme.subtitle1,
             ),
-            value: visibilityRain,
+            value: _visibilityRain,
             onChanged: (value) async {
               setState(() {
-                visibilityRain = value;
+                _visibilityRain = value;
               });
 
               _setVisibility("visibilityRain", value);
@@ -195,10 +197,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               "Dew visibility",
               style: Theme.of(context).textTheme.subtitle1,
             ),
-            value: visibilityDew,
+            value: _visibilityDew,
             onChanged: (value) async {
               setState(() {
-                visibilityDew = value;
+                _visibilityDew = value;
               });
 
               _setVisibility("visibilityDew", value);
@@ -210,10 +212,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               "Sunrise hour visibility",
               style: Theme.of(context).textTheme.subtitle1,
             ),
-            value: visibilitySunrise,
+            value: _visibilitySunrise,
             onChanged: (value) async {
               setState(() {
-                visibilitySunrise = value;
+                _visibilitySunrise = value;
               });
 
               _setVisibility("visibilitySunrise", value);
@@ -225,10 +227,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               "Sunset hour visibility",
               style: Theme.of(context).textTheme.subtitle1,
             ),
-            value: visibilitySunset,
+            value: _visibilitySunset,
             onChanged: (value) async {
               setState(() {
-                visibilitySunset = value;
+                _visibilitySunset = value;
               });
 
               _setVisibility("visibilitySunset", value);
@@ -240,10 +242,10 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               "Moonrise hour visibility",
               style: Theme.of(context).textTheme.subtitle1,
             ),
-            value: visibilityMoonrise,
+            value: _visibilityMoonrise,
             onChanged: (value) async {
               setState(() {
-                visibilityMoonrise = value;
+                _visibilityMoonrise = value;
               });
 
               _setVisibility("visibilityMoonrise", value);
@@ -255,20 +257,23 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
               "Moonset hour visibility",
               style: Theme.of(context).textTheme.subtitle1,
             ),
-            value: visibilityMoonset,
+            value: _visibilityMoonset,
             onChanged: (value) async {
               setState(() {
-                visibilityMoonset = value;
+                _visibilityMoonset = value;
               });
 
               _setVisibility("visibilityMoonset", value);
             },
           ),
-          SizedBox(height: 24.0),
+          _buildCustomDataList(),
+          _buildAddCustomDataButton(),
         ],
       ),
     );
   }
+
+  // FUNCTIONS
 
   Future<Null> _setVisibility(String name, bool value) async {
     provider.Provider.of<ApplicationState>(
@@ -284,25 +289,115 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       setState(() {
-        visibilityCurrentWeatherIcon =
+        _visibilityCurrentWeatherIcon =
             prefs.getBool("visibilityCurrentWeatherIcon") ?? true;
-        visibilityUpdateTimer = prefs.getBool("visibilityUpdateTimer") ?? true;
-        visibilityWindSpeed = prefs.getBool("visibilityWindSpeed") ?? true;
-        visibilityPressure = prefs.getBool("visibilityPressure") ?? true;
-        visibilityWindDirection =
+        _visibilityUpdateTimer = prefs.getBool("visibilityUpdateTimer") ?? true;
+        _visibilityWindSpeed = prefs.getBool("visibilityWindSpeed") ?? true;
+        _visibilityPressure = prefs.getBool("visibilityPressure") ?? true;
+        _visibilityWindDirection =
             prefs.getBool("visibilityWindDirection") ?? true;
-        visibilityHumidity = prefs.getBool("visibilityHumidity") ?? true;
-        visibilityTemperature = prefs.getBool("visibilityTemperature") ?? true;
-        visibilityWindChill = prefs.getBool("visibilityWindChill") ?? true;
-        visibilityRain = prefs.getBool("visibilityRain") ?? true;
-        visibilityDew = prefs.getBool("visibilityDew") ?? true;
-        visibilitySunrise = prefs.getBool("visibilitySunrise") ?? true;
-        visibilitySunset = prefs.getBool("visibilitySunset") ?? true;
-        visibilityMoonrise = prefs.getBool("visibilityMoonrise") ?? true;
-        visibilityMoonset = prefs.getBool("visibilityMoonset") ?? true;
+        _visibilityHumidity = prefs.getBool("visibilityHumidity") ?? true;
+        _visibilityTemperature = prefs.getBool("visibilityTemperature") ?? true;
+        _visibilityWindChill = prefs.getBool("visibilityWindChill") ?? true;
+        _visibilityRain = prefs.getBool("visibilityRain") ?? true;
+        _visibilityDew = prefs.getBool("visibilityDew") ?? true;
+        _visibilitySunrise = prefs.getBool("visibilitySunrise") ?? true;
+        _visibilitySunset = prefs.getBool("visibilitySunset") ?? true;
+        _visibilityMoonrise = prefs.getBool("visibilityMoonrise") ?? true;
+        _visibilityMoonset = prefs.getBool("visibilityMoonset") ?? true;
+        _customData = prefs.getStringList("customData") ?? [];
       });
     } catch (e) {
       print(e);
     }
+  }
+
+  _addCustomData() async {
+    String customData = await showDialog(
+      context: context,
+      builder: (ctx) => CustomDataDialog(theme: Theme.of(context)),
+    );
+
+    if (customData != null) {
+      setState(() {
+        _customData.add(customData);
+      });
+
+      provider.Provider.of<ApplicationState>(
+        context,
+        listen: false,
+      ).updatePreferences = true;
+
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setStringList("customData", _customData);
+    }
+  }
+
+  _removeCustomData(int index) async {
+    setState(() {
+      _customData.removeAt(index);
+    });
+
+    provider.Provider.of<ApplicationState>(
+      context,
+      listen: false,
+    ).updatePreferences = true;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setStringList("customData", _customData);
+  }
+
+  // WIDGETS
+
+  Widget _buildCustomDataList() {
+    return ListView.builder(
+      shrinkWrap: true,
+      itemCount: _customData.length,
+      itemBuilder: (ctx, index) => ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
+        title: Text(
+          "${_customData[index]} (Custom)",
+          style: Theme.of(context).textTheme.subtitle1,
+        ),
+        trailing: IconButton(
+          icon: Icon(
+            Icons.delete,
+            color: Colors.red[700],
+          ),
+          onPressed: () => _removeCustomData(index),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddCustomDataButton() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.zero,
+          bottom: Radius.circular(4.0),
+        ),
+        color: Theme.of(context).primaryColor,
+      ),
+      height: 40.0,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.zero,
+            bottom: Radius.circular(4.0),
+          ),
+          onTap: _addCustomData,
+          child: Center(
+            child: Text(
+              'Add custom data',
+              style: Theme.of(context).textTheme.button.copyWith(
+                    color: Theme.of(context).accentColor,
+                  ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

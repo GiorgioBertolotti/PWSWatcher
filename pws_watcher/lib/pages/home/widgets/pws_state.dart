@@ -32,6 +32,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
   Map<String, bool> _visibilityMap = {};
   bool _visibilityCurrentWeatherIcon = true;
   bool _visibilityUpdateTimer = true;
+  List<String> _customData = [];
 
   @override
   void initState() {
@@ -59,96 +60,98 @@ class _PWSStatePageState extends State<PWSStatePage> {
 
   @override
   Widget build(BuildContext context) {
-    if (provider.Provider.of<ApplicationState>(context, listen: false)
-        .updatePreferences) {
-      // If preferences changed force an update
-      provider.Provider.of<ApplicationState>(context, listen: false)
-          .updatePreferences = false;
-
-      _retrievePreferences();
-
-      _parsingService.setApplicationState(
-        provider.Provider.of<ApplicationState>(context, listen: false),
-      );
-    }
+    _checkUpdatePreferences();
 
     return StreamBuilder<Object>(
       stream: _parsingService.variables$,
       builder: (context, snapshot) {
-        Widget emptyPage = _buildPage([
-          SizedBox(height: 50.0),
-          Center(
-            child: Container(
-              height: 100.0,
-              width: 100.0,
-              child: CircularProgressIndicator(),
-            ),
-          )
-        ]);
+        return StreamBuilder(
+          stream: _parsingService.data$,
+          builder: (context, dataSnapshot) {
+            Widget emptyPage = _buildPage([
+              SizedBox(height: 50.0),
+              Center(
+                child: Container(
+                  height: 100.0,
+                  width: 100.0,
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            ]);
 
-        if (snapshot.hasError || !snapshot.hasData) {
-          // Return an empty page with a spinning indicator
-          return emptyPage;
-        }
-
-        Map<String, String> data = snapshot.data as Map<String, String>;
-
-        // Retrieve significant data from parsing service
-        var location = data["location"] ?? "Location";
-        var datetime = data["datetime"] ?? "--/--/---- --:--:--";
-        var temperature = data["temperature"] ?? "-";
-        var tempUnit = data["tempUnit"] ?? "°C";
-
-        // Retrieve current condition icon
-        var currentConditionIndex =
-            (int.parse(data["currentConditionIndex"] ?? "-1"));
-        String currentConditionAsset;
-        if (currentConditionIndex >= 0 &&
-            currentConditionIndex < currentConditionDesc.length &&
-            currentConditionMapping
-                .containsKey(currentConditionDesc[currentConditionIndex])) {
-          currentConditionAsset = getCurrentConditionAsset(
-            currentConditionMapping[
-                currentConditionDesc[currentConditionIndex]],
-          );
-        }
-
-        bool thereIsUrl = widget.source.snapshotUrl != null &&
-            widget.source.snapshotUrl.trim().isNotEmpty;
-
-        return FutureBuilder(
-          future: _buildValuesTable(data),
-          builder: (
-            BuildContext context,
-            AsyncSnapshot<List<Widget>> snapshot,
-          ) {
-            if (snapshot.hasError || !snapshot.hasData) {
+            if (snapshot.hasError ||
+                !snapshot.hasData ||
+                dataSnapshot.hasError ||
+                !dataSnapshot.hasData) {
+              // Return an empty page with a spinning indicator
               return emptyPage;
             }
 
-            return _buildPage(
-              [
-                SizedBox(height: 20.0),
-                PWSStateHeader(
-                  location,
-                  datetime,
-                ),
-                SizedBox(height: 30.0),
-                PWSTemperatureRow(
-                  '$temperature$tempUnit',
-                  asset: _visibilityCurrentWeatherIcon
-                      ? currentConditionAsset
-                      : null,
-                ),
-                SizedBox(height: 50.0),
-              ]
-                ..addAll(snapshot.data)
-                ..addAll([
-                  thereIsUrl ? SizedBox(height: 30) : Container(),
-                  thereIsUrl ? SnapshotPreview(widget.source) : Container(),
-                  SizedBox(height: thereIsUrl ? 20.0 : 40.0),
-                  _buildDetailButton(),
-                ]),
+            Map<String, String> interestVariables =
+                snapshot.data as Map<String, String>;
+            Map<String, String> fullData =
+                dataSnapshot.data as Map<String, String>;
+
+            // Retrieve significant data from parsing service
+            var location = interestVariables["location"] ?? "Location";
+            var datetime =
+                interestVariables["datetime"] ?? "--/--/---- --:--:--";
+            var temperature = interestVariables["temperature"] ?? "-";
+            var tempUnit = interestVariables["tempUnit"] ?? "°C";
+
+            // Retrieve current condition icon
+            var currentConditionIndex =
+                (int.parse(interestVariables["currentConditionIndex"] ?? "-1"));
+            String currentConditionAsset;
+            if (currentConditionIndex >= 0 &&
+                currentConditionIndex < currentConditionDesc.length &&
+                currentConditionMapping
+                    .containsKey(currentConditionDesc[currentConditionIndex])) {
+              currentConditionAsset = getCurrentConditionAsset(
+                currentConditionMapping[
+                    currentConditionDesc[currentConditionIndex]],
+              );
+            }
+
+            bool thereIsUrl = widget.source.snapshotUrl != null &&
+                widget.source.snapshotUrl.trim().isNotEmpty;
+
+            return FutureBuilder(
+              future: _buildValuesTable(interestVariables),
+              builder: (
+                BuildContext context,
+                AsyncSnapshot<List<Widget>> snapshot,
+              ) {
+                if (snapshot.hasError || !snapshot.hasData) {
+                  return emptyPage;
+                }
+
+                return _buildPage(
+                  [
+                    SizedBox(height: 20.0),
+                    PWSStateHeader(
+                      location,
+                      datetime,
+                    ),
+                    SizedBox(height: 30.0),
+                    PWSTemperatureRow(
+                      '$temperature$tempUnit',
+                      asset: _visibilityCurrentWeatherIcon
+                          ? currentConditionAsset
+                          : null,
+                    ),
+                    SizedBox(height: 50.0),
+                  ]
+                    ..addAll(snapshot.data)
+                    ..addAll(_buildCustomDataValues(fullData))
+                    ..addAll([
+                      thereIsUrl ? SizedBox(height: 30) : Container(),
+                      thereIsUrl ? SnapshotPreview(widget.source) : Container(),
+                      SizedBox(height: thereIsUrl ? 20.0 : 40.0),
+                      _buildDetailButton(),
+                    ]),
+                );
+              },
             );
           },
         );
@@ -157,6 +160,19 @@ class _PWSStatePageState extends State<PWSStatePage> {
   }
 
   // FUNCTIONS
+
+  _checkUpdatePreferences() {
+    ApplicationState state =
+        provider.Provider.of<ApplicationState>(context, listen: false);
+    if (state.updatePreferences) {
+      // If preferences changed force an update
+      state.updatePreferences = false;
+
+      _retrievePreferences();
+
+      _parsingService.setApplicationState(state);
+    }
+  }
 
   Future<void> _refresh() async {
     _refreshKey.currentState.show();
@@ -215,6 +231,8 @@ class _PWSStatePageState extends State<PWSStatePage> {
             prefs.getBool(setting.visibilityVarName) ??
                 setting.visibilityDefaultValue;
       }
+
+      _customData = prefs.getStringList("customData") ?? [];
 
       setState(() {});
     } catch (e) {
@@ -338,33 +356,75 @@ class _PWSStatePageState extends State<PWSStatePage> {
       ValueSetting rightSetting =
           i + 1 < settings.length ? settings[i + 1] : null;
 
+      bool visibilityLeft = _visibilityMap[leftSetting.visibilityVarName];
+      bool visibilityRight = rightSetting != null
+          ? _visibilityMap[rightSetting.visibilityVarName]
+          : false;
+
+      if (visibilityLeft || visibilityRight) {
+        toReturn.add(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: DoubleVariableRow(
+              leftSetting.name,
+              leftSetting.asset,
+              values[leftSetting.valueVarName] ?? leftSetting.valueDefaultValue,
+              values[leftSetting.unitVarName] ?? leftSetting.unitDefaultValue,
+              rightSetting != null ? rightSetting.name : "",
+              rightSetting != null ? rightSetting.asset : "",
+              rightSetting != null
+                  ? (values[rightSetting.valueVarName] ??
+                      rightSetting.valueDefaultValue)
+                  : "",
+              rightSetting != null
+                  ? (values[rightSetting.unitVarName] ??
+                      rightSetting.unitDefaultValue)
+                  : "",
+              visibilityLeft: visibilityLeft,
+              visibilityRight: visibilityRight,
+            ),
+          ),
+        );
+      } else if (toReturn.isNotEmpty) {
+        // If the entire row is invisible remove the last spacing
+        toReturn.removeLast();
+      }
+
+      if (i + 2 < settings.length) {
+        toReturn.add(SizedBox(height: 20.0));
+      }
+    }
+
+    return toReturn;
+  }
+
+  List<Widget> _buildCustomDataValues(Map<String, String> values) {
+    List<Widget> toReturn = _customData.isEmpty ? [] : [SizedBox(height: 20.0)];
+
+    // Build the values table according to the settings and visibility map
+    for (int i = 0; i < _customData.length; i += 2) {
+      String leftVar = _customData[i];
+      String rightVar = i + 1 < _customData.length ? _customData[i + 1] : null;
+
       toReturn.add(
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0),
           child: DoubleVariableRow(
-            leftSetting.name,
-            leftSetting.asset,
-            values[leftSetting.valueVarName] ?? leftSetting.valueDefaultValue,
-            values[leftSetting.unitVarName] ?? leftSetting.unitDefaultValue,
-            rightSetting != null ? rightSetting.name : "",
-            rightSetting != null ? rightSetting.asset : "",
-            rightSetting != null
-                ? (values[rightSetting.valueVarName] ??
-                    rightSetting.valueDefaultValue)
-                : "",
-            rightSetting != null
-                ? (values[rightSetting.unitVarName] ??
-                    rightSetting.unitDefaultValue)
-                : "",
-            visibilityLeft: _visibilityMap[leftSetting.visibilityVarName],
-            visibilityRight: rightSetting != null
-                ? _visibilityMap[rightSetting.visibilityVarName]
-                : false,
+            leftVar,
+            "assets/images/settings.svg",
+            values[leftVar] ?? "-",
+            "",
+            rightVar ?? "",
+            rightVar != null ? "assets/images/settings.svg" : "",
+            rightVar != null ? values[rightVar] ?? "-" : "",
+            "",
+            visibilityLeft: leftVar != null,
+            visibilityRight: rightVar != null,
           ),
         ),
       );
 
-      if (i + 2 < settings.length) {
+      if (i + 2 < _customData.length) {
         toReturn.add(SizedBox(height: 20.0));
       }
     }
