@@ -96,7 +96,7 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
                 child: TextFormField(
                   controller: _unitController,
                   decoration: InputDecoration(
-                    labelText: "Unit of measure *",
+                    labelText: "Unit of measure",
                     border: OutlineInputBorder(),
                   ),
                   maxLines: 1,
