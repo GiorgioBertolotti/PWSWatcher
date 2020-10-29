@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_iconpicker/flutter_iconpicker.dart';
 import 'package:pws_watcher/model/custom_data.dart';
 
 const double inputHeight = 59.0;
@@ -17,6 +18,7 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
 
   final _nameController = TextEditingController();
   final _unitController = TextEditingController();
+  IconData _icon;
 
   FocusNode _nameFocusNode = FocusNode();
   FocusNode _unitFocusNode = FocusNode();
@@ -75,6 +77,20 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
                   onFieldSubmitted: (value) => _save(),
                 ),
               ),
+              _icon != null
+                  ? FlatButton.icon(
+                      icon: Icon(_icon),
+                      textColor: Colors.white,
+                      color: widget.theme.primaryColor,
+                      label: Text("Change icon"),
+                      onPressed: _pickIcon,
+                    )
+                  : FlatButton(
+                      textColor: Colors.white,
+                      color: widget.theme.primaryColor,
+                      child: Text("Add an icon"),
+                      onPressed: _pickIcon,
+                    ),
             ],
           ),
         ),
@@ -95,6 +111,19 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
     );
   }
 
+  // FUNCTIONS
+
+  _pickIcon() async {
+    IconData icon = await FlutterIconPicker.showIconPicker(
+      context,
+      iconPackMode: IconPack.material,
+      iconColor: Colors.black,
+    );
+
+    _icon = icon;
+    setState(() {});
+  }
+
   _save() {
     // Closes keyboard
     FocusScope.of(context).requestFocus(FocusNode());
@@ -105,6 +134,7 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
       Navigator.of(context).pop(CustomData(
         name: _nameController.text,
         unit: _unitController.text,
+        icon: _icon,
       ));
     }
   }

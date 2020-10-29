@@ -256,10 +256,19 @@ class _PWSStatePageState extends State<PWSStatePage> {
       // Populate CustomData list from a list of JSONs stored in shared prefs
       for (String dataJSON in customDataJSON) {
         dynamic data = jsonDecode(dataJSON);
+        IconData icon = data["icon"] != null
+            ? IconData(
+                data["icon"]["codePoint"],
+                fontFamily: data["icon"]["fontFamily"],
+                fontPackage: data["icon"]["fontPackage"],
+                matchTextDirection: data["icon"]["matchTextDirection"],
+              )
+            : null;
+
         _customData.add(CustomData(
           name: data["name"],
           unit: data["unit"],
-          icon: data["icon"],
+          icon: icon,
         ));
       }
     } catch (e) {
