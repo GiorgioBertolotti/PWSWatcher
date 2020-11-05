@@ -15,12 +15,14 @@ class CustomData {
     return {
       'name': this.name,
       'unit': this.unit,
-      'icon': {
-        'codePoint': this.icon.codePoint,
-        'fontFamily': this.icon.fontFamily,
-        'fontPackage': this.icon.fontPackage,
-        'matchTextDirection': this.icon.matchTextDirection,
-      }
+      'icon': this.icon != null
+          ? {
+              'codePoint': this.icon.codePoint,
+              'fontFamily': this.icon.fontFamily,
+              'fontPackage': this.icon.fontPackage,
+              'matchTextDirection': this.icon.matchTextDirection,
+            }
+          : null
     };
   }
 
