@@ -19,19 +19,21 @@
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/rl_location"
-        android:layout_margin="10dp"
+        android:layout_margin="9dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 
         <ImageButton
             android:id="@+id/ib_setting"
-            android:layout_width="22dp"
-            android:layout_height="22dp"
-            android:layout_marginEnd="10dp"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginEnd="6dp"
+            android:padding="3dp"
             android:layout_centerVertical="true"
             android:scaleType="fitXY"
             android:src="@drawable/settings"
-            android:background="?android:attr/selectableItemBackgroundBorderless" />
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless" />
             
         <TextView
             android:id="@+id/tv_location"
@@ -45,7 +47,7 @@
             android:maxLines="1"
             android:text="Location"
             android:textColor="#ffffff"
-            android:textSize="18sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
     </RelativeLayout>
 
@@ -244,7 +246,7 @@
         android:id="@+id/tv_datetime"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
+        android:layout_margin="9dp"
         android:layout_alignParentBottom="true"
         android:text="Datetime"
         android:textColor="#ffffff"
@@ -253,11 +255,13 @@
     <ImageButton
         android:id="@+id/ib_refresh"
         android:scaleType="fitXY"
-        android:layout_width="22dp"
-        android:layout_height="22dp"
-        android:layout_margin="14dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_margin="9dp"
+        android:padding="3dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:src="@drawable/refresh"
-        android:background="?android:attr/selectableItemBackgroundBorderless" />
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:foreground="?android:attr/selectableItemBackgroundBorderless" />
 </RelativeLayout>

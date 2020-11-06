@@ -45,22 +45,26 @@
     <ImageButton
         android:id="@+id/ib_setting"
         android:scaleType="fitXY"
-        android:layout_width="22dp"
-        android:layout_height="22dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:padding="3dp"
         android:layout_margin="3dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentBottom="true"
         android:src="@drawable/settings"
-        android:background="?android:attr/selectableItemBackgroundBorderless" />
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:foreground="?android:attr/selectableItemBackgroundBorderless" />
 
     <ImageButton
         android:id="@+id/ib_refresh"
         android:scaleType="fitXY"
-        android:layout_width="22dp"
-        android:layout_height="22dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:padding="3dp"
         android:layout_margin="3dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:src="@drawable/refresh"
-        android:background="?android:attr/selectableItemBackgroundBorderless" />
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:foreground="?android:attr/selectableItemBackgroundBorderless" />
 </RelativeLayout>
