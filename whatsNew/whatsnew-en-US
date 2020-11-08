@@ -1,2 +1,4 @@
-Added the possibility to show custom data from Detail Page.
-To do so, go into settings and scroll to the end of Visibility Settings, then press the "Add custom data" button.
+* Improved widgets accessibility, their minimum size is now smaller and the settings and refresh button has a bigger clickable area
+* Fixed a bug when adding a custom data without icon
+* Added the possibility to show custom data from Detail Page. To do so, go into settings and scroll to the end of Visibility Settings, then press the "Add custom data" button.
+Note di rilascio indicate per 2 su 2 lingue
