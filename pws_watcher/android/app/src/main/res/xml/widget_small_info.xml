@@ -3,7 +3,7 @@
     android:configure="com.zem.pwswatcher.WidgetSmallConfigurationActivity"
     android:initialKeyguardLayout="@layout/widget_small"
     android:initialLayout="@layout/widget_small"
-    android:minWidth="80dp"
+    android:minWidth="110dp"
     android:minHeight="40dp"
     android:previewImage="@drawable/icon"
     android:resizeMode="horizontal|vertical"
