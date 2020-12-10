@@ -5,7 +5,9 @@
 [![Stars](https://img.shields.io/github/stars/GiorgioBertolotti/PWSWatcher.svg)](https://github.com/GiorgioBertolotti/PWSWatcher/stargazers)
 [![Forks](https://img.shields.io/github/forks/GiorgioBertolotti/PWSWatcher.svg)](https://github.com/GiorgioBertolotti/PWSWatcher/network/members)
 [![Issues](https://img.shields.io/github/issues/GiorgioBertolotti/PWSWatcher.svg)](https://github.com/GiorgioBertolotti/PWSWatcher/issues)
-![PlayStore Release](https://github.com/GiorgioBertolotti/PWSWatcher/workflows/PlayStore%20Release/badge.svg)
+![PlayStore Release](https://github.com/GiorgioBertolotti/PWSWatcher/workflows/PlayStore%20Release/badge.svg)  
+
+<a href='https://www.buymeacoffee.com/GiorgioZem' target="_blank"><img alt='Buy me a coffee' src='https://cdn.buymeacoffee.com/buttons/lato-yellow.png' height="38" width="160" /></a>
 
 ## Why?
 
@@ -31,10 +33,7 @@ There was already another application for the same purpose, but no updates have 
 
 ### Download
 
-<center><a href='https://play.google.com/store/apps/details?id=com.zem.pwswatcher&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1' target="_blank"><img alt='Get it on Google Play' src='https://play.google.com/intl/en/badges/images/generic/en_badge_web_generic.png' width='50%'/></a></center>
-
-**OR** you can download the latest *.apk* file from:  
-<center><a href='https://apt.izzysoft.de/fdroid/index/apk/com.zem.pwswatcher' target="_blank"><img alt='Get it on Google Play' src='https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroid.png' width='50%'/></a></center>
+<a href='https://play.google.com/store/apps/details?id=com.zem.pwswatcher&pcampaignid=MKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1' target="_blank"><img alt='Get it on Google Play' src='https://play.google.com/intl/en/badges/images/generic/en_badge_web_generic.png' width='50%'/></a>
 
 **OR** you can get all the previous releases [here](https://github.com/GiorgioBertolotti/PWSWatcher/releases).  
 
