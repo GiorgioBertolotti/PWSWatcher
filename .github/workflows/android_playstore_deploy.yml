@@ -15,12 +15,12 @@ jobs:
         git config remote.origin.url https://x-access-token:${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}
         git fetch --prune --tags --unshallow
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9.5
+      uses: gittools/actions/gitversion/setup@v0.9.8
       with:
           versionSpec: '5.x'
     - name: Use GitVersion
       id: gitversion
-      uses: gittools/actions/gitversion/execute@v0.9.5
+      uses: gittools/actions/gitversion/execute@v0.9.8
     - name: Create version.txt with nuGetVersion
       run: echo ${{ steps.gitversion.outputs.nuGetVersion  }} > version.txt
     - name: Upload version.txt
@@ -56,8 +56,10 @@ jobs:
         java-version: '8.x'
     - uses: subosito/flutter-action@v1.4.0
       with:
-        flutter-version: '1.22.2'
+        flutter-version: '1.22.5'
     - run: flutter pub get
+      working-directory: pws_watcher
+    - run: flutter analyze
       working-directory: pws_watcher
     # UNCOMMENT WHEN TESTS WILL BE ADDED
     #- run: flutter test
@@ -97,6 +99,6 @@ jobs:
       with:
         serviceAccountJsonPlainText: ${{ secrets.PLAYSTORE_ACCOUNT_KEY }}
         packageName: com.zem.pwswatcher
-        releaseFile: app.aab
+        releaseFiles: app.aab
         track: internal
         whatsNewDirectory: whatsNew

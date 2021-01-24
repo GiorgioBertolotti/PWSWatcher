@@ -1,3 +1,1 @@
-* Migliorata l'usabilità degli widget, la loro dimensione minima ora è ridotta e l'area cliccabile dei bottoni di impostazioni e aggiornamento è ingrandita
-* Sistemato un bug che si mostrava quando si aggiungeva un custom data senza icona
-* Aggiunta la possibilità di mostrare in home dei valori custom tra quelle nella Detail Page. Per fare ciò basta andare in fondo ai Visibility Settings e premere su "Add custom data".
+Sistemata la persistenza delle impostazioni degli widget, ora i settings del widget si autocompilano in base a come sono stati salvati
