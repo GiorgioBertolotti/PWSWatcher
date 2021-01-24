@@ -10,25 +10,25 @@ dependencies:
   flutter:
     sdk: flutter
   auto_size_text: ^2.1.0
-  connectivity: ^0.4.9+5
+  connectivity: ^2.0.2
   flare_flutter: ^2.0.6
   flushbar: ^1.10.4
   flutter_iconpicker: ^2.2.2
   flutter_svg: ^0.19.1
-  get_it: ^5.0.1
+  get_it: ^5.0.6
   hive: ^1.4.4+1
   hive_flutter: ^0.3.1
   http: ^0.12.2
   image_downloader: ^0.20.1
   launch_review: ^2.0.0
-  path_provider: ^1.6.21
+  path_provider: ^1.6.27
   permission_handler: ^5.0.1+1
-  photo_view: ^0.10.2
-  provider: ^4.3.2+2
-  rxdart: ^0.24.1
-  shared_preferences: ^0.5.12+2
+  photo_view: ^0.10.3
+  provider: ^4.3.3
+  rxdart: ^0.25.0
+  shared_preferences: ^0.5.12+4
   showcaseview: ^0.1.6
-  url_launcher: ^5.7.5
+  url_launcher: ^5.7.10
   xml: ^4.5.1
 
 dev_dependencies:
@@ -45,14 +45,3 @@ flutter:
     - assets/images/current_weather/
     - assets/flare/
     - assets/values.json
-  # fonts:
-  #   - family: Schyler
-  #     fonts:
-  #       - asset: fonts/Schyler-Regular.ttf
-  #       - asset: fonts/Schyler-Italic.ttf
-  #         style: italic
-  #   - family: Trajan Pro
-  #     fonts:
-  #       - asset: fonts/TrajanPro.ttf
-  #       - asset: fonts/TrajanPro_Bold.ttf
-  #         weight: 700

@@ -51,7 +51,7 @@ class ConnectionStatusSingleton {
       } else {
         hasConnection = false;
       }
-    } on SocketException catch(_) {
+    } on SocketException catch (_) {
       hasConnection = false;
     }
 
