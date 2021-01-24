@@ -310,18 +310,27 @@ public class WidgetMediumConfigurationActivity extends Activity {
     }
 
     public class SourcesListAdapter extends ArrayAdapter<Source> {
-        SourcesListAdapter(Context context, List<Source> reservationList) {
-            super(context, 0, reservationList);
+        SourcesListAdapter(Context context, List<Source> sourcesList) {
+            super(context, 0, sourcesList);
         }
 
         @Override
         public View getView(final int i, View view, ViewGroup viewGroup) {
             view = ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.item_source, null);
-            Source reservation = getItem(i);
+            Source source = getItem(i);
+
             TextView tvName = view.findViewById(R.id.tv_source_name);
             TextView tvUrl = view.findViewById(R.id.tv_source_url);
-            tvName.setText(reservation.getName());
-            tvUrl.setText(reservation.getUrl());
+
+            tvUrl.setText(source.getUrl());
+
+            if(selectedSource.getId() == source.getId()) {
+                tvName.setText(source.getName() + " (selected)");
+                tvName.setTextColor(android.graphics.Color.parseColor("#03A9F4"));
+                tvUrl.setTextColor(android.graphics.Color.parseColor("#03A9F4"));
+            } else {
+                tvName.setText(source.getName());
+            }
             return view;
         }
     }
