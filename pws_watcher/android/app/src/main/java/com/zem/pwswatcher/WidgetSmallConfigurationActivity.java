@@ -39,6 +39,8 @@ public class WidgetSmallConfigurationActivity extends Activity {
     public static final String UPDATE_FILTER = "com.zem.pwswatcher.UPDATE";
     public static final String SHARED_PREFERENCES_NAME = "FlutterSharedPreferences";
     private static final String LIST_IDENTIFIER = "VGhpcyBpcyB0aGUgcHJlZml4IGZvciBhIGxpc3Qu";
+    private final String[] fontSizeText = {"extra-small", "small", "medium", "big", "extra-big"};
+    private final float[] multiplier = {0.35f, 0.75f, 1, 1.25f, 1.65f};
     int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
     private ListView lvSources;
     private SeekBar sbFontSize;
@@ -58,11 +60,14 @@ public class WidgetSmallConfigurationActivity extends Activity {
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+
         setResult(RESULT_CANCELED);
         setContentView(R.layout.activity_widget_configuration);
+
         this.lvSources = findViewById(R.id.lv_sources);
         widgetManager = AppWidgetManager.getInstance(this);
         views = new RemoteViews(this.getPackageName(), R.layout.widget_small);
+
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
         if (extras != null) {
@@ -72,20 +77,38 @@ public class WidgetSmallConfigurationActivity extends Activity {
             finish();
             return;
         }
+
         final SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
+        String widgetSettingsRaw = sharedPref.getString("widget_" + mAppWidgetId, null);
+
+        if(widgetSettingsRaw != null) {
+            try{
+                JSONObject widgetSettings = new JSONObject(widgetSettingsRaw);
+
+                String rawSource = widgetSettings.getString("source");
+                this.selectedSource = Source.fromJSON(rawSource);
+                
+                this.bgColor = widgetSettings.getInt("bgColor");
+                this.textColor = widgetSettings.getInt("textColor");
+            } catch(Exception e) {}
+        }
+
         String stringValue = sharedPref.getString("flutter.sources", null);
         List<Source> sources = new ArrayList<>();
         if (stringValue != null) {
             List<String> sourcesJSON = null;
+
             if (stringValue.startsWith(LIST_IDENTIFIER)) {
                 try {
                     sourcesJSON = decodeList(stringValue.substring(LIST_IDENTIFIER.length()));
                 } catch (IOException ignored) {
                 }
             }
+
             if (sourcesJSON == null) {
                 sourcesJSON = new ArrayList<>();
             }
+
             for (String sourceJSON : sourcesJSON) {
                 try {
                     JSONObject obj = new JSONObject(sourceJSON);
@@ -94,36 +117,43 @@ public class WidgetSmallConfigurationActivity extends Activity {
                 }
             }
         }
+
         this.rAdapter = new SourcesListAdapter(getApplicationContext(), sources);
         this.lvSources.setAdapter(this.rAdapter);
         this.lvSources.setEmptyView(findViewById(R.id.tv_empty_list));
         this.lvSources.setOnItemClickListener((adapter, v, position, id) -> {
             this.selectedSource = rAdapter.getItem(position);
+
             final ViewGroup viewGroup = (ViewGroup) findViewById(R.id.ll_activity_container);
             viewGroup.removeAllViews();
             viewGroup.addView(View.inflate(this, R.layout.widget_small_settings, null));
+
             this.sbFontSize = findViewById(R.id.sb_fontsize);
             this.tvFontSize = findViewById(R.id.tv_fontsize);
+
+            if(widgetSettingsRaw != null) {
+                try{
+                    JSONObject widgetSettings = new JSONObject(widgetSettingsRaw);
+
+                    double multiplierValue = widgetSettings.getDouble("fontSizeMultiplier");
+                    double[] doubleMultipliers = {0.35, 0.75, 1, 1.25, 1.65};
+
+                    float fontSize = 16f;
+                    int progress = findIndex(doubleMultipliers, multiplierValue);
+                    this.sbFontSize.setProgress(progress);
+                    this.tvFontSize.setText(fontSizeText[progress]);
+                    this.tvFontSize.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize * multiplier[progress]);
+                } catch(Exception e) {
+                }
+            }
+
             SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                     float fontSize = 16f;
-                    if (progress == 0) {
-                        tvFontSize.setText("extra-small");
-                        tvFontSize.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize * 0.35f);
-                    } else if (progress == 1) {
-                        tvFontSize.setText("small");
-                        tvFontSize.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize * 0.75f);
-                    } else if (progress == 2) {
-                        tvFontSize.setText("medium");
-                        tvFontSize.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize);
-                    } else if (progress == 3) {
-                        tvFontSize.setText("big");
-                        tvFontSize.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize * 1.25f);
-                    } else {
-                        tvFontSize.setText("extra-big");
-                        tvFontSize.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize * 1.65f);
-                    }
+
+                    tvFontSize.setText(fontSizeText[progress]);
+                    tvFontSize.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize * multiplier[progress]);
                 }
                 @Override
                 public void onStartTrackingTouch(SeekBar seekBar) {
@@ -135,6 +165,7 @@ public class WidgetSmallConfigurationActivity extends Activity {
                 }
             };
             this.sbFontSize.setOnSeekBarChangeListener(seekBarChangeListener);
+
             this.btnBgColor = findViewById(R.id.btn_bg_color);
             this.btnBgColor.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -157,6 +188,7 @@ public class WidgetSmallConfigurationActivity extends Activity {
                         });
                 }
             });
+
             this.btnTextColor = findViewById(R.id.btn_text_color);
             this.btnTextColor.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -179,12 +211,14 @@ public class WidgetSmallConfigurationActivity extends Activity {
                         });
                 }
             });
+
             this.btnConfirm = findViewById(R.id.btn_confirm);
             this.btnConfirm.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     completeActivity();
                 }
             });
+
             this.btnBgColor.setBackgroundColor(this.bgColor);
             this.btnTextColor.setBackgroundColor(this.bgColor);
             this.btnBgColor.setTextColor(this.textColor);
@@ -197,26 +231,7 @@ public class WidgetSmallConfigurationActivity extends Activity {
         try {
             JSONObject root = new JSONObject();
             root.put("source", this.selectedSource.toJSONObject());
-            switch (this.sbFontSize.getProgress()) {
-                case 0:
-                    root.put("fontSizeMultiplier", 0.35);
-                    break;
-                case 1:
-                    root.put("fontSizeMultiplier", 0.75);
-                    break;
-                case 2:
-                    root.put("fontSizeMultiplier", 1.0);
-                    break;
-                case 3:
-                    root.put("fontSizeMultiplier", 1.25);
-                    break;
-                case 4:
-                    root.put("fontSizeMultiplier", 1.65);
-                    break;
-                default:
-                    root.put("fontSizeMultiplier", 1.0);
-                    break;
-            }
+            root.put("fontSizeMultiplier", this.multiplier[this.sbFontSize.getProgress()]);
             root.put("bgColor", this.bgColor);
             root.put("textColor", this.textColor);
             sharedPrefs.edit().putString("widget_" + mAppWidgetId, root.toString()).apply();
@@ -233,6 +248,31 @@ public class WidgetSmallConfigurationActivity extends Activity {
         resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
         setResult(RESULT_OK, resultValue);
         finish();
+    }
+    
+    private int findIndex(double arr[], double t) 
+    {
+        // if array is Null 
+        if (arr == null) { 
+            return -1; 
+        } 
+  
+        // find length of array 
+        int len = arr.length; 
+        int i = 0; 
+  
+        // traverse in the array 
+        while (i < len) { 
+            // if the i-th element is t 
+            // then return the index 
+            if (arr[i] == t) { 
+                return i; 
+            } 
+            else { 
+                i = i + 1; 
+            } 
+        } 
+        return -1; 
     }
 
     private List<String> decodeList(String encodedList) throws IOException {
