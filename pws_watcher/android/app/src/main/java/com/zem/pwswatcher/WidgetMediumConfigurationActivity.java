@@ -324,7 +324,7 @@ public class WidgetMediumConfigurationActivity extends Activity {
 
             tvUrl.setText(source.getUrl());
 
-            if(selectedSource.getId() == source.getId()) {
+            if(selectedSource != null && selectedSource.getId() == source.getId()) {
                 tvName.setText(source.getName() + " (selected)");
                 tvName.setTextColor(android.graphics.Color.parseColor("#03A9F4"));
                 tvUrl.setTextColor(android.graphics.Color.parseColor("#03A9F4"));
