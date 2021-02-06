@@ -80,42 +80,34 @@ class _PWSStatePageState extends State<PWSStatePage> {
               )
             ]);
 
-            if (snapshot.hasError ||
-                !snapshot.hasData ||
-                dataSnapshot.hasError ||
-                !dataSnapshot.hasData) {
+            if (snapshot.hasError || !snapshot.hasData || dataSnapshot.hasError || !dataSnapshot.hasData) {
               // Return an empty page with a spinning indicator
               return emptyPage;
             }
 
-            Map<String, String> interestVariables =
-                snapshot.data as Map<String, String>;
-            Map<String, String> fullData =
-                dataSnapshot.data as Map<String, String>;
+            Map<String, String> interestVariables = snapshot.data as Map<String, String>;
+            Map<String, String> fullData = dataSnapshot.data as Map<String, String>;
 
             // Retrieve significant data from parsing service
             var location = interestVariables["location"] ?? "Location";
-            var datetime =
-                interestVariables["datetime"] ?? "--/--/---- --:--:--";
+            var datetime = interestVariables["datetime"] ?? "--/--/---- --:--:--";
             var temperature = interestVariables["temperature"] ?? "-";
             var tempUnit = interestVariables["tempUnit"] ?? "°C";
 
             // Retrieve current condition icon
-            var currentConditionIndex =
-                (int.parse(interestVariables["currentConditionIndex"] ?? "-1"));
             String currentConditionAsset;
-            if (currentConditionIndex >= 0 &&
-                currentConditionIndex < currentConditionDesc.length &&
-                currentConditionMapping
-                    .containsKey(currentConditionDesc[currentConditionIndex])) {
-              currentConditionAsset = getCurrentConditionAsset(
-                currentConditionMapping[
-                    currentConditionDesc[currentConditionIndex]],
-              );
-            }
+            try {
+              var currentConditionIndex = (int.parse(interestVariables["currentConditionIndex"] ?? "-1"));
+              if (currentConditionIndex >= 0 &&
+                  currentConditionIndex < currentConditionDesc.length &&
+                  currentConditionMapping.containsKey(currentConditionDesc[currentConditionIndex])) {
+                currentConditionAsset = getCurrentConditionAsset(
+                  currentConditionMapping[currentConditionDesc[currentConditionIndex]],
+                );
+              }
+            } catch (e) {}
 
-            bool thereIsUrl = widget.source.snapshotUrl != null &&
-                widget.source.snapshotUrl.trim().isNotEmpty;
+            bool thereIsUrl = widget.source.snapshotUrl != null && widget.source.snapshotUrl.trim().isNotEmpty;
 
             return FutureBuilder(
               future: _buildValuesTable(interestVariables),
@@ -137,9 +129,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
                     SizedBox(height: 30.0),
                     PWSTemperatureRow(
                       '$temperature$tempUnit',
-                      asset: _visibilityCurrentWeatherIcon
-                          ? currentConditionAsset
-                          : null,
+                      asset: _visibilityCurrentWeatherIcon ? currentConditionAsset : null,
                     ),
                     SizedBox(height: 50.0),
                   ]
@@ -163,8 +153,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
   // FUNCTIONS
 
   _checkUpdatePreferences() {
-    ApplicationState state =
-        provider.Provider.of<ApplicationState>(context, listen: false);
+    ApplicationState state = provider.Provider.of<ApplicationState>(context, listen: false);
     if (state.updatePreferences) {
       // If preferences changed force an update
       state.updatePreferences = false;
@@ -187,8 +176,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
         context,
         MaterialPageRoute(
           builder: (ctx) => provider.Provider<ApplicationState>.value(
-            value:
-                provider.Provider.of<ApplicationState>(context, listen: false),
+            value: provider.Provider.of<ApplicationState>(context, listen: false),
             child: DetailPage(_parsingService.allDataSubject.value),
           ),
         ),
@@ -220,8 +208,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     try {
-      _visibilityCurrentWeatherIcon =
-          prefs.getBool("visibilityCurrentWeatherIcon") ?? true;
+      _visibilityCurrentWeatherIcon = prefs.getBool("visibilityCurrentWeatherIcon") ?? true;
       _visibilityUpdateTimer = prefs.getBool("visibilityUpdateTimer") ?? true;
     } catch (e) {
       _visibilityCurrentWeatherIcon = true;
@@ -237,8 +224,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
       _visibilityMap.clear();
       for (ValueSetting setting in settings) {
         _visibilityMap[setting.visibilityVarName] =
-            prefs.getBool(setting.visibilityVarName) ??
-                setting.visibilityDefaultValue;
+            prefs.getBool(setting.visibilityVarName) ?? setting.visibilityDefaultValue;
       }
     } catch (e) {
       _visibilityMap.clear();
@@ -369,10 +355,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
           Text(
             "SEE ALL",
             maxLines: 1,
-            style: Theme.of(context)
-                .textTheme
-                .subtitle1
-                .copyWith(color: Theme.of(context).accentColor),
+            style: Theme.of(context).textTheme.subtitle1.copyWith(color: Theme.of(context).accentColor),
           ),
           IconButton(
             icon: Icon(
@@ -394,13 +377,10 @@ class _PWSStatePageState extends State<PWSStatePage> {
     // Build the values table according to the settings and visibility map
     for (int i = 0; i < settings.length; i += 2) {
       ValueSetting leftSetting = settings[i];
-      ValueSetting rightSetting =
-          i + 1 < settings.length ? settings[i + 1] : null;
+      ValueSetting rightSetting = i + 1 < settings.length ? settings[i + 1] : null;
 
       bool visibilityLeft = _visibilityMap[leftSetting.visibilityVarName];
-      bool visibilityRight = rightSetting != null
-          ? _visibilityMap[rightSetting.visibilityVarName]
-          : false;
+      bool visibilityRight = rightSetting != null ? _visibilityMap[rightSetting.visibilityVarName] : false;
 
       if (visibilityLeft || visibilityRight) {
         toReturn.add(
@@ -409,16 +389,12 @@ class _PWSStatePageState extends State<PWSStatePage> {
             child: DoubleVariableRow(
               labelLeft: leftSetting.name,
               assetLeft: leftSetting.asset,
-              valueLeft: values[leftSetting.valueVarName] ??
-                  leftSetting.valueDefaultValue,
-              unitLeft: values[leftSetting.unitVarName] ??
-                  leftSetting.unitDefaultValue,
+              valueLeft: values[leftSetting.valueVarName] ?? leftSetting.valueDefaultValue,
+              unitLeft: values[leftSetting.unitVarName] ?? leftSetting.unitDefaultValue,
               labelRight: rightSetting?.name ?? "",
               assetRight: rightSetting?.asset ?? "",
-              valueRight: values[rightSetting?.valueVarName] ??
-                  rightSetting.valueDefaultValue,
-              unitRight: values[rightSetting?.unitVarName] ??
-                  rightSetting.unitDefaultValue,
+              valueRight: values[rightSetting?.valueVarName] ?? rightSetting.valueDefaultValue,
+              unitRight: values[rightSetting?.unitVarName] ?? rightSetting.unitDefaultValue,
               visibilityLeft: visibilityLeft,
               visibilityRight: visibilityRight,
             ),
@@ -443,8 +419,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
     // Build the values table according to the settings and visibility map
     for (int i = 0; i < _customData.length; i += 2) {
       CustomData leftData = _customData[i];
-      CustomData rightData =
-          i + 1 < _customData.length ? _customData[i + 1] : null;
+      CustomData rightData = i + 1 < _customData.length ? _customData[i + 1] : null;
 
       toReturn.add(
         Padding(
