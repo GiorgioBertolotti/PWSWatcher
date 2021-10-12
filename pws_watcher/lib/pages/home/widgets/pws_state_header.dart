@@ -7,7 +7,7 @@ class PWSStateHeader extends StatelessWidget {
 
   final String name;
   final String datetime;
-  final String asset;
+  final String? asset;
 
   @override
   Widget build(BuildContext context) {
@@ -39,13 +39,13 @@ class PWSStateHeader extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: Theme.of(context)
                       .textTheme
-                      .headline3
+                      .headline3!
                       .copyWith(color: Theme.of(context).accentColor),
                 ),
                 Text(
                   this.datetime,
                   maxLines: 1,
-                  style: Theme.of(context).textTheme.bodyText2.copyWith(
+                  style: Theme.of(context).textTheme.bodyText2!.copyWith(
                         color: Theme.of(context).accentColor.withOpacity(0.8),
                       ),
                 ),
@@ -53,7 +53,7 @@ class PWSStateHeader extends StatelessWidget {
             ),
           ),
           SvgPicture.asset(
-            asset,
+            asset!,
             width: 50.0,
             height: 50.0,
           ),
@@ -78,13 +78,13 @@ class PWSStateHeader extends StatelessWidget {
             textAlign: TextAlign.center,
             style: Theme.of(context)
                 .textTheme
-                .headline3
+                .headline3!
                 .copyWith(color: Theme.of(context).accentColor),
           ),
           Text(
             this.datetime,
             maxLines: 1,
-            style: Theme.of(context).textTheme.bodyText2.copyWith(
+            style: Theme.of(context).textTheme.bodyText2!.copyWith(
                   color: Theme.of(context).accentColor.withOpacity(0.8),
                 ),
           ),

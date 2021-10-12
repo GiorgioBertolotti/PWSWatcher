@@ -8,7 +8,7 @@ import 'package:pws_watcher/services/theme_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends StatefulWidget {
-  final ThemeService themeService = getIt<ThemeService>();
+  final ThemeService? themeService = getIt<ThemeService>();
 
   @override
   _SplashPageState createState() => _SplashPageState();
@@ -25,7 +25,7 @@ class _SplashPageState extends State<SplashPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor:
-          widget.themeService.themeSubject.value.scaffoldBackgroundColor,
+          widget.themeService!.themeSubject.value.scaffoldBackgroundColor,
       body: Builder(
         builder: (context) => SafeArea(
           child: Center(
@@ -44,7 +44,7 @@ class _SplashPageState extends State<SplashPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     // Set the default refresh interval in shared preferences
-    int refreshInterval = prefs.getInt("widget_refresh_interval");
+    int? refreshInterval = prefs.getInt("widget_refresh_interval");
     if (refreshInterval == null) {
       await prefs.setInt("widget_refresh_interval", 15);
     }

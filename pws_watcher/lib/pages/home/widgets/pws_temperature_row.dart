@@ -6,7 +6,7 @@ class PWSTemperatureRow extends StatelessWidget {
   PWSTemperatureRow(this.temperature, {this.asset});
 
   final String temperature;
-  final String asset;
+  final String? asset;
 
   @override
   Widget build(BuildContext context) {
@@ -34,12 +34,12 @@ class PWSTemperatureRow extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context)
                   .textTheme
-                  .headline2
+                  .headline2!
                   .copyWith(color: Theme.of(context).accentColor),
             ),
           ),
           SvgPicture.asset(
-            asset,
+            asset!,
             width: 70.0,
             height: 70.0,
           ),
@@ -60,7 +60,7 @@ class PWSTemperatureRow extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: Theme.of(context)
               .textTheme
-              .headline2
+              .headline2!
               .copyWith(color: Theme.of(context).accentColor),
         ),
       ),

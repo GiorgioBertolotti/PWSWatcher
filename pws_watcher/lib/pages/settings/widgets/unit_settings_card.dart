@@ -7,7 +7,7 @@ import 'package:pws_watcher/services/theme_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UnitSettingsCard extends StatefulWidget {
-  final ThemeService themeService = getIt<ThemeService>();
+  final ThemeService? themeService = getIt<ThemeService>();
 
   @override
   _UnitSettingsCardState createState() => _UnitSettingsCardState();
@@ -127,7 +127,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
           _unitToggleButton("m/s"),
         ],
         onPressed: (int index) async {
-          String unit = await _unitSelectorCallback(
+          String? unit = await _unitSelectorCallback(
               index, _windUnitSelection, ["km/h", "mph", "kts", "m/s"]);
           provider.Provider.of<ApplicationState>(
             context,
@@ -154,7 +154,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
           _unitToggleButton("in"),
         ],
         onPressed: (int index) async {
-          String unit = await _unitSelectorCallback(
+          String? unit = await _unitSelectorCallback(
               index, _rainUnitSelection, ["mm", "in"]);
           provider.Provider.of<ApplicationState>(
             context,
@@ -182,7 +182,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
           _unitToggleButton("inHg"),
         ],
         onPressed: (int index) async {
-          String unit = await _unitSelectorCallback(
+          String? unit = await _unitSelectorCallback(
               index, _pressUnitSelection, ["hPa", "mb", "inHg"]);
           provider.Provider.of<ApplicationState>(
             context,
@@ -209,7 +209,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
           _unitToggleButton("°F"),
         ],
         onPressed: (int index) async {
-          String unit = await _unitSelectorCallback(
+          String? unit = await _unitSelectorCallback(
               index, _tempUnitSelection, ["°C", "°F"]);
           provider.Provider.of<ApplicationState>(
             context,
@@ -236,7 +236,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
           _unitToggleButton("°F"),
         ],
         onPressed: (int index) async {
-          String unit = await _unitSelectorCallback(
+          String? unit = await _unitSelectorCallback(
               index, _dewUnitSelection, ["°C", "°F"]);
           provider.Provider.of<ApplicationState>(
             context,
@@ -254,7 +254,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
     );
   }
 
-  Future<String> _unitSelectorCallback(
+  Future<String?> _unitSelectorCallback(
     int index,
     List<bool> selectionList,
     List<String> units,
@@ -289,13 +289,13 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
   }
 
   Widget _unitToggleButton(String unit) {
-    ThemeData theme = widget.themeService.themeSubject.value;
+    ThemeData theme = widget.themeService!.themeSubject.value;
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Text(
         unit,
-        style: Theme.of(context).textTheme.subtitle2.copyWith(
+        style: Theme.of(context).textTheme.subtitle2!.copyWith(
               color: theme != null && theme.brightness == Brightness.dark
                   ? Colors.white
                   : Colors.black,

@@ -10,7 +10,7 @@ class DeletePWSDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Delete " + source.name + "?"),
+      title: Text("Delete " + source.name! + "?"),
       content: Text(
           "This operation is irreversible, if you press Yes this source will be deleted. You really want to delete it?"),
       actions: <Widget>[

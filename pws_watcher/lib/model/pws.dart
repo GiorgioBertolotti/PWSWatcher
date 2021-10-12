@@ -1,8 +1,8 @@
 class PWS {
-  int id;
-  String name;
-  String url;
-  String snapshotUrl;
+  int? id;
+  String? name;
+  String? url;
+  String? snapshotUrl;
   int autoUpdateInterval;
 
   PWS(this.id, this.name, this.url,

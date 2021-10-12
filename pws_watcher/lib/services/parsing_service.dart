@@ -9,16 +9,16 @@ import 'package:http/http.dart' as http;
 import 'package:pws_watcher/model/parsing_utilities.dart';
 
 class ParsingService {
-  BehaviorSubject<Map<String, String>> allDataSubject =
+  BehaviorSubject<Map<String?, String>> allDataSubject =
       BehaviorSubject<Map<String, String>>.seeded(Map());
-  BehaviorSubject<Map<String, String>> interestVariablesSubject =
+  BehaviorSubject<Map<String, String?>> interestVariablesSubject =
       BehaviorSubject<Map<String, String>>.seeded(Map());
-  Stream<Map<String, String>> get data$ => allDataSubject.stream;
-  Stream<Map<String, String>> get variables$ => interestVariablesSubject.stream;
-  PWS source;
+  Stream<Map<String?, String>> get data$ => allDataSubject.stream;
+  Stream<Map<String, String?>> get variables$ => interestVariablesSubject.stream;
+  PWS? source;
   ApplicationState appState;
 
-  setSource(PWS source) {
+  setSource(PWS? source) {
     this.source = source;
     updateData();
   }
@@ -35,21 +35,21 @@ class ParsingService {
   bool _isRetrieving = false;
 
   Future<Null> updateData({bool force = false}) async {
-    String url = this.source.url;
+    String? url = this.source!.url;
     await _updateData(url);
   }
 
-  Future<Null> _updateData(String url, {bool force = false}) async {
+  Future<Null> _updateData(String? url, {bool force = false}) async {
     if (!force && _isRetrieving) return null;
     if (url == null) return null;
     _isRetrieving = true;
     try {
       if (url.endsWith("xml")) {
         // parsing and variables assignment with realtime.xml
-        Map<String, String> sourceData = await _parseRealtimeXML(url);
+        Map<String, String>? sourceData = await _parseRealtimeXML(url);
         if (sourceData != null) {
-          Map interestData = _valuesFromRealtimeXML(sourceData);
-          sourceData.addAll(beautifyConvertedValues(interestData));
+          Map interestData = _valuesFromRealtimeXML(sourceData)!;
+          sourceData.addAll(beautifyConvertedValues(interestData as Map<String, String?>));
           allDataSubject.add(sourceData);
           interestVariablesSubject.add(interestData);
         } else {
@@ -61,13 +61,13 @@ class ParsingService {
       } else if (url.endsWith("txt")) {
         if (url.endsWith("clientraw.txt")) {
           // parsing and variables assignment with clientraw.txt
-          Map<String, String> sourceData = await _parseClientRawTXT(url);
+          Map<String, String>? sourceData = await _parseClientRawTXT(url);
           if (sourceData == null) {
             // parsing and variables assignment with clientraw.txt
             sourceData = await _parseRealtimeTXT(url);
             if (sourceData != null) {
-              Map interestData = _valuesFromRealtimeXML(sourceData);
-              sourceData.addAll(beautifyConvertedValues(interestData));
+              Map interestData = _valuesFromRealtimeXML(sourceData)!;
+              sourceData.addAll(beautifyConvertedValues(interestData as Map<String, String?>));
               allDataSubject.add(sourceData);
               interestVariablesSubject.add(interestData);
             } else {
@@ -77,20 +77,20 @@ class ParsingService {
               }
             }
           } else {
-            Map interestData = _valuesFromClientRawTXT(sourceData);
-            sourceData.addAll(beautifyConvertedValues(interestData));
+            Map interestData = _valuesFromClientRawTXT(sourceData)!;
+            sourceData.addAll(beautifyConvertedValues(interestData as Map<String, String?>));
             allDataSubject.add(sourceData);
             interestVariablesSubject.add(interestData);
           }
         } else {
           // parsing and variables assignment with realtime.txt
-          Map<String, String> sourceData = await _parseRealtimeTXT(url);
+          Map<String, String>? sourceData = await _parseRealtimeTXT(url);
           if (sourceData == null) {
             // parsing and variables assignment with clientraw.txt
             sourceData = await _parseClientRawTXT(url);
             if (sourceData != null) {
-              Map interestData = _valuesFromClientRawTXT(sourceData);
-              sourceData.addAll(beautifyConvertedValues(interestData));
+              Map interestData = _valuesFromClientRawTXT(sourceData)!;
+              sourceData.addAll(beautifyConvertedValues(interestData as Map<String, String?>));
               allDataSubject.add(sourceData);
               interestVariablesSubject.add(interestData);
             } else {
@@ -100,19 +100,19 @@ class ParsingService {
               }
             }
           } else {
-            Map interestData = _valuesFromRealtimeTXT(sourceData);
-            sourceData.addAll(beautifyConvertedValues(interestData));
+            Map interestData = _valuesFromRealtimeTXT(sourceData)!;
+            sourceData.addAll(beautifyConvertedValues(interestData as Map<String, String?>));
             allDataSubject.add(sourceData);
             interestVariablesSubject.add(interestData);
           }
         }
       } else if (url.endsWith("csv")) {
         // parsing and variables assignment with daily.csv
-        Map<String, String> sourceData = await _parseDailyCSV(url);
+        Map<String?, String>? sourceData = await _parseDailyCSV(url);
         if (sourceData != null) {
-          Map interestData = _valuesFromDailyCSV(sourceData);
+          Map? interestData = _valuesFromDailyCSV(sourceData);
           if (interestData != null) {
-            sourceData.addAll(beautifyConvertedValues(interestData));
+            sourceData.addAll(beautifyConvertedValues(interestData as Map<String, String?>));
             interestVariablesSubject.add(interestData);
           }
           allDataSubject.add(sourceData);
@@ -130,7 +130,7 @@ class ParsingService {
     _isRetrieving = false;
   }
 
-  Map<String, String> beautifyConvertedValues(Map<String, String> map) {
+  Map<String, String> beautifyConvertedValues(Map<String, String?> map) {
     Map<String, String> toReturn = Map();
     var windspeed = map["windspeed"] ?? "-";
     var press = map["press"] ?? "-";
@@ -152,9 +152,9 @@ class ParsingService {
     return toReturn;
   }
 
-  Future<Map<String, String>> _parseRealtimeXML(String url) async {
+  Future<Map<String, String>?> _parseRealtimeXML(String url) async {
     try {
-      var rawResponse = await http.get(url);
+      var rawResponse = await http.get(Uri.parse(url));
       var response = rawResponse.body;
       xml.XmlDocument document = xml.XmlDocument.parse(response);
       var pwsInfo = <String, String>{};
@@ -192,9 +192,9 @@ class ParsingService {
     }
   }
 
-  Future<Map<String, String>> _parseRealtimeTXT(String url) async {
+  Future<Map<String, String>?> _parseRealtimeTXT(String url) async {
     try {
-      var rawResponse = await http.get(url);
+      var rawResponse = await http.get(Uri.parse(url));
       var response = rawResponse.body;
       // split values by space
       List properties = realtimeTxtProperties;
@@ -210,10 +210,10 @@ class ParsingService {
     }
   }
 
-  Future<Map<String, String>> _parseClientRawTXT(String url) async {
+  Future<Map<String, String>?> _parseClientRawTXT(String url) async {
     try {
       // http request
-      var rawResponse = await http.get(url);
+      var rawResponse = await http.get(Uri.parse(url));
       var response = rawResponse.body;
 
       // split values by space
@@ -231,7 +231,7 @@ class ParsingService {
       // try to fetch extra info from clientrawextra.txt
       try {
         rawResponse = await http
-            .get(url.replaceAll("clientraw.txt", "clientrawextra.txt"));
+            .get(Uri.parse(url.replaceAll("clientraw.txt", "clientrawextra.txt")));
         response = rawResponse.body;
         // split values by space
         properties = clientRawExtraProperties;
@@ -248,15 +248,15 @@ class ParsingService {
     }
   }
 
-  Future<Map<String, String>> _parseDailyCSV(String url) async {
+  Future<Map<String?, String>?> _parseDailyCSV(String url) async {
     try {
-      var rawResponse = await http.get(url);
+      var rawResponse = await http.get(Uri.parse(url));
       var response = rawResponse.body;
       List lines = response.trim().split('\r\n');
-      var pwsInfo = <String, String>{};
+      var pwsInfo = <String?, String>{};
       pwsInfo["Date"] = lines[0];
-      int latestIndex;
-      TimeOfDay latestTimeOfDay;
+      int? latestIndex;
+      TimeOfDay? latestTimeOfDay;
       for (int i = 3; i < lines.length; i++) {
         List<String> values = lines[i].trim().split(',');
         if (values[0] != "---") {
@@ -286,10 +286,10 @@ class ParsingService {
       }
       if (latestIndex != null) {
         List properties = lines[1].trim().split(',');
-        List units = lines[2].trim().split(',');
+        List? units = lines[2].trim().split(',');
         for (var i = 0; i < properties.length; i++) {
           List<String> values = lines[latestIndex].trim().split(',');
-          if (i < units.length) pwsInfo[properties[i] + " Unit"] = units[i];
+          if (i < units!.length) pwsInfo[properties[i] + " Unit"] = units[i];
           if (i < values.length) pwsInfo[properties[i]] = values[i];
         }
       }
@@ -301,24 +301,24 @@ class ParsingService {
 
   double _timeOfDayToDouble(TimeOfDay tod) => tod.hour + tod.minute / 60.0;
 
-  Map<String, String> _valuesFromRealtimeXML(Map<String, String> map) {
+  Map<String, String?>? _valuesFromRealtimeXML(Map<String, String> map) {
     try {
-      Map<String, String> interestVariables = Map();
+      Map<String, String?> interestVariables = Map();
       if (map.containsKey("station_location"))
         interestVariables["location"] = map["station_location"];
       else if (map.containsKey("location"))
         interestVariables["location"] = map["location"];
-      else if (source != null) interestVariables["location"] = source.name;
+      else if (source != null) interestVariables["location"] = source!.name;
       try {
         var tmpDatetime = "";
         if (map.containsKey("station_date"))
-          tmpDatetime += " " + map["station_date"];
+          tmpDatetime += " " + map["station_date"]!;
         else if (map.containsKey("refresh_time"))
-          tmpDatetime += " " + map["refresh_time"].substring(0, 10);
+          tmpDatetime += " " + map["refresh_time"]!.substring(0, 10);
         if (map.containsKey("station_time"))
-          tmpDatetime += " " + map["station_time"];
+          tmpDatetime += " " + map["station_time"]!;
         else if (map.containsKey("refresh_time"))
-          tmpDatetime += " " + map["refresh_time"].substring(12);
+          tmpDatetime += " " + map["refresh_time"]!.substring(12);
         tmpDatetime =
             tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
         interestVariables["datetime"] = DateTime.parse(tmpDatetime)
@@ -327,14 +327,14 @@ class ParsingService {
             .replaceAll(".000", "");
       } catch (Exception) {
         interestVariables["datetime"] = (((map.containsKey("station_date"))
-                    ? map["station_date"].trim() + " "
+                    ? map["station_date"]!.trim() + " "
                     : ((map.containsKey("refresh_time"))
-                        ? map["refresh_time"].substring(0, 10).trim() + " "
+                        ? map["refresh_time"]!.substring(0, 10).trim() + " "
                         : "--/--/-- ")) +
                 ((map.containsKey("station_time"))
-                    ? map["station_time"].trim()
+                    ? map["station_time"]!.trim()
                     : ((map.containsKey("refresh_time"))
-                        ? map["refresh_time"].substring(12).trim()
+                        ? map["refresh_time"]!.substring(12).trim()
                         : "--:--:--")))
             .replaceAll("/", "-")
             .replaceAll(".", "-");
@@ -349,10 +349,10 @@ class ParsingService {
         try {
           final doubleRegex = RegExp(r'(\d+\.\d+)+');
           interestVariables["press"] =
-              doubleRegex.allMatches(map["press"]).first.group(0);
+              doubleRegex.allMatches(map["press"]!).first.group(0);
           interestVariables["pressUnit"] = map["press"]
               .toString()
-              .replaceAll(interestVariables["press"], "")
+              .replaceAll(interestVariables["press"]!, "")
               .trim();
         } catch (e) {
           interestVariables["press"] = map["press"];
@@ -365,10 +365,10 @@ class ParsingService {
         try {
           final doubleRegex = RegExp(r'(\d+\.\d+)+');
           interestVariables["temperature"] =
-              doubleRegex.allMatches(map["temp"]).first.group(0);
+              doubleRegex.allMatches(map["temp"]!).first.group(0);
           interestVariables["tempUnit"] = map["temp"]
               .toString()
-              .replaceAll(interestVariables["temperature"], "")
+              .replaceAll(interestVariables["temperature"]!, "")
               .trim();
         } catch (e) {
           interestVariables["temperature"] = map["temp"];
@@ -380,7 +380,7 @@ class ParsingService {
         try {
           final doubleRegex = RegExp(r'(\d+\.\d+)+');
           interestVariables["windchill"] =
-              doubleRegex.allMatches(map["wchill"]).first.group(0);
+              doubleRegex.allMatches(map["wchill"]!).first.group(0);
         } catch (e) {
           interestVariables["windchill"] = map["wchill"];
         }
@@ -391,10 +391,10 @@ class ParsingService {
         try {
           final doubleRegex = RegExp(r'(\d+\.\d+)+');
           interestVariables["rain"] =
-              doubleRegex.allMatches(map["today_rainfall"]).first.group(0);
+              doubleRegex.allMatches(map["today_rainfall"]!).first.group(0);
           interestVariables["rainUnit"] = map["today_rainfall"]
               .toString()
-              .replaceAll(interestVariables["rain"], "")
+              .replaceAll(interestVariables["rain"]!, "")
               .trim();
         } catch (e) {
           interestVariables["rain"] = map["today_rainfall"];
@@ -404,10 +404,10 @@ class ParsingService {
         try {
           final doubleRegex = RegExp(r'(\d+\.\d+)+');
           interestVariables["dew"] =
-              doubleRegex.allMatches(map["dew"]).first.group(0);
+              doubleRegex.allMatches(map["dew"]!).first.group(0);
           interestVariables["dewUnit"] = map["dew"]
               .toString()
-              .replaceAll(interestVariables["dew"], "")
+              .replaceAll(interestVariables["dew"]!, "")
               .trim();
         } catch (e) {
           interestVariables["dew"] = map["dew"];
@@ -456,15 +456,15 @@ class ParsingService {
     }
   }
 
-  Map<String, String> _valuesFromRealtimeTXT(Map<String, String> map) {
+  Map<String, String?>? _valuesFromRealtimeTXT(Map<String, String> map) {
     try {
-      Map<String, String> interestVariables = Map();
-      if (source != null) interestVariables["location"] = source.name;
+      Map<String, String?> interestVariables = Map();
+      if (source != null) interestVariables["location"] = source!.name;
       try {
         var tmpDatetime = "";
-        if (map.containsKey("date")) tmpDatetime += " " + map["date"];
+        if (map.containsKey("date")) tmpDatetime += " " + map["date"]!;
         if (map.containsKey("timehhmmss"))
-          tmpDatetime += " " + map["timehhmmss"];
+          tmpDatetime += " " + map["timehhmmss"]!;
         tmpDatetime =
             tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
         tmpDatetime = tmpDatetime.substring(0, 6) +
@@ -483,10 +483,10 @@ class ParsingService {
             .replaceAll(".000", "");
       } catch (Exception) {
         interestVariables["datetime"] = (((map.containsKey("date"))
-                    ? map["date"].trim() + " "
+                    ? map["date"]!.trim() + " "
                     : "--/--/-- ") +
                 ((map.containsKey("timehhmmss"))
-                    ? map["timehhmmss"].trim()
+                    ? map["timehhmmss"]!.trim()
                     : "--:--:--"))
             .replaceAll("/", "-")
             .replaceAll(".", "-");
@@ -540,18 +540,18 @@ class ParsingService {
     }
   }
 
-  Map<String, String> _valuesFromClientRawTXT(Map<String, String> map) {
+  Map<String, String?>? _valuesFromClientRawTXT(Map<String, String> map) {
     try {
-      Map<String, String> interestVariables = Map();
-      if (source != null) interestVariables["location"] = source.name;
+      Map<String, String?> interestVariables = Map();
+      if (source != null) interestVariables["location"] = source!.name;
       var tmpDatetime = "";
-      if (map.containsKey("Date")) tmpDatetime += " " + map["Date"];
+      if (map.containsKey("Date")) tmpDatetime += " " + map["Date"]!;
       if (map.containsKey("Hour"))
-        tmpDatetime += " " + map["Hour"].padLeft(2, "0");
+        tmpDatetime += " " + map["Hour"]!.padLeft(2, "0");
       if (map.containsKey("Minute"))
-        tmpDatetime += ":" + map["Minute"].padLeft(2, "0");
+        tmpDatetime += ":" + map["Minute"]!.padLeft(2, "0");
       if (map.containsKey("Seconds"))
-        tmpDatetime += ":" + map["Seconds"].padLeft(2, "0");
+        tmpDatetime += ":" + map["Seconds"]!.padLeft(2, "0");
       tmpDatetime =
           tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
       try {
@@ -567,7 +567,7 @@ class ParsingService {
       if (map.containsKey("Barometer"))
         interestVariables["press"] = map["Barometer"];
       if (map.containsKey("WindDirection"))
-        interestVariables["winddir"] = deg2WindDir(map["WindDirection"]);
+        interestVariables["winddir"] = deg2WindDir(map["WindDirection"]!);
       if (map.containsKey("OutsideHumidity"))
         interestVariables["humidity"] = map["OutsideHumidity"];
       if (map.containsKey("OutsideTemp"))
@@ -602,16 +602,16 @@ class ParsingService {
     }
   }
 
-  Map<String, String> _valuesFromDailyCSV(Map<String, String> map) {
+  Map<String, String?>? _valuesFromDailyCSV(Map<String?, String> map) {
     try {
-      Map<String, String> interestVariables = Map();
-      if (source != null) interestVariables["location"] = source.name;
+      Map<String, String?> interestVariables = Map();
+      if (source != null) interestVariables["location"] = source!.name;
       var tmpDatetime = "";
       if (map.containsKey("Date")) {
         try {
-          if (map["Date"].substring(map["Date"].lastIndexOf("/") + 1).length !=
+          if (map["Date"]!.substring(map["Date"]!.lastIndexOf("/") + 1).length !=
               4) {
-            List<String> vals = map["Date"].split("/");
+            List<String> vals = map["Date"]!.split("/");
             tmpDatetime += " " +
                 DateTime.now()
                     .year
@@ -623,14 +623,14 @@ class ParsingService {
                 "/" +
                 vals[1].padLeft(2, "0");
           } else
-            tmpDatetime += " " + map["Date"];
+            tmpDatetime += " " + map["Date"]!;
         } catch (e) {
-          tmpDatetime += " " + map["Date"];
+          tmpDatetime += " " + map["Date"]!;
         }
       }
-      bool am = map["Time"]?.toLowerCase()?.contains("am") ?? false;
-      bool pm = map["Time"]?.toLowerCase()?.contains("pm") ?? false;
-      String time = map["Time"].replaceAll("am", "").replaceAll("pm", "");
+      bool am = map["Time"]?.toLowerCase().contains("am") ?? false;
+      bool pm = map["Time"]?.toLowerCase().contains("pm") ?? false;
+      String time = map["Time"]!.replaceAll("am", "").replaceAll("pm", "");
       int part1 = int.parse(time.split(":")[0]);
       int part2 = int.parse(time.split(":")[1]);
       if (part1 == 12) {
@@ -657,7 +657,7 @@ class ParsingService {
       if (map.containsKey("Raw Barom"))
         interestVariables["press"] = map["Raw Barom"];
       if (map.containsKey("Wind Dir"))
-        interestVariables["winddir"] = deg2WindDir(map["Wind Dir"]);
+        interestVariables["winddir"] = deg2WindDir(map["Wind Dir"]!);
       if (map.containsKey("Humidity"))
         interestVariables["humidity"] = map["Humidity"];
       if (map.containsKey("Temp"))
@@ -706,29 +706,29 @@ class ParsingService {
     }
   }
 
-  Map<String, String> _convertToPrefUnits(
-      Map<String, String> interestVariables) {
+  Map<String, String?> _convertToPrefUnits(
+      Map<String, String?> interestVariables) {
     if (_isNumeric(interestVariables["windspeed"]) &&
         appState.prefWindUnit != null &&
-        !unitEquals(interestVariables["windUnit"], appState.prefWindUnit)) {
+        !unitEquals(interestVariables["windUnit"]!, appState.prefWindUnit!)) {
       interestVariables =
           convertWindSpeed(interestVariables, appState.prefWindUnit);
     }
     if (_isNumeric(interestVariables["rain"]) &&
         appState.prefRainUnit != null &&
-        !unitEquals(interestVariables["rainUnit"], appState.prefRainUnit)) {
+        !unitEquals(interestVariables["rainUnit"]!, appState.prefRainUnit!)) {
       interestVariables = convertRain(interestVariables, appState.prefRainUnit);
     }
     if (_isNumeric(interestVariables["press"]) &&
         appState.prefPressUnit != null &&
-        !unitEquals(interestVariables["pressUnit"], appState.prefPressUnit)) {
+        !unitEquals(interestVariables["pressUnit"]!, appState.prefPressUnit!)) {
       interestVariables =
           convertPressure(interestVariables, appState.prefPressUnit);
     }
     if ((_isNumeric(interestVariables["windchill"]) ||
             _isNumeric(interestVariables["temperature"])) &&
         appState.prefTempUnit != null &&
-        !unitEquals(interestVariables["tempUnit"], appState.prefTempUnit)) {
+        !unitEquals(interestVariables["tempUnit"]!, appState.prefTempUnit!)) {
       if (_isNumeric(interestVariables["windchill"]))
         interestVariables =
             convertWindChill(interestVariables, appState.prefTempUnit);
@@ -738,7 +738,7 @@ class ParsingService {
     }
     if (_isNumeric(interestVariables["dew"]) &&
         appState.prefDewUnit != null &&
-        !unitEquals(interestVariables["dewUnit"], appState.prefDewUnit)) {
+        !unitEquals(interestVariables["dewUnit"]!, appState.prefDewUnit!)) {
       interestVariables = convertDew(interestVariables, appState.prefDewUnit);
     }
     if (_isNumeric(interestVariables["windspeed"]) &&
@@ -762,35 +762,35 @@ class ParsingService {
         unit2.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase();
   }
 
-  convertWindSpeed(Map<String, String> interestVariables, String preferred) {
+  convertWindSpeed(Map<String, String?> interestVariables, String? preferred) {
     double kmh;
-    switch (interestVariables["windUnit"]
+    switch (interestVariables["windUnit"]!
         .trim()
         .replaceAll("/", "")
         .toLowerCase()) {
       case "kts":
       case "kn":
         {
-          kmh = ktsToKmh(double.parse(interestVariables["windspeed"]));
+          kmh = ktsToKmh(double.parse(interestVariables["windspeed"]!));
           break;
         }
       case "mph":
         {
-          kmh = mphToKmh(double.parse(interestVariables["windspeed"]));
+          kmh = mphToKmh(double.parse(interestVariables["windspeed"]!));
           break;
         }
       case "ms":
         {
-          kmh = msToKmh(double.parse(interestVariables["windspeed"]));
+          kmh = msToKmh(double.parse(interestVariables["windspeed"]!));
           break;
         }
       default:
         {
-          kmh = double.parse(interestVariables["windspeed"]);
+          kmh = double.parse(interestVariables["windspeed"]!);
           break;
         }
     }
-    switch (preferred.trim().replaceAll("/", "").toLowerCase()) {
+    switch (preferred!.trim().replaceAll("/", "").toLowerCase()) {
       case "kts":
       case "kn":
         {
@@ -819,47 +819,47 @@ class ParsingService {
     return interestVariables;
   }
 
-  convertRain(Map<String, String> interestVariables, String preferred) {
-    if (interestVariables["rainUnit"]
+  convertRain(Map<String, String?> interestVariables, String? preferred) {
+    if (interestVariables["rainUnit"]!
             .trim()
             .replaceAll("/", "")
             .toLowerCase() ==
         "mm") {
       interestVariables["rain"] =
-          roundToNthDecimal(mmToIn(double.parse(interestVariables["rain"])), 2)
+          roundToNthDecimal(mmToIn(double.parse(interestVariables["rain"]!)), 2)
               .toString();
     } else {
       interestVariables["rain"] =
-          roundToNthDecimal(inToMm(double.parse(interestVariables["rain"])), 2)
+          roundToNthDecimal(inToMm(double.parse(interestVariables["rain"]!)), 2)
               .toString();
     }
     return interestVariables;
   }
 
-  convertPressure(Map<String, String> interestVariables, String preferred) {
+  convertPressure(Map<String, String?> interestVariables, String? preferred) {
     double hPa;
-    switch (interestVariables["pressUnit"]
+    switch (interestVariables["pressUnit"]!
         .trim()
         .replaceAll("/", "")
         .toLowerCase()) {
       case "in":
       case "inhg":
         {
-          hPa = inhgToHPa(double.parse(interestVariables["press"]));
+          hPa = inhgToHPa(double.parse(interestVariables["press"]!));
           break;
         }
       case "mb":
         {
-          hPa = mbToHPa(double.parse(interestVariables["press"]));
+          hPa = mbToHPa(double.parse(interestVariables["press"]!));
           break;
         }
       default:
         {
-          hPa = double.parse(interestVariables["press"]);
+          hPa = double.parse(interestVariables["press"]!);
           break;
         }
     }
-    switch (preferred.trim().replaceAll("/", "").toLowerCase()) {
+    switch (preferred!.trim().replaceAll("/", "").toLowerCase()) {
       case "in":
       case "inhg":
         {
@@ -882,55 +882,55 @@ class ParsingService {
     return interestVariables;
   }
 
-  convertWindChill(Map<String, String> interestVariables, String preferred) {
-    if (interestVariables["tempUnit"]
+  convertWindChill(Map<String, String?> interestVariables, String? preferred) {
+    if (interestVariables["tempUnit"]!
             .trim()
             .replaceAll("/", "")
             .replaceAll("°", "")
             .toLowerCase() ==
         "f") {
       interestVariables["windchill"] = roundToNthDecimal(
-              fToC(double.parse(interestVariables["windchill"])), 1)
+              fToC(double.parse(interestVariables["windchill"]!)), 1)
           .toString();
     } else {
       interestVariables["windchill"] = roundToNthDecimal(
-              cToF(double.parse(interestVariables["windchill"])), 1)
+              cToF(double.parse(interestVariables["windchill"]!)), 1)
           .toString();
     }
     return interestVariables;
   }
 
-  convertTemperature(Map<String, String> interestVariables, String preferred) {
-    if (interestVariables["tempUnit"]
+  convertTemperature(Map<String, String?> interestVariables, String? preferred) {
+    if (interestVariables["tempUnit"]!
             .trim()
             .replaceAll("/", "")
             .replaceAll("°", "")
             .toLowerCase() ==
         "f") {
       interestVariables["temperature"] = roundToNthDecimal(
-              fToC(double.parse(interestVariables["temperature"])), 1)
+              fToC(double.parse(interestVariables["temperature"]!)), 1)
           .toString();
     } else {
       interestVariables["temperature"] = roundToNthDecimal(
-              cToF(double.parse(interestVariables["temperature"])), 1)
+              cToF(double.parse(interestVariables["temperature"]!)), 1)
           .toString();
     }
     return interestVariables;
   }
 
-  convertDew(Map<String, String> interestVariables, String preferred) {
-    if (interestVariables["dewUnit"]
+  convertDew(Map<String, String?> interestVariables, String? preferred) {
+    if (interestVariables["dewUnit"]!
             .trim()
             .replaceAll("/", "")
             .replaceAll("°", "")
             .toLowerCase() ==
         "f") {
       interestVariables["dew"] =
-          roundToNthDecimal(fToC(double.parse(interestVariables["dew"])), 1)
+          roundToNthDecimal(fToC(double.parse(interestVariables["dew"]!)), 1)
               .toString();
     } else {
       interestVariables["dew"] =
-          roundToNthDecimal(cToF(double.parse(interestVariables["dew"])), 1)
+          roundToNthDecimal(cToF(double.parse(interestVariables["dew"]!)), 1)
               .toString();
     }
     return interestVariables;
@@ -1033,7 +1033,7 @@ class ParsingService {
     return (c * 9 / 5) + 32;
   }
 
-  bool _isNumeric(String str) {
+  bool _isNumeric(String? str) {
     if (str == null) {
       return false;
     }
@@ -1041,7 +1041,7 @@ class ParsingService {
   }
 
   double roundToNthDecimal(double val, int decimals) {
-    int fac = pow(10, decimals);
+    int fac = pow(10, decimals) as int;
     return (val * fac).round() / fac;
   }
 }

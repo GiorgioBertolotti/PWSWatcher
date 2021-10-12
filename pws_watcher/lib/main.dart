@@ -28,7 +28,7 @@ class PWSWatcher extends StatelessWidget {
         builder: (context, snapshot) {
           return MaterialApp(
             title: 'PWS Watcher',
-            theme: snapshot.data,
+            theme: snapshot.data as ThemeData?,
             home: SplashPage(),
             navigatorKey: navigatorKey,
           );

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 class CustomData {
-  String name;
-  String unit;
-  IconData icon;
+  String? name;
+  String? unit;
+  IconData? icon;
 
   CustomData({
-    @required this.name,
+    required this.name,
     this.unit,
     this.icon,
   });
@@ -17,10 +17,10 @@ class CustomData {
       'unit': this.unit,
       'icon': this.icon != null
           ? {
-              'codePoint': this.icon.codePoint,
-              'fontFamily': this.icon.fontFamily,
-              'fontPackage': this.icon.fontPackage,
-              'matchTextDirection': this.icon.matchTextDirection,
+              'codePoint': this.icon!.codePoint,
+              'fontFamily': this.icon!.fontFamily,
+              'fontPackage': this.icon!.fontPackage,
+              'matchTextDirection': this.icon!.matchTextDirection,
             }
           : null
     };
