@@ -102,16 +102,24 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
                 ),
               ),
               _icon != null
-                  ? FlatButton.icon(
+                  ? TextButton.icon(
                       icon: Icon(_icon),
-                      textColor: Colors.white,
-                      color: widget.theme!.primaryColor,
+                      style: TextButton.styleFrom(
+                        textStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                        backgroundColor: Theme.of(context).primaryColor,
+                      ),
                       label: Text("Change icon"),
                       onPressed: _pickIcon,
                     )
-                  : FlatButton(
-                      textColor: Colors.white,
-                      color: widget.theme!.primaryColor,
+                  : TextButton(
+                      style: TextButton.styleFrom(
+                        textStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                        backgroundColor: Theme.of(context).primaryColor,
+                      ),
                       child: Text("Add an icon"),
                       onPressed: _pickIcon,
                     ),
@@ -120,14 +128,18 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
         ),
       ),
       actions: <Widget>[
-        FlatButton(
-          textColor: widget.theme!.buttonColor,
+        TextButton(
+          style: TextButton.styleFrom(textStyle: TextStyle(color: Theme.of(context).buttonTheme.colorScheme?.primary)),
           child: Text("Close"),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        FlatButton(
-          textColor: Colors.white,
-          color: widget.theme!.primaryColor,
+        TextButton(
+          style: TextButton.styleFrom(
+            textStyle: TextStyle(
+              color: Colors.white,
+            ),
+            backgroundColor: Theme.of(context).primaryColor,
+          ),
           child: Text(mode == CustomDataDialogMode.ADD ? "Add" : "Edit"),
           onPressed: _save,
         ),
