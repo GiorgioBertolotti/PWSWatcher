@@ -12,8 +12,8 @@ class UpdateTimer extends StatefulWidget {
 
 class _UpdateTimerState extends State<UpdateTimer>
     with TickerProviderStateMixin {
-  AnimationController _controller;
-  Duration _actualDuration;
+  AnimationController? _controller;
+  Duration? _actualDuration;
 
   @override
   void initState() {
@@ -27,36 +27,36 @@ class _UpdateTimerState extends State<UpdateTimer>
       duration: widget.duration,
       vsync: this,
     );
-    _controller.addListener(() {
-      if (_controller.value > 0.99) {
+    _controller!.addListener(() {
+      if (_controller!.value > 0.99) {
         widget.callBack();
       }
     });
-    _controller.repeat();
+    _controller!.repeat();
     _actualDuration = widget.duration;
   }
 
   void restartTimer() {
     if (_controller != null) {
-      _controller.stop();
-      _controller.dispose();
+      _controller!.stop();
+      _controller!.dispose();
     }
     _controller = AnimationController(
       duration: widget.duration,
       vsync: this,
     );
-    _controller.addListener(() {
-      if (_controller.value > 0.99) {
+    _controller!.addListener(() {
+      if (_controller!.value > 0.99) {
         widget.callBack();
       }
     });
-    _controller.repeat();
+    _controller!.repeat();
     _actualDuration = widget.duration;
   }
 
   @override
   void dispose() {
-    if (_controller != null) _controller.dispose();
+    if (_controller != null) _controller!.dispose();
     super.dispose();
   }
 
@@ -70,10 +70,10 @@ class _UpdateTimerState extends State<UpdateTimer>
       width: 16.0,
       height: 16.0,
       child: AnimatedBuilder(
-          animation: _controller,
+          animation: _controller!,
           builder: (context, snapshot) {
             return CircularProgressIndicator(
-              value: _controller.value,
+              value: _controller!.value,
               strokeWidth: 2.5,
             );
           }),

@@ -4,7 +4,7 @@ import 'package:pws_watcher/pages/settings/widgets/theme_toggle_button.dart';
 import 'package:pws_watcher/services/theme_service.dart';
 
 class ThemeSettingsCard extends StatefulWidget {
-  final ThemeService themeService = getIt<ThemeService>();
+  final ThemeService? themeService = getIt<ThemeService>();
 
   @override
   _ThemeSettingsCardState createState() => _ThemeSettingsCardState();
@@ -16,11 +16,11 @@ class _ThemeSettingsCardState extends State<ThemeSettingsCard> {
   @override
   void initState() {
     _themeSelection = [
-      widget.themeService.activeTheme == "day",
-      widget.themeService.activeTheme == "evening",
-      widget.themeService.activeTheme == "night",
-      widget.themeService.activeTheme == "grey",
-      widget.themeService.activeTheme == "blacked",
+      widget.themeService!.activeTheme == "day",
+      widget.themeService!.activeTheme == "evening",
+      widget.themeService!.activeTheme == "night",
+      widget.themeService!.activeTheme == "grey",
+      widget.themeService!.activeTheme == "blacked",
     ];
     super.initState();
   }
@@ -67,19 +67,19 @@ class _ThemeSettingsCardState extends State<ThemeSettingsCard> {
                   }
                   switch (index) {
                     case 0:
-                      widget.themeService.setTheme("day");
+                      widget.themeService!.setTheme("day");
                       break;
                     case 1:
-                      widget.themeService.setTheme("evening");
+                      widget.themeService!.setTheme("evening");
                       break;
                     case 2:
-                      widget.themeService.setTheme("night");
+                      widget.themeService!.setTheme("night");
                       break;
                     case 3:
-                      widget.themeService.setTheme("grey");
+                      widget.themeService!.setTheme("grey");
                       break;
                     case 4:
-                      widget.themeService.setTheme("blacked");
+                      widget.themeService!.setTheme("blacked");
                       break;
                   }
                   setState(() {});

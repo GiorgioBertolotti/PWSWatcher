@@ -4,7 +4,6 @@ import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/model/pws.dart';
 import 'package:pws_watcher/model/state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:showcaseview/showcase_widget.dart';
 import 'package:showcaseview/showcaseview.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -14,11 +13,11 @@ const double inputHeight = 59.0;
 
 class PWSDialog extends StatefulWidget {
   final PWSDialogMode mode;
-  final PWS source;
-  final ThemeData theme;
+  final PWS? source;
+  final ThemeData? theme;
 
   PWSDialog({
-    @required this.mode,
+    required this.mode,
     this.source,
     this.theme,
   }) {
@@ -47,21 +46,21 @@ class _PWSDialogState extends State<PWSDialog> {
   FocusNode _intervalFocusNode = FocusNode();
   FocusNode _snapshotUrlFocusNode = FocusNode();
 
-  BuildContext _showCaseContext;
+  late BuildContext _showCaseContext;
 
   @override
   void initState() {
     if (widget.mode == PWSDialogMode.EDIT) {
-      _nameController.text = widget.source.name;
-      _urlController.text = widget.source.url;
-      _intervalController.text = widget.source.autoUpdateInterval.toString();
-      _snapshotUrlController.text = widget.source.snapshotUrl ?? "";
+      _nameController.text = widget.source!.name!;
+      _urlController.text = widget.source!.url!;
+      _intervalController.text = widget.source!.autoUpdateInterval.toString();
+      _snapshotUrlController.text = widget.source!.snapshotUrl ?? "";
     }
 
     _shouldShowcase().then((shouldShow) {
       if (shouldShow) {
-        WidgetsBinding.instance.addPostFrameCallback((_) =>
-            ShowCaseWidget.of(_showCaseContext)
+        WidgetsBinding.instance!.addPostFrameCallback((_) =>
+            ShowCaseWidget.of(_showCaseContext)!
                 .startShowCase([_urlKey, _refreshKey, _snapshotUrlKey]));
       }
     });
@@ -80,7 +79,7 @@ class _PWSDialogState extends State<PWSDialog> {
         return AlertDialog(
           title: Text(mode == PWSDialogMode.ADD
               ? "Add PWS"
-              : "Edit ${widget.source.name}"),
+              : "Edit ${widget.source!.name}"),
           content: Form(
             key: _formKey,
             child: SingleChildScrollView(
@@ -152,7 +151,7 @@ class _PWSDialogState extends State<PWSDialog> {
                           if (value == null ||
                               value.isEmpty ||
                               int.tryParse(value) == null ||
-                              int.tryParse(value) < 0)
+                              int.tryParse(value)! < 0)
                             return "Please set a valid interval.";
                           return null;
                         },
@@ -195,18 +194,18 @@ class _PWSDialogState extends State<PWSDialog> {
           ),
           actions: <Widget>[
             FlatButton(
-              textColor: widget.theme.buttonColor,
+              textColor: widget.theme!.buttonColor,
               child: Text("Help"),
               onPressed: _openHelp,
             ),
             FlatButton(
-              textColor: widget.theme.buttonColor,
+              textColor: widget.theme!.buttonColor,
               child: Text("Close"),
               onPressed: () => Navigator.of(context).pop(),
             ),
             FlatButton(
               textColor: Colors.white,
-              color: widget.theme.primaryColor,
+              color: widget.theme!.primaryColor,
               child: Text(mode == PWSDialogMode.ADD ? "Add" : "Edit"),
               onPressed: _save,
             ),
@@ -220,10 +219,10 @@ class _PWSDialogState extends State<PWSDialog> {
     // Closes keyboard
     FocusScope.of(context).requestFocus(FocusNode());
 
-    if (_formKey.currentState.validate()) {
-      _formKey.currentState.save();
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
 
-      PWS source;
+      PWS? source;
 
       if (widget.mode == PWSDialogMode.ADD) {
         source = PWS(
@@ -239,7 +238,7 @@ class _PWSDialogState extends State<PWSDialog> {
       } else {
         source = widget.source;
 
-        source.name = _nameController.text;
+        source!.name = _nameController.text;
         source.url = _urlController.text;
         source.autoUpdateInterval = int.parse(_intervalController.text);
         source.snapshotUrl = _snapshotUrlController.text;

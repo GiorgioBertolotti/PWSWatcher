@@ -14,7 +14,7 @@ import 'dart:async';
 import 'package:flare_flutter/flare_actor.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
+  HomePage({Key? key}) : super(key: key);
 
   final String title = "PWS Watcher";
 
@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
   final _kDuration = const Duration(milliseconds: 300);
   final _kCurve = Curves.ease;
 
-  StreamSubscription _connectionChangeStream;
+  late StreamSubscription _connectionChangeStream;
   bool _isOffline = false;
 
   final GlobalKey _dotsIndicator = GlobalKey();
@@ -61,7 +61,7 @@ class _HomePageState extends State<HomePage> {
     _populateSources().then((sources) {
       _pages.clear();
       if (sources != null) {
-        for (PWS s in sources) {
+        for (PWS? s in sources) {
           _pages.add(PWSStatePage(s));
         }
         setState(() {});
@@ -115,11 +115,11 @@ class _HomePageState extends State<HomePage> {
 
   // FUNCTIONS
 
-  Future<List<PWS>> _populateSources() async {
-    List<PWS> toReturn = [];
+  Future<List<PWS?>> _populateSources() async {
+    List<PWS?> toReturn = [];
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> sources = prefs.getStringList("sources");
+    List<String>? sources = prefs.getStringList("sources");
 
     if (sources == null || sources.isEmpty) {
       // If there are no sources to show, route the user to the settings page
@@ -142,7 +142,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     // Populate PWS list from a list of JSONs stored in shared prefs
-    for (String sourceJSON in sources) {
+    for (String sourceJSON in sources!) {
       try {
         dynamic source = jsonDecode(sourceJSON);
         toReturn.add(_parsePWS(source));
@@ -154,8 +154,8 @@ class _HomePageState extends State<HomePage> {
     return toReturn;
   }
 
-  PWS _parsePWS(dynamic rawSource) {
-    int id = rawSource['id'];
+  PWS? _parsePWS(dynamic rawSource) {
+    int? id = rawSource['id'];
 
     if (id == null || id < 0) {
       // Invalid id
@@ -210,7 +210,7 @@ class _HomePageState extends State<HomePage> {
               textAlign: TextAlign.center,
               style: Theme.of(context)
                   .textTheme
-                  .subtitle1
+                  .subtitle1!
                   .copyWith(color: Colors.white),
             ),
             Container(
@@ -265,12 +265,12 @@ class _HomePageState extends State<HomePage> {
           );
 
           // Fetches the PWSs
-          List<PWS> sources = await _populateSources();
+          List<PWS?> sources = await _populateSources();
 
           _pages.clear();
 
           if (sources != null && sources.isNotEmpty) {
-            for (PWS s in sources) {
+            for (PWS? s in sources) {
               _pages.add(PWSStatePage(s));
             }
           }

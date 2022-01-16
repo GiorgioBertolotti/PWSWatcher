@@ -17,7 +17,7 @@ import 'package:pws_watcher/model/pws.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 class SettingsPage extends StatefulWidget {
-  final ThemeService themeService = getIt<ThemeService>();
+  final ThemeService? themeService = getIt<ThemeService>();
 
   @override
   _SettingsPageState createState() => _SettingsPageState();
@@ -30,7 +30,7 @@ class _SettingsPageState extends State<SettingsPage>
   List<PWS> _sources = [];
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
-  BuildContext _showCaseContext;
+  late BuildContext _showCaseContext;
 
   @override
   void initState() {
@@ -86,7 +86,7 @@ class _SettingsPageState extends State<SettingsPage>
               iconColor: Theme.of(context).iconTheme.color,
               child: Scaffold(
                 key: _scaffoldKey,
-                appBar: _buildAppBar(),
+                appBar: _buildAppBar() as PreferredSizeWidget?,
                 floatingActionButton: _buildFAB(),
                 body: _buildBody(),
               ),
@@ -100,7 +100,7 @@ class _SettingsPageState extends State<SettingsPage>
   // FUNCTIONS
 
   _addSource() async {
-    PWS source = await showDialog(
+    PWS? source = await showDialog(
       context: context,
       builder: (ctx) => provider.Provider<ApplicationState>.value(
         value: provider.Provider.of<ApplicationState>(context, listen: false),
@@ -130,7 +130,7 @@ class _SettingsPageState extends State<SettingsPage>
 
   // Populate sources list as a list of JSONS to be stored in shared prefs
   List<String> _encodeSources() {
-    List<String> sourcesJSON = List();
+    List<String> sourcesJSON = <String>[];
 
     for (PWS source in _sources) {
       String sourceJSON = jsonEncode(source);
@@ -144,14 +144,14 @@ class _SettingsPageState extends State<SettingsPage>
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     // Clear the list of sources before retrieving the new one
-    _sources = List();
+    _sources = List.empty();
 
-    List<String> sources = prefs.getStringList("sources");
+    List<String>? sources = prefs.getStringList("sources");
 
     if (sources == null || sources.isEmpty) {
       _shouldShowcase().then((shouldShow) {
         if (shouldShow) {
-          ShowCaseWidget.of(_showCaseContext).startShowCase([_fabKey]);
+          ShowCaseWidget.of(_showCaseContext)!.startShowCase([_fabKey]);
         }
       });
     } else {
@@ -167,7 +167,7 @@ class _SettingsPageState extends State<SettingsPage>
             snapshotUrl: source["snapshotUrl"],
           ));
         } catch (Exception) {
-          prefs.setStringList("sources", null);
+          prefs.setStringList("sources", List.empty());
         }
       }
     }
@@ -192,7 +192,7 @@ class _SettingsPageState extends State<SettingsPage>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool("showcase_2", false);
 
-    ShowCaseWidget.of(_showCaseContext).startShowCase([_fabKey]);
+    ShowCaseWidget.of(_showCaseContext)!.startShowCase([_fabKey]);
   }
 
   // WIDGETS
@@ -215,7 +215,7 @@ class _SettingsPageState extends State<SettingsPage>
         "Settings",
         maxLines: 1,
         style:
-            Theme.of(context).textTheme.headline5.copyWith(color: Colors.white),
+            Theme.of(context).textTheme.headline5!.copyWith(color: Colors.white),
       ),
       centerTitle: true,
     );

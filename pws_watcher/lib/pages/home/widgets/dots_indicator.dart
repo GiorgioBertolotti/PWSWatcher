@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class DotsIndicator extends AnimatedWidget {
   DotsIndicator({
-    this.controller,
+    required this.controller,
     this.itemCount,
     this.onPageSelected,
     this.color: Colors.white,
@@ -13,10 +13,10 @@ class DotsIndicator extends AnimatedWidget {
   final PageController controller;
 
   /// The number of items managed by the PageController
-  final int itemCount;
+  final int? itemCount;
 
   /// Called when a dot is tapped
-  final ValueChanged<int> onPageSelected;
+  final ValueChanged<int>? onPageSelected;
 
   /// The color of the dots.
   ///
@@ -50,7 +50,7 @@ class DotsIndicator extends AnimatedWidget {
             width: _kDotSize * zoom,
             height: _kDotSize * zoom,
             child: new InkWell(
-              onTap: () => onPageSelected(index),
+              onTap: () => onPageSelected!(index),
             ),
           ),
         ),
@@ -61,7 +61,7 @@ class DotsIndicator extends AnimatedWidget {
   Widget build(BuildContext context) {
     return new Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: new List<Widget>.generate(itemCount, _buildDot),
+      children: new List<Widget>.generate(itemCount!, _buildDot),
     );
   }
 }

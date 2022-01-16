@@ -20,7 +20,7 @@ import 'snapshot_preview.dart';
 class PWSStatePage extends StatefulWidget {
   PWSStatePage(this.source);
 
-  final PWS source;
+  final PWS? source;
 
   @override
   _PWSStatePageState createState() => _PWSStatePageState();
@@ -28,9 +28,9 @@ class PWSStatePage extends StatefulWidget {
 
 class _PWSStatePageState extends State<PWSStatePage> {
   GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
-  ParsingService _parsingService;
+  late ParsingService _parsingService;
 
-  Map<String, bool> _visibilityMap = {};
+  Map<String?, bool?> _visibilityMap = {};
   bool _visibilityCurrentWeatherIcon = true;
   bool _visibilityUpdateTimer = true;
   List<CustomData> _customData = [];
@@ -86,7 +86,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
             }
 
             Map<String, String> interestVariables = snapshot.data as Map<String, String>;
-            Map<String, String> fullData = dataSnapshot.data as Map<String, String>;
+            Map<String, String>? fullData = dataSnapshot.data as Map<String, String>?;
 
             // Retrieve significant data from parsing service
             var location = interestVariables["location"] ?? "Location";
@@ -95,7 +95,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
             var tempUnit = interestVariables["tempUnit"] ?? "°C";
 
             // Retrieve current condition icon
-            String currentConditionAsset;
+            String? currentConditionAsset;
             try {
               var currentConditionIndex = (int.parse(interestVariables["currentConditionIndex"] ?? "-1"));
               if (currentConditionIndex >= 0 &&
@@ -107,7 +107,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
               }
             } catch (e) {}
 
-            bool thereIsUrl = widget.source.snapshotUrl != null && widget.source.snapshotUrl.trim().isNotEmpty;
+            bool thereIsUrl = widget.source!.snapshotUrl != null && widget.source!.snapshotUrl!.trim().isNotEmpty;
 
             return FutureBuilder(
               future: _buildValuesTable(interestVariables),
@@ -133,7 +133,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
                     ),
                     SizedBox(height: 50.0),
                   ]
-                    ..addAll(snapshot.data)
+                    ..addAll(snapshot.data!)
                     ..addAll(_buildCustomDataValues(fullData))
                     ..addAll([
                       thereIsUrl ? SizedBox(height: 30) : Container(),
@@ -165,7 +165,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
   }
 
   Future<void> _refresh() async {
-    _refreshKey.currentState.show();
+    _refreshKey.currentState!.show();
 
     await _parsingService.updateData(force: true);
   }
@@ -224,14 +224,14 @@ class _PWSStatePageState extends State<PWSStatePage> {
       _visibilityMap.clear();
       for (ValueSetting setting in settings) {
         _visibilityMap[setting.visibilityVarName] =
-            prefs.getBool(setting.visibilityVarName) ?? setting.visibilityDefaultValue;
+            prefs.getBool(setting.visibilityVarName!) ?? setting.visibilityDefaultValue;
       }
     } catch (e) {
       _visibilityMap.clear();
 
       // If there's an exception clear the settings in preferences
       for (ValueSetting setting in settings) {
-        prefs.remove(setting.visibilityVarName);
+        prefs.remove(setting.visibilityVarName!);
       }
     }
 
@@ -242,7 +242,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
       // Populate CustomData list from a list of JSONs stored in shared prefs
       for (String dataJSON in customDataJSON) {
         dynamic data = jsonDecode(dataJSON);
-        IconData icon = data["icon"] != null
+        IconData? icon = data["icon"] != null
             ? IconData(
                 data["icon"]["codePoint"],
                 fontFamily: data["icon"]["fontFamily"],
@@ -342,7 +342,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
           parent: BouncingScrollPhysics(),
         ),
         shrinkWrap: true,
-        children: [_buildUpdateIndicator(widget.source)]..addAll(children),
+        children: [_buildUpdateIndicator(widget.source!)]..addAll(children),
       ),
     );
   }
@@ -355,7 +355,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
           Text(
             "SEE ALL",
             maxLines: 1,
-            style: Theme.of(context).textTheme.subtitle1.copyWith(color: Theme.of(context).accentColor),
+            style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Theme.of(context).accentColor),
           ),
           IconButton(
             icon: Icon(
@@ -377,24 +377,24 @@ class _PWSStatePageState extends State<PWSStatePage> {
     // Build the values table according to the settings and visibility map
     for (int i = 0; i < settings.length; i += 2) {
       ValueSetting leftSetting = settings[i];
-      ValueSetting rightSetting = i + 1 < settings.length ? settings[i + 1] : null;
+      ValueSetting? rightSetting = i + 1 < settings.length ? settings[i + 1] : null;
 
-      bool visibilityLeft = _visibilityMap[leftSetting.visibilityVarName];
-      bool visibilityRight = rightSetting != null ? _visibilityMap[rightSetting.visibilityVarName] : false;
+      bool visibilityLeft = _visibilityMap[leftSetting.visibilityVarName]!;
+      bool? visibilityRight = rightSetting != null ? _visibilityMap[rightSetting.visibilityVarName] : false;
 
-      if (visibilityLeft || visibilityRight) {
+      if (visibilityLeft || visibilityRight!) {
         toReturn.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: DoubleVariableRow(
               labelLeft: leftSetting.name,
               assetLeft: leftSetting.asset,
-              valueLeft: values[leftSetting.valueVarName] ?? leftSetting.valueDefaultValue,
-              unitLeft: values[leftSetting.unitVarName] ?? leftSetting.unitDefaultValue,
+              valueLeft: values[leftSetting.valueVarName!] ?? leftSetting.valueDefaultValue,
+              unitLeft: values[leftSetting.unitVarName!] ?? leftSetting.unitDefaultValue,
               labelRight: rightSetting?.name ?? "",
               assetRight: rightSetting?.asset ?? "",
-              valueRight: values[rightSetting?.valueVarName] ?? rightSetting.valueDefaultValue,
-              unitRight: values[rightSetting?.unitVarName] ?? rightSetting.unitDefaultValue,
+              valueRight: values[rightSetting?.valueVarName!] ?? rightSetting!.valueDefaultValue,
+              unitRight: values[rightSetting?.unitVarName!] ?? rightSetting!.unitDefaultValue,
               visibilityLeft: visibilityLeft,
               visibilityRight: visibilityRight,
             ),
@@ -413,13 +413,13 @@ class _PWSStatePageState extends State<PWSStatePage> {
     return toReturn;
   }
 
-  List<Widget> _buildCustomDataValues(Map<String, String> values) {
+  List<Widget> _buildCustomDataValues(Map<String, String>? values) {
     List<Widget> toReturn = _customData.isEmpty ? [] : [SizedBox(height: 20.0)];
 
     // Build the values table according to the settings and visibility map
     for (int i = 0; i < _customData.length; i += 2) {
       CustomData leftData = _customData[i];
-      CustomData rightData = i + 1 < _customData.length ? _customData[i + 1] : null;
+      CustomData? rightData = i + 1 < _customData.length ? _customData[i + 1] : null;
 
       toReturn.add(
         Padding(
@@ -428,12 +428,12 @@ class _PWSStatePageState extends State<PWSStatePage> {
             labelLeft: leftData.name,
             iconLeft: leftData.icon,
             assetLeft: "assets/images/settings.svg",
-            valueLeft: values[leftData.name] ?? "-",
+            valueLeft: values![leftData.name!] ?? "-",
             unitLeft: leftData.unit ?? "",
             labelRight: rightData != null ? rightData.name : "",
             iconRight: rightData?.icon ?? null,
             assetRight: "assets/images/settings.svg",
-            valueRight: values[rightData?.name] ?? "-",
+            valueRight: values[rightData?.name!] ?? "-",
             unitRight: rightData?.unit ?? "",
             visibilityLeft: leftData != null,
             visibilityRight: rightData != null,

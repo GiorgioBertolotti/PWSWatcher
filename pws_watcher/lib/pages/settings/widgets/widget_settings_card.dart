@@ -5,7 +5,7 @@ import 'package:pws_watcher/services/theme_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WidgetSettingsCard extends StatefulWidget {
-  final ThemeService themeService = getIt<ThemeService>();
+  final ThemeService? themeService = getIt<ThemeService>();
 
   @override
   _WidgetSettingsCardState createState() => _WidgetSettingsCardState();
@@ -69,7 +69,7 @@ class _WidgetSettingsCardState extends State<WidgetSettingsCard> {
                     data: SliderThemeData(
                       valueIndicatorTextStyle: Theme.of(context)
                           .textTheme
-                          .bodyText1
+                          .bodyText1!
                           .copyWith(color: Colors.white),
                     ),
                     child: Slider(
@@ -98,7 +98,7 @@ class _WidgetSettingsCardState extends State<WidgetSettingsCard> {
   Future<Null> _getSettings() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      refreshInterval = prefs.getInt("widget_refresh_interval").toDouble();
+      refreshInterval = prefs.getInt("widget_refresh_interval")!.toDouble();
     });
   }
 }

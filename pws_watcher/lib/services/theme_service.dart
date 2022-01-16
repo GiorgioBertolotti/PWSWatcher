@@ -132,16 +132,16 @@ class ThemeService {
       BehaviorSubject<ThemeData>.seeded(dayTheme);
   Stream<ThemeData> get theme$ => themeSubject.stream;
   final Box storage;
-  String activeTheme = "day";
+  String? activeTheme = "day";
 
   ThemeService(this.storage) {
-    final String theme = this.storage.get("theme", defaultValue: "day");
+    final String? theme = this.storage.get("theme", defaultValue: "day");
     if (activeTheme != theme) {
       setTheme(theme);
     }
   }
 
-  void setTheme(String theme) {
+  void setTheme(String? theme) {
     activeTheme = theme;
     switch (activeTheme) {
       case "day":

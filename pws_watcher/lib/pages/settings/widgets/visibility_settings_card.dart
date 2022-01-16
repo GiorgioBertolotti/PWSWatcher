@@ -11,7 +11,7 @@ import 'package:pws_watcher/services/theme_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class VisibilitySettingsCard extends StatefulWidget {
-  final ThemeService themeService = getIt<ThemeService>();
+  final ThemeService? themeService = getIt<ThemeService>();
 
   @override
   _VisibilitySettingsCardState createState() => _VisibilitySettingsCardState();
@@ -316,7 +316,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
           // Populate CustomData list from a list of JSONs stored in shared prefs
           for (String dataJSON in customDataJSON) {
             dynamic data = jsonDecode(dataJSON);
-            IconData icon = data["icon"] != null
+            IconData? icon = data["icon"] != null
                 ? IconData(
                     data["icon"]["codePoint"],
                     fontFamily: data["icon"]["fontFamily"],
@@ -344,7 +344,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
   }
 
   _addCustomData() async {
-    CustomData customData = await showDialog(
+    CustomData? customData = await showDialog(
       context: context,
       builder: (ctx) => CustomDataDialog(
         mode: CustomDataDialogMode.ADD,
@@ -368,7 +368,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
   }
 
   _editCustomData(int index) async {
-    CustomData customData = await showDialog(
+    CustomData? customData = await showDialog(
       context: context,
       builder: (BuildContext ctx) => CustomDataDialog(
         mode: CustomDataDialogMode.EDIT,
@@ -395,7 +395,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
   }
 
   _removeCustomData(int index) async {
-    bool delete = await showDialog(
+    bool? delete = await showDialog(
       context: context,
       builder: (BuildContext ctx) => DeleteCustomDataDialog(
         _customData[index],
@@ -419,7 +419,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
   }
 
   List<String> _encodeCustomData() {
-    List<String> customDataJSON = List();
+    List<String> customDataJSON = <String>[];
 
     for (CustomData customData in _customData) {
       String dataJSON = jsonEncode(customData);
@@ -438,7 +438,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
       itemBuilder: (ctx, index) => ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
         title: Text(
-          _customData[index].name,
+          _customData[index].name!,
           style: Theme.of(context).textTheme.subtitle1,
         ),
         trailing: Container(
@@ -486,7 +486,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
           child: Center(
             child: Text(
               'Add custom data',
-              style: Theme.of(context).textTheme.button.copyWith(
+              style: Theme.of(context).textTheme.button!.copyWith(
                     color: Theme.of(context).accentColor,
                   ),
             ),
