@@ -182,19 +182,25 @@ class _PWSDialogState extends State<PWSDialog> {
             ),
           ),
           actions: <Widget>[
-            FlatButton(
-              textColor: Theme.of(context).buttonTheme.colorScheme?.primary,
+            TextButton(
+              style:
+                  TextButton.styleFrom(textStyle: TextStyle(color: Theme.of(context).buttonTheme.colorScheme?.primary)),
               child: Text("Help"),
               onPressed: _openHelp,
             ),
-            FlatButton(
-              textColor: Theme.of(context).buttonTheme.colorScheme?.primary,
+            TextButton(
+              style:
+                  TextButton.styleFrom(textStyle: TextStyle(color: Theme.of(context).buttonTheme.colorScheme?.primary)),
               child: Text("Close"),
               onPressed: () => Navigator.of(context).pop(),
             ),
-            FlatButton(
-              textColor: Colors.white,
-              color: widget.theme!.primaryColor,
+            TextButton(
+              style: TextButton.styleFrom(
+                textStyle: TextStyle(
+                  color: Colors.white,
+                ),
+                backgroundColor: Theme.of(context).primaryColor,
+              ),
               child: Text(mode == PWSDialogMode.ADD ? "Add" : "Edit"),
               onPressed: _save,
             ),

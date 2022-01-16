@@ -14,14 +14,18 @@ class DeletePWSDialog extends StatelessWidget {
       content: Text(
           "This operation is irreversible, if you press Yes this source will be deleted. You really want to delete it?"),
       actions: <Widget>[
-        FlatButton(
-          textColor: Theme.of(context).buttonTheme.colorScheme?.primary,
+        TextButton(
+          style: TextButton.styleFrom(textStyle: TextStyle(color: Theme.of(context).buttonTheme.colorScheme?.primary)),
           child: Text("Yes"),
           onPressed: () => Navigator.of(context).pop(true),
         ),
-        FlatButton(
-          textColor: Colors.white,
-          color: Theme.of(context).primaryColor,
+        TextButton(
+          style: TextButton.styleFrom(
+            textStyle: TextStyle(
+              color: Colors.white,
+            ),
+            backgroundColor: Theme.of(context).primaryColor,
+          ),
           child: Text("Close"),
           onPressed: () => Navigator.of(context).pop(false),
         ),
