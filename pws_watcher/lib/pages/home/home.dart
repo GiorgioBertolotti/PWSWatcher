@@ -1,4 +1,3 @@
-import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:provider/provider.dart' as provider;
@@ -12,6 +11,7 @@ import 'dart:convert';
 import 'package:pws_watcher/services/connection_status\.dart';
 import 'dart:async';
 import 'package:flare_flutter/flare_actor.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -176,18 +176,22 @@ class _HomePageState extends State<HomePage> {
       await prefs.setInt("homepageCounter", ++homepageCounter);
 
       if (homepageCounter == _visitsBeforeReviewRequest) {
-        Flushbar(
-          message: "Please leave a 5 star review ❤️",
-          duration: null,
-          animationDuration: Duration(milliseconds: 350),
-          mainButton: FlatButton(
-            onPressed: () => LaunchReview.launch(),
-            child: Text(
-              "REVIEW",
-              style: TextStyle(color: Colors.amber),
-            ),
-          ),
-        )..show(context);
+        showSimpleNotification(
+          Text("Please leave a 5 star review ❤️"),
+          trailing: Builder(builder: (context) {
+            return TextButton(
+              onPressed: () {
+                LaunchReview.launch();
+                OverlaySupportEntry.of(context)!.dismiss();
+              },
+              child: Text('REVIEW', style: TextStyle(color: Colors.amber)),
+            );
+          }),
+          autoDismiss: true,
+          duration: Duration(seconds: 8),
+          position: NotificationPosition.bottom,
+          slideDismissDirection: DismissDirection.down,
+        );
       }
     }
   }

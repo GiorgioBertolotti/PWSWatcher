@@ -10,7 +10,6 @@ dependencies:
   auto_size_text: ^3.0.0
   connectivity: ^3.0.6
   flare_flutter: ^3.0.2
-  flushbar: ^1.10.4
   flutter:
     sdk: flutter
   flutter_iconpicker: ^3.1.2
@@ -21,6 +20,7 @@ dependencies:
   http: ^0.13.4
   image_downloader: ^0.31.0
   launch_review: ^3.0.1
+  overlay_support: ^1.2.1
   path_provider: ^2.0.8
   permission_handler: ^8.3.0
   photo_view: ^0.13.0

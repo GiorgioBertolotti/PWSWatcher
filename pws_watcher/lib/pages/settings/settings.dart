@@ -1,6 +1,6 @@
-import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/model/state\.dart';
@@ -59,19 +59,19 @@ class _SettingsPageState extends State<SettingsPage> with TickerProviderStateMix
   }
 
   _emptySourcesError() {
-    Flushbar(
-      title: "Wait a second",
-      message: "You should add a PWS to monitor",
+    showSimpleNotification(
+      Text("You should add a PWS to monitor"),
+      trailing: Builder(builder: (context) {
+        return TextButton(
+          onPressed: () => _showShowcase(),
+          child: Text('HELP', style: TextStyle(color: Colors.amber)),
+        );
+      }),
+      autoDismiss: true,
       duration: Duration(seconds: 3),
-      animationDuration: Duration(milliseconds: 350),
-      mainButton: FlatButton(
-        onPressed: () => _showShowcase(),
-        child: Text(
-          "HELP",
-          style: TextStyle(color: Colors.amber),
-        ),
-      ),
-    )..show(context);
+      position: NotificationPosition.bottom,
+      slideDismissDirection: DismissDirection.down,
+    );
   }
 
   @override
