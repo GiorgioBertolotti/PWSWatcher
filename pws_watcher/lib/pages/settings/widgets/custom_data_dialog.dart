@@ -54,9 +54,7 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
     final CustomDataDialogMode mode = widget.mode;
 
     return AlertDialog(
-      title: Text(mode == CustomDataDialogMode.ADD
-          ? "Add custom data"
-          : "Edit ${widget.original!.name}"),
+      title: Text(mode == CustomDataDialogMode.ADD ? "Add custom data" : "Edit ${widget.original!.name}"),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -74,8 +72,7 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
                 child: TextFormField(
                   controller: _nameController,
                   validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return "You must set the variable name.";
+                    if (value == null || value.isEmpty) return "You must set the variable name.";
                     return null;
                   },
                   decoration: InputDecoration(
@@ -85,8 +82,7 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
                   maxLines: 1,
                   focusNode: _nameFocusNode,
                   textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (value) =>
-                      FocusScope.of(context).requestFocus(_unitFocusNode),
+                  onFieldSubmitted: (value) => FocusScope.of(context).requestFocus(_unitFocusNode),
                 ),
               ),
               Container(
@@ -144,7 +140,7 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
   _pickIcon() async {
     IconData? icon = await FlutterIconPicker.showIconPicker(
       context,
-      iconPackMode: IconPack.lineAwesomeIcons,
+      iconPackModes: [IconPack.lineAwesomeIcons],
       iconColor: Colors.black,
       showTooltips: true,
     );

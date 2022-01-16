@@ -4,22 +4,22 @@ description: Mobile application for Personal Weather Station monitoring.
 version: 99.99.99+99
 
 environment:
-  sdk: '>=2.12.0 <3.0.0'
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
-  flutter:
-    sdk: flutter
   auto_size_text: ^3.0.0-nullsafety.0
   connectivity: ^3.0.6
   flare_flutter: ^3.0.2
   flushbar: ^1.10.4
-  flutter_iconpicker: ^3.0.4
+  flutter:
+    sdk: flutter
+  flutter_iconpicker: ^3.1.2
   flutter_svg: ^0.22.0
   get_it: ^7.2.0
   hive: ^2.0.4
   hive_flutter: ^1.1.0
   http: ^0.13.4
-  image_downloader: ^0.30.0
+  image_downloader: ^0.31.0
   launch_review: ^3.0.1
   path_provider: ^2.0.5
   permission_handler: ^8.2.2
@@ -32,9 +32,9 @@ dependencies:
   xml: ^5.3.0
 
 dev_dependencies:
+  build_runner: ^2.1.4
   flutter_test:
     sdk: flutter
-  build_runner: ^2.1.4
   hive_generator: ^1.1.1
 
 flutter:
