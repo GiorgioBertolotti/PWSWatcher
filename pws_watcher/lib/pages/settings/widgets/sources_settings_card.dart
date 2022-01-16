@@ -109,9 +109,7 @@ class _SourcesSettingsCardState extends State<SourcesSettingsCard> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setStringList("sources", _encodeSources());
 
-      if (widget.updateCallback != null) {
-        widget.updateCallback();
-      }
+      widget.updateCallback();
     }
   }
 
@@ -130,9 +128,7 @@ class _SourcesSettingsCardState extends State<SourcesSettingsCard> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setStringList("sources", _encodeSources());
 
-      if (widget.updateCallback != null) {
-        widget.updateCallback();
-      }
+      widget.updateCallback();
     }
   }
 

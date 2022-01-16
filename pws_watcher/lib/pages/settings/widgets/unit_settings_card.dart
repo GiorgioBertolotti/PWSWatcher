@@ -127,8 +127,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
           _unitToggleButton("m/s"),
         ],
         onPressed: (int index) async {
-          String? unit = await _unitSelectorCallback(
-              index, _windUnitSelection, ["km/h", "mph", "kts", "m/s"]);
+          String? unit = await _unitSelectorCallback(index, _windUnitSelection, ["km/h", "mph", "kts", "m/s"]);
           provider.Provider.of<ApplicationState>(
             context,
             listen: false,
@@ -154,8 +153,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
           _unitToggleButton("in"),
         ],
         onPressed: (int index) async {
-          String? unit = await _unitSelectorCallback(
-              index, _rainUnitSelection, ["mm", "in"]);
+          String? unit = await _unitSelectorCallback(index, _rainUnitSelection, ["mm", "in"]);
           provider.Provider.of<ApplicationState>(
             context,
             listen: false,
@@ -182,8 +180,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
           _unitToggleButton("inHg"),
         ],
         onPressed: (int index) async {
-          String? unit = await _unitSelectorCallback(
-              index, _pressUnitSelection, ["hPa", "mb", "inHg"]);
+          String? unit = await _unitSelectorCallback(index, _pressUnitSelection, ["hPa", "mb", "inHg"]);
           provider.Provider.of<ApplicationState>(
             context,
             listen: false,
@@ -209,8 +206,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
           _unitToggleButton("°F"),
         ],
         onPressed: (int index) async {
-          String? unit = await _unitSelectorCallback(
-              index, _tempUnitSelection, ["°C", "°F"]);
+          String? unit = await _unitSelectorCallback(index, _tempUnitSelection, ["°C", "°F"]);
           provider.Provider.of<ApplicationState>(
             context,
             listen: false,
@@ -236,8 +232,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
           _unitToggleButton("°F"),
         ],
         onPressed: (int index) async {
-          String? unit = await _unitSelectorCallback(
-              index, _dewUnitSelection, ["°C", "°F"]);
+          String? unit = await _unitSelectorCallback(index, _dewUnitSelection, ["°C", "°F"]);
           provider.Provider.of<ApplicationState>(
             context,
             listen: false,
@@ -266,17 +261,13 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
 
     if (selectionList[index]) {
       // deselect
-      for (int buttonIndex = 0;
-          buttonIndex < selectionList.length;
-          buttonIndex++) {
+      for (int buttonIndex = 0; buttonIndex < selectionList.length; buttonIndex++) {
         selectionList[buttonIndex] = false;
       }
       return null;
     } else {
       // select
-      for (int buttonIndex = 0;
-          buttonIndex < selectionList.length;
-          buttonIndex++) {
+      for (int buttonIndex = 0; buttonIndex < selectionList.length; buttonIndex++) {
         if (buttonIndex == index) {
           selectionList[buttonIndex] = true;
         } else {
@@ -296,9 +287,7 @@ class _UnitSettingsCardState extends State<UnitSettingsCard> {
       child: Text(
         unit,
         style: Theme.of(context).textTheme.subtitle2!.copyWith(
-              color: theme != null && theme.brightness == Brightness.dark
-                  ? Colors.white
-                  : Colors.black,
+              color: theme.brightness == Brightness.dark ? Colors.white : Colors.black,
             ),
       ),
     );

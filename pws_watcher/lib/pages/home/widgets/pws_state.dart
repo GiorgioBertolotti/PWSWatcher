@@ -171,36 +171,15 @@ class _PWSStatePageState extends State<PWSStatePage> {
   }
 
   _openDetailPage() async {
-    if (_parsingService.allDataSubject.value != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (ctx) => provider.Provider<ApplicationState>.value(
-            value: provider.Provider.of<ApplicationState>(context, listen: false),
-            child: DetailPage(_parsingService.allDataSubject.value),
-          ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => provider.Provider<ApplicationState>.value(
+          value: provider.Provider.of<ApplicationState>(context, listen: false),
+          child: DetailPage(_parsingService.allDataSubject.value),
         ),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (ctx) {
-          return AlertDialog(
-            title: Text("Error"),
-            content: Text("Can't show more informations."),
-            actions: <Widget>[
-              FlatButton(
-                textColor: Colors.deepOrange,
-                child: Text("Close"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
+      ),
+    );
   }
 
   Future<Null> _retrievePreferences() async {
@@ -295,38 +274,34 @@ class _PWSStatePageState extends State<PWSStatePage> {
   // WIDGETS
 
   Widget _buildUpdateIndicator(PWS source) {
-    if (source.autoUpdateInterval != null) {
-      if (source.autoUpdateInterval == 0) {
-        // Show the manual update button
-        return Align(
-          alignment: Alignment.topLeft,
-          child: IconButton(
-            tooltip: "Update",
-            icon: Icon(
-              Icons.refresh,
-              color: Theme.of(context).accentColor,
-            ),
-            padding: EdgeInsets.all(0),
-            onPressed: _refresh,
+    if (source.autoUpdateInterval == 0) {
+      // Show the manual update button
+      return Align(
+        alignment: Alignment.topLeft,
+        child: IconButton(
+          tooltip: "Update",
+          icon: Icon(
+            Icons.refresh,
+            color: Theme.of(context).accentColor,
           ),
-        );
-      } else if (_visibilityUpdateTimer) {
-        // Show the circular timer indicator
-        return Align(
-          alignment: Alignment.topLeft,
-          child: Tooltip(
-            message: "Update timer",
-            child: UpdateTimer(
-              Duration(seconds: source.autoUpdateInterval),
-              () => _parsingService.setSource(widget.source),
-            ),
+          padding: EdgeInsets.all(0),
+          onPressed: _refresh,
+        ),
+      );
+    } else if (_visibilityUpdateTimer) {
+      // Show the circular timer indicator
+      return Align(
+        alignment: Alignment.topLeft,
+        child: Tooltip(
+          message: "Update timer",
+          child: UpdateTimer(
+            Duration(seconds: source.autoUpdateInterval),
+            () => _parsingService.setSource(widget.source),
           ),
-        );
-      } else {
-        // Show nothings
-        return Container(height: 40.0);
-      }
+        ),
+      );
     } else {
+      // Show nothings
       return Container(height: 40.0);
     }
   }
@@ -435,7 +410,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
             assetRight: "assets/images/settings.svg",
             valueRight: values[rightData?.name!] ?? "-",
             unitRight: rightData?.unit ?? "",
-            visibilityLeft: leftData != null,
+            visibilityLeft: true,
             visibilityRight: rightData != null,
           ),
         ),

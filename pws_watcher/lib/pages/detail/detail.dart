@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/services/theme_service.dart';
 
@@ -40,7 +41,7 @@ class _DetailPageState extends State<DetailPage> {
         data: data,
         child: Scaffold(
           appBar: AppBar(
-            brightness: Brightness.dark,
+            systemOverlayStyle: SystemUiOverlayStyle.light,
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(false),
@@ -48,10 +49,7 @@ class _DetailPageState extends State<DetailPage> {
             title: Text(
               "Detail page",
               maxLines: 1,
-              style: Theme.of(context)
-                  .textTheme
-                  .headline5!
-                  .copyWith(color: Colors.white),
+              style: Theme.of(context).textTheme.headline5!.copyWith(color: Colors.white),
             ),
             centerTitle: true,
           ),
@@ -81,16 +79,11 @@ class _DetailPageState extends State<DetailPage> {
                     if ((filter == null || filter!.trim().isEmpty) ||
                         (filter != null &&
                             filter!.trim().isNotEmpty &&
-                            key!
-                                .toLowerCase()
-                                .contains(filter!.trim().toLowerCase())))
+                            key!.toLowerCase().contains(filter!.trim().toLowerCase())))
                       return ListTile(
                         title: Text(
                           key!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline6!
-                              .copyWith(fontWeight: FontWeight.normal),
+                          style: Theme.of(context).textTheme.headline6!.copyWith(fontWeight: FontWeight.normal),
                         ),
                         subtitle: Text(
                           widget.data.entries.elementAt(position).value,

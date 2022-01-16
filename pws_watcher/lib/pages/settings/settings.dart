@@ -1,5 +1,6 @@
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/model/state\.dart';
@@ -23,8 +24,7 @@ class SettingsPage extends StatefulWidget {
   _SettingsPageState createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage>
-    with TickerProviderStateMixin {
+class _SettingsPageState extends State<SettingsPage> with TickerProviderStateMixin {
   final GlobalKey _fabKey = GlobalKey();
 
   List<PWS> _sources = [];
@@ -199,7 +199,7 @@ class _SettingsPageState extends State<SettingsPage>
 
   Widget _buildAppBar() {
     return AppBar(
-      brightness: Brightness.dark,
+      systemOverlayStyle: SystemUiOverlayStyle.light,
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: Colors.white),
         onPressed: () => _closeSettings(),
@@ -214,8 +214,7 @@ class _SettingsPageState extends State<SettingsPage>
       title: Text(
         "Settings",
         maxLines: 1,
-        style:
-            Theme.of(context).textTheme.headline5!.copyWith(color: Colors.white),
+        style: Theme.of(context).textTheme.headline5!.copyWith(color: Colors.white),
       ),
       centerTitle: true,
     );
@@ -243,9 +242,7 @@ class _SettingsPageState extends State<SettingsPage>
       builder: (context) => ListView(
         addAutomaticKeepAlives: true,
         children: <Widget>[
-          _sources.isNotEmpty
-              ? SourcesSettingsCard(_sources, _retrieveSources)
-              : Container(),
+          _sources.isNotEmpty ? SourcesSettingsCard(_sources, _retrieveSources) : Container(),
           ThemeSettingsCard(),
           UnitSettingsCard(),
           VisibilitySettingsCard(),

@@ -41,8 +41,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     // Checks if the app has internet connection
-    ConnectionStatusSingleton connectionStatus =
-        ConnectionStatusSingleton.getInstance();
+    ConnectionStatusSingleton connectionStatus = ConnectionStatusSingleton.getInstance();
 
     setState(() {
       _isOffline = !connectionStatus.hasConnection;
@@ -60,12 +59,12 @@ class _HomePageState extends State<HomePage> {
     // Fetches the PWSs
     _populateSources().then((sources) {
       _pages.clear();
-      if (sources != null) {
-        for (PWS? s in sources) {
-          _pages.add(PWSStatePage(s));
-        }
-        setState(() {});
+
+      for (PWS? s in sources) {
+        _pages.add(PWSStatePage(s));
       }
+
+      setState(() {});
     });
   }
 
@@ -101,9 +100,7 @@ class _HomePageState extends State<HomePage> {
                 children: <Widget>[
                   _buildBody(),
                   _buildSettingsButton(),
-                  _pages.length > 1 && !_isOffline
-                      ? _buildDotsIndicator()
-                      : Container(),
+                  _pages.length > 1 && !_isOffline ? _buildDotsIndicator() : Container(),
                 ],
               ),
             ),
@@ -208,10 +205,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               "You are offline.",
               textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .subtitle1!
-                  .copyWith(color: Colors.white),
+              style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Colors.white),
             ),
             Container(
               height: (MediaQuery.of(context).size.height) - 200,
@@ -269,7 +263,7 @@ class _HomePageState extends State<HomePage> {
 
           _pages.clear();
 
-          if (sources != null && sources.isNotEmpty) {
+          if (sources.isNotEmpty) {
             for (PWS? s in sources) {
               _pages.add(PWSStatePage(s));
             }
