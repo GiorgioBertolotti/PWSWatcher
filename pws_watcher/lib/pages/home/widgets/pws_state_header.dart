@@ -37,16 +37,14 @@ class PWSStateHeader extends StatelessWidget {
                   maxFontSize: 40.0,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline3!
-                      .copyWith(color: Theme.of(context).accentColor),
+                  style:
+                      Theme.of(context).textTheme.headline3!.copyWith(color: Theme.of(context).colorScheme.secondary),
                 ),
                 Text(
                   this.datetime,
                   maxLines: 1,
                   style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                        color: Theme.of(context).accentColor.withOpacity(0.8),
+                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.8),
                       ),
                 ),
               ],
@@ -76,16 +74,13 @@ class PWSStateHeader extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .headline3!
-                .copyWith(color: Theme.of(context).accentColor),
+            style: Theme.of(context).textTheme.headline3!.copyWith(color: Theme.of(context).colorScheme.secondary),
           ),
           Text(
             this.datetime,
             maxLines: 1,
             style: Theme.of(context).textTheme.bodyText2!.copyWith(
-                  color: Theme.of(context).accentColor.withOpacity(0.8),
+                  color: Theme.of(context).colorScheme.secondary.withOpacity(0.8),
                 ),
           ),
         ],

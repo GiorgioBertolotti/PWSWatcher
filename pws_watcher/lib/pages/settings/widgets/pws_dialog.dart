@@ -59,9 +59,8 @@ class _PWSDialogState extends State<PWSDialog> {
 
     _shouldShowcase().then((shouldShow) {
       if (shouldShow) {
-        WidgetsBinding.instance!.addPostFrameCallback((_) =>
-            ShowCaseWidget.of(_showCaseContext)!
-                .startShowCase([_urlKey, _refreshKey, _snapshotUrlKey]));
+        WidgetsBinding.instance!.addPostFrameCallback(
+            (_) => ShowCaseWidget.of(_showCaseContext)!.startShowCase([_urlKey, _refreshKey, _snapshotUrlKey]));
       }
     });
 
@@ -77,9 +76,7 @@ class _PWSDialogState extends State<PWSDialog> {
       builder: Builder(builder: (ctx) {
         _showCaseContext = ctx;
         return AlertDialog(
-          title: Text(mode == PWSDialogMode.ADD
-              ? "Add PWS"
-              : "Edit ${widget.source!.name}"),
+          title: Text(mode == PWSDialogMode.ADD ? "Add PWS" : "Edit ${widget.source!.name}"),
           content: Form(
             key: _formKey,
             child: SingleChildScrollView(
@@ -93,8 +90,7 @@ class _PWSDialogState extends State<PWSDialog> {
                     child: TextFormField(
                       controller: _nameController,
                       validator: (value) {
-                        if (value == null || value.isEmpty)
-                          return "You must set a PWS name.";
+                        if (value == null || value.isEmpty) return "You must set a PWS name.";
                         return null;
                       },
                       decoration: InputDecoration(
@@ -104,8 +100,7 @@ class _PWSDialogState extends State<PWSDialog> {
                       maxLines: 1,
                       focusNode: _nameFocusNode,
                       textInputAction: TextInputAction.next,
-                      onFieldSubmitted: (value) =>
-                          FocusScope.of(context).requestFocus(_urlFocusNode),
+                      onFieldSubmitted: (value) => FocusScope.of(context).requestFocus(_urlFocusNode),
                     ),
                   ),
                   Container(
@@ -120,8 +115,7 @@ class _PWSDialogState extends State<PWSDialog> {
                         keyboardType: TextInputType.url,
                         controller: _urlController,
                         validator: (value) {
-                          if (value == null || value.isEmpty)
-                            return "You must set a url.";
+                          if (value == null || value.isEmpty) return "You must set a url.";
                           return null;
                         },
                         decoration: InputDecoration(
@@ -131,8 +125,7 @@ class _PWSDialogState extends State<PWSDialog> {
                         maxLines: 1,
                         focusNode: _urlFocusNode,
                         textInputAction: TextInputAction.next,
-                        onFieldSubmitted: (value) => FocusScope.of(context)
-                            .requestFocus(_intervalFocusNode),
+                        onFieldSubmitted: (value) => FocusScope.of(context).requestFocus(_intervalFocusNode),
                       ),
                     ),
                   ),
@@ -148,10 +141,7 @@ class _PWSDialogState extends State<PWSDialog> {
                         keyboardType: TextInputType.number,
                         controller: _intervalController,
                         validator: (value) {
-                          if (value == null ||
-                              value.isEmpty ||
-                              int.tryParse(value) == null ||
-                              int.tryParse(value)! < 0)
+                          if (value == null || value.isEmpty || int.tryParse(value) == null || int.tryParse(value)! < 0)
                             return "Please set a valid interval.";
                           return null;
                         },
@@ -162,8 +152,7 @@ class _PWSDialogState extends State<PWSDialog> {
                         maxLines: 1,
                         focusNode: _intervalFocusNode,
                         textInputAction: TextInputAction.next,
-                        onFieldSubmitted: (value) => FocusScope.of(context)
-                            .requestFocus(_snapshotUrlFocusNode),
+                        onFieldSubmitted: (value) => FocusScope.of(context).requestFocus(_snapshotUrlFocusNode),
                       ),
                     ),
                   ),
@@ -194,12 +183,12 @@ class _PWSDialogState extends State<PWSDialog> {
           ),
           actions: <Widget>[
             FlatButton(
-              textColor: widget.theme!.buttonColor,
+              textColor: Theme.of(context).buttonTheme.colorScheme?.primary,
               child: Text("Help"),
               onPressed: _openHelp,
             ),
             FlatButton(
-              textColor: widget.theme!.buttonColor,
+              textColor: Theme.of(context).buttonTheme.colorScheme?.primary,
               child: Text("Close"),
               onPressed: () => Navigator.of(context).pop(),
             ),

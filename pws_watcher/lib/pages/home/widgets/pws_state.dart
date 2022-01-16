@@ -282,7 +282,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
           tooltip: "Update",
           icon: Icon(
             Icons.refresh,
-            color: Theme.of(context).accentColor,
+            color: Theme.of(context).colorScheme.secondary,
           ),
           padding: EdgeInsets.all(0),
           onPressed: _refresh,
@@ -309,7 +309,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
   Widget _buildPage(List<Widget> children) {
     return RefreshIndicator(
       color: Theme.of(context).primaryColor,
-      backgroundColor: Theme.of(context).accentColor,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
       key: _refreshKey,
       onRefresh: _refresh,
       child: ListView(
@@ -330,12 +330,12 @@ class _PWSStatePageState extends State<PWSStatePage> {
           Text(
             "SEE ALL",
             maxLines: 1,
-            style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Theme.of(context).accentColor),
+            style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Theme.of(context).colorScheme.secondary),
           ),
           IconButton(
             icon: Icon(
               Icons.keyboard_arrow_down,
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).colorScheme.secondary,
             ),
             onPressed: _openDetailPage,
           ),

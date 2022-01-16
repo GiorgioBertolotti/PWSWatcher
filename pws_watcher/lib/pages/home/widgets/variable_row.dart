@@ -94,31 +94,25 @@ class VariableRow extends StatelessWidget {
                 ? Icon(
                     icon,
                     size: 30,
-                    color: Theme.of(context).accentColor,
+                    color: Theme.of(context).colorScheme.secondary,
                   )
                 : SvgPicture.asset(
                     asset!,
                     width: 30,
                     height: 30,
                     semanticsLabel: label,
-                    color: Theme.of(context).accentColor,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
           ),
           Text(
             value!,
             maxLines: 1,
-            style: Theme.of(context)
-                .textTheme
-                .headline5!
-                .copyWith(color: Theme.of(context).accentColor),
+            style: Theme.of(context).textTheme.headline5!.copyWith(color: Theme.of(context).colorScheme.secondary),
           ),
           Text(
             unit!,
             maxLines: 1,
-            style: Theme.of(context)
-                .textTheme
-                .subtitle1!
-                .copyWith(color: Theme.of(context).accentColor),
+            style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Theme.of(context).colorScheme.secondary),
           ),
         ],
       );
@@ -129,18 +123,12 @@ class VariableRow extends StatelessWidget {
           Text(
             value!,
             maxLines: 1,
-            style: Theme.of(context)
-                .textTheme
-                .headline5!
-                .copyWith(color: Theme.of(context).accentColor),
+            style: Theme.of(context).textTheme.headline5!.copyWith(color: Theme.of(context).colorScheme.secondary),
           ),
           Text(
             unit!,
             maxLines: 1,
-            style: Theme.of(context)
-                .textTheme
-                .subtitle1!
-                .copyWith(color: Theme.of(context).accentColor),
+            style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Theme.of(context).colorScheme.secondary),
           ),
           Padding(
             padding: EdgeInsets.only(left: 10),
@@ -148,14 +136,14 @@ class VariableRow extends StatelessWidget {
                 ? Icon(
                     icon,
                     size: 30,
-                    color: Theme.of(context).accentColor,
+                    color: Theme.of(context).colorScheme.secondary,
                   )
                 : SvgPicture.asset(
                     asset!,
                     width: 30,
                     height: 30,
                     semanticsLabel: label,
-                    color: Theme.of(context).accentColor,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
           ),
         ],

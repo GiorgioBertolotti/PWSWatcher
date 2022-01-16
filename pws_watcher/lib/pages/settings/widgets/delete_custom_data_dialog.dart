@@ -15,7 +15,7 @@ class DeleteCustomDataDialog extends StatelessWidget {
           "This operation is irreversible, if you press Yes this custom variable will be deleted. You really want to delete it?"),
       actions: <Widget>[
         FlatButton(
-          textColor: Theme.of(context).buttonColor,
+          textColor: Theme.of(context).buttonTheme.colorScheme?.primary,
           child: Text("Yes"),
           onPressed: () => Navigator.of(context).pop(true),
         ),

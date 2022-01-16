@@ -292,13 +292,11 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       setState(() {
-        _visibilityCurrentWeatherIcon =
-            prefs.getBool("visibilityCurrentWeatherIcon") ?? true;
+        _visibilityCurrentWeatherIcon = prefs.getBool("visibilityCurrentWeatherIcon") ?? true;
         _visibilityUpdateTimer = prefs.getBool("visibilityUpdateTimer") ?? true;
         _visibilityWindSpeed = prefs.getBool("visibilityWindSpeed") ?? true;
         _visibilityPressure = prefs.getBool("visibilityPressure") ?? true;
-        _visibilityWindDirection =
-            prefs.getBool("visibilityWindDirection") ?? true;
+        _visibilityWindDirection = prefs.getBool("visibilityWindDirection") ?? true;
         _visibilityHumidity = prefs.getBool("visibilityHumidity") ?? true;
         _visibilityTemperature = prefs.getBool("visibilityTemperature") ?? true;
         _visibilityWindChill = prefs.getBool("visibilityWindChill") ?? true;
@@ -487,7 +485,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
             child: Text(
               'Add custom data',
               style: Theme.of(context).textTheme.button!.copyWith(
-                    color: Theme.of(context).accentColor,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
             ),
           ),

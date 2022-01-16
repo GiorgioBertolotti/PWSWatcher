@@ -8,18 +8,22 @@ ThemeData dayTheme = ThemeData(
   primarySwatch: Colors.lightBlue,
   primaryColor: Colors.lightBlue,
   primaryColorDark: Colors.lightBlue[800],
-  accentColor: Colors.white,
   backgroundColor: Colors.lightBlue,
   scaffoldBackgroundColor: Colors.lightBlue[800],
-  cursorColor: Colors.lightBlue,
+  textSelectionTheme: TextSelectionThemeData(
+    cursorColor: Colors.lightBlue,
+    selectionColor: Colors.lightBlue,
+  ),
   toggleableActiveColor: Colors.lightBlue,
-  buttonColor: Colors.lightBlue,
+  buttonTheme: ButtonThemeData(buttonColor: Colors.lightBlue),
   iconTheme: IconThemeData(color: Colors.lightBlue),
-  colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.lightBlue),
+  colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.lightBlue).copyWith(
+    secondary: Colors.white,
+  ),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
     foregroundColor: Colors.white,
   ),
-  accentIconTheme: IconThemeData(color: Colors.white),
+  primaryIconTheme: IconThemeData(color: Colors.white),
   cardColor: Colors.white,
   disabledColor: Color(0xFFCCCCCC),
 );
@@ -29,18 +33,20 @@ ThemeData eveningTheme = ThemeData(
   primarySwatch: Colors.deepOrange,
   primaryColor: Colors.deepOrange,
   primaryColorDark: Colors.deepOrange[800],
-  accentColor: Colors.white,
   backgroundColor: Colors.deepOrange,
   scaffoldBackgroundColor: Colors.deepOrange[800],
-  cursorColor: Colors.deepOrange,
+  textSelectionTheme: TextSelectionThemeData(
+    cursorColor: Colors.deepOrange,
+    selectionColor: Colors.deepOrange,
+  ),
   toggleableActiveColor: Colors.deepOrange,
-  buttonColor: Colors.deepOrange,
+  buttonTheme: ButtonThemeData(buttonColor: Colors.deepOrange),
   iconTheme: IconThemeData(color: Colors.deepOrange),
-  colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepOrange),
+  colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepOrange).copyWith(secondary: Colors.white),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
     foregroundColor: Colors.white,
   ),
-  accentIconTheme: IconThemeData(color: Colors.white),
+  primaryIconTheme: IconThemeData(color: Colors.white),
   cardColor: Colors.white,
   disabledColor: Color(0xFFCCCCCC),
 );
@@ -50,18 +56,20 @@ ThemeData nightTheme = ThemeData(
   primarySwatch: Colors.deepPurple,
   primaryColor: Colors.deepPurple,
   primaryColorDark: Colors.deepPurple[800],
-  accentColor: Colors.white,
   backgroundColor: Colors.deepPurple,
   scaffoldBackgroundColor: Colors.deepPurple[800],
-  cursorColor: Colors.deepPurple,
+  textSelectionTheme: TextSelectionThemeData(
+    cursorColor: Colors.deepPurple,
+    selectionColor: Colors.deepPurple,
+  ),
   toggleableActiveColor: Colors.deepPurple,
-  buttonColor: Colors.deepPurple,
+  buttonTheme: ButtonThemeData(buttonColor: Colors.deepPurple),
   iconTheme: IconThemeData(color: Colors.deepPurple),
-  colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepPurple),
+  colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepPurple).copyWith(secondary: Colors.white),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
     foregroundColor: Colors.white,
   ),
-  accentIconTheme: IconThemeData(color: Colors.white),
+  primaryIconTheme: IconThemeData(color: Colors.white),
   cardColor: Colors.white,
   disabledColor: Color(0xFFCCCCCC),
 );
@@ -71,18 +79,20 @@ ThemeData greyTheme = ThemeData(
   primarySwatch: Colors.blueGrey,
   primaryColor: Colors.blueGrey,
   primaryColorDark: Colors.blueGrey[800],
-  accentColor: Colors.white,
   backgroundColor: Colors.blueGrey,
   scaffoldBackgroundColor: Colors.blueGrey[800],
-  cursorColor: Colors.blueGrey,
+  textSelectionTheme: TextSelectionThemeData(
+    cursorColor: Colors.blueGrey,
+    selectionColor: Colors.blueGrey,
+  ),
   toggleableActiveColor: Colors.blueGrey,
-  buttonColor: Colors.blueGrey,
+  buttonTheme: ButtonThemeData(buttonColor: Colors.blueGrey),
   iconTheme: IconThemeData(color: Colors.blueGrey),
-  colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blueGrey),
+  colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blueGrey).copyWith(secondary: Colors.white),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
     foregroundColor: Colors.white,
   ),
-  accentIconTheme: IconThemeData(color: Colors.white),
+  primaryIconTheme: IconThemeData(color: Colors.white),
   cardColor: Colors.white,
   disabledColor: Color(0xFFCCCCCC),
 );
@@ -108,28 +118,29 @@ ThemeData blackedTheme = ThemeData(
   primarySwatch: _black,
   primaryColor: Colors.black,
   primaryColorDark: Colors.black,
-  accentColor: Colors.white,
   backgroundColor: Colors.black,
   scaffoldBackgroundColor: Colors.black,
-  cursorColor: Colors.black,
+  textSelectionTheme: TextSelectionThemeData(
+    cursorColor: Colors.black,
+    selectionColor: Colors.black,
+  ),
   toggleableActiveColor: Colors.black,
-  buttonColor: Colors.white,
+  buttonTheme: ButtonThemeData(buttonColor: Colors.white),
   iconTheme: IconThemeData(color: Colors.black),
   colorScheme: ColorScheme.fromSwatch(
     primarySwatch: _black,
     brightness: Brightness.dark,
-  ),
+  ).copyWith(secondary: Colors.white),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
     foregroundColor: Colors.white,
     backgroundColor: Colors.black,
   ),
-  accentIconTheme: IconThemeData(color: Colors.white),
+  primaryIconTheme: IconThemeData(color: Colors.white),
   disabledColor: Color(0xFFCCCCCC),
 );
 
 class ThemeService {
-  BehaviorSubject<ThemeData> themeSubject =
-      BehaviorSubject<ThemeData>.seeded(dayTheme);
+  BehaviorSubject<ThemeData> themeSubject = BehaviorSubject<ThemeData>.seeded(dayTheme);
   Stream<ThemeData> get theme$ => themeSubject.stream;
   final Box storage;
   String? activeTheme = "day";
