@@ -144,7 +144,7 @@ class _SettingsPageState extends State<SettingsPage> with TickerProviderStateMix
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     // Clear the list of sources before retrieving the new one
-    _sources = List.empty();
+    _sources = List.empty(growable: true);
 
     List<String>? sources = prefs.getStringList("sources");
 
@@ -167,7 +167,7 @@ class _SettingsPageState extends State<SettingsPage> with TickerProviderStateMix
             snapshotUrl: source["snapshotUrl"],
           ));
         } catch (Exception) {
-          prefs.setStringList("sources", List.empty());
+          prefs.setStringList("sources", List.empty(growable: true));
         }
       }
     }
