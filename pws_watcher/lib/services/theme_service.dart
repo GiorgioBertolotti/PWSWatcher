@@ -15,13 +15,15 @@ ThemeData dayTheme = ThemeData(
     selectionColor: Colors.lightBlue,
   ),
   toggleableActiveColor: Colors.lightBlue,
-  buttonTheme: ButtonThemeData(buttonColor: Colors.lightBlue),
+  buttonTheme:
+      ButtonThemeData(colorScheme: ColorScheme.dark(primary: Colors.lightBlue, background: Colors.transparent)),
   iconTheme: IconThemeData(color: Colors.lightBlue),
   colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.lightBlue).copyWith(
     secondary: Colors.white,
   ),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
     foregroundColor: Colors.white,
+    backgroundColor: Colors.lightBlue,
   ),
   primaryIconTheme: IconThemeData(color: Colors.white),
   cardColor: Colors.white,
@@ -40,11 +42,13 @@ ThemeData eveningTheme = ThemeData(
     selectionColor: Colors.deepOrange,
   ),
   toggleableActiveColor: Colors.deepOrange,
-  buttonTheme: ButtonThemeData(buttonColor: Colors.deepOrange),
+  buttonTheme:
+      ButtonThemeData(colorScheme: ColorScheme.dark(primary: Colors.deepOrange, background: Colors.transparent)),
   iconTheme: IconThemeData(color: Colors.deepOrange),
   colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepOrange).copyWith(secondary: Colors.white),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
     foregroundColor: Colors.white,
+    backgroundColor: Colors.deepOrange,
   ),
   primaryIconTheme: IconThemeData(color: Colors.white),
   cardColor: Colors.white,
@@ -63,11 +67,13 @@ ThemeData nightTheme = ThemeData(
     selectionColor: Colors.deepPurple,
   ),
   toggleableActiveColor: Colors.deepPurple,
-  buttonTheme: ButtonThemeData(buttonColor: Colors.deepPurple),
+  buttonTheme:
+      ButtonThemeData(colorScheme: ColorScheme.dark(primary: Colors.deepPurple, background: Colors.transparent)),
   iconTheme: IconThemeData(color: Colors.deepPurple),
   colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.deepPurple).copyWith(secondary: Colors.white),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
     foregroundColor: Colors.white,
+    backgroundColor: Colors.deepPurple,
   ),
   primaryIconTheme: IconThemeData(color: Colors.white),
   cardColor: Colors.white,
@@ -86,11 +92,12 @@ ThemeData greyTheme = ThemeData(
     selectionColor: Colors.blueGrey,
   ),
   toggleableActiveColor: Colors.blueGrey,
-  buttonTheme: ButtonThemeData(buttonColor: Colors.blueGrey),
+  buttonTheme: ButtonThemeData(colorScheme: ColorScheme.dark(primary: Colors.blueGrey, background: Colors.transparent)),
   iconTheme: IconThemeData(color: Colors.blueGrey),
   colorScheme: ColorScheme.fromSwatch(primarySwatch: Colors.blueGrey).copyWith(secondary: Colors.white),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
     foregroundColor: Colors.white,
+    backgroundColor: Colors.blueGrey,
   ),
   primaryIconTheme: IconThemeData(color: Colors.white),
   cardColor: Colors.white,
@@ -125,7 +132,7 @@ ThemeData blackedTheme = ThemeData(
     selectionColor: Colors.black,
   ),
   toggleableActiveColor: Colors.black,
-  buttonTheme: ButtonThemeData(buttonColor: Colors.white),
+  buttonTheme: ButtonThemeData(colorScheme: ColorScheme.dark(primary: Colors.white, background: Colors.transparent)),
   iconTheme: IconThemeData(color: Colors.black),
   colorScheme: ColorScheme.fromSwatch(
     primarySwatch: _black,

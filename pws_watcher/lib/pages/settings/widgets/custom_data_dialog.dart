@@ -50,6 +50,7 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
 
   @override
   Widget build(BuildContext context) {
+    print(Theme.of(context).buttonTheme.colorScheme);
     final double screenWidth = MediaQuery.of(context).size.width;
     final CustomDataDialogMode mode = widget.mode;
 
@@ -103,24 +104,23 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
               ),
               _icon != null
                   ? TextButton.icon(
-                      icon: Icon(_icon),
-                      style: TextButton.styleFrom(
-                        textStyle: TextStyle(
-                          color: Colors.white,
-                        ),
-                        backgroundColor: Theme.of(context).primaryColor,
+                      icon: Icon(
+                        _icon,
+                        color: Colors.white,
                       ),
-                      label: Text("Change icon"),
+                      style: TextButton.styleFrom(backgroundColor: Theme.of(context).primaryColor),
+                      label: Text(
+                        "Change icon",
+                        style: TextStyle(color: Colors.white),
+                      ),
                       onPressed: _pickIcon,
                     )
                   : TextButton(
-                      style: TextButton.styleFrom(
-                        textStyle: TextStyle(
-                          color: Colors.white,
-                        ),
-                        backgroundColor: Theme.of(context).primaryColor,
+                      style: TextButton.styleFrom(backgroundColor: Theme.of(context).primaryColor),
+                      child: Text(
+                        "Add an icon",
+                        style: TextStyle(color: Colors.white),
                       ),
-                      child: Text("Add an icon"),
                       onPressed: _pickIcon,
                     ),
             ],
@@ -129,18 +129,19 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
       ),
       actions: <Widget>[
         TextButton(
-          style: TextButton.styleFrom(textStyle: TextStyle(color: Theme.of(context).buttonTheme.colorScheme?.primary)),
+          style: TextButton.styleFrom(
+            backgroundColor: Theme.of(context).buttonTheme.colorScheme?.background,
+            primary: Theme.of(context).buttonTheme.colorScheme?.primary,
+          ),
           child: Text("Close"),
           onPressed: () => Navigator.of(context).pop(),
         ),
         TextButton(
-          style: TextButton.styleFrom(
-            textStyle: TextStyle(
-              color: Colors.white,
-            ),
-            backgroundColor: Theme.of(context).primaryColor,
+          style: TextButton.styleFrom(backgroundColor: Theme.of(context).primaryColor),
+          child: Text(
+            mode == CustomDataDialogMode.ADD ? "Add" : "Edit",
+            style: TextStyle(color: Colors.white),
           ),
-          child: Text(mode == CustomDataDialogMode.ADD ? "Add" : "Edit"),
           onPressed: _save,
         ),
       ],
