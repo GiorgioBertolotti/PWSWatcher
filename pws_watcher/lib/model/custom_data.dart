@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomData {
-  String? name;
+  String name;
   String? unit;
   IconData? icon;
 
@@ -28,6 +28,5 @@ class CustomData {
 
   bool operator ==(o) => o is CustomData && this.name == o.name;
 
-  int get hashCode =>
-      this.name.hashCode ^ this.unit.hashCode ^ this.icon.hashCode;
+  int get hashCode => this.name.hashCode ^ this.unit.hashCode ^ this.icon.hashCode;
 }

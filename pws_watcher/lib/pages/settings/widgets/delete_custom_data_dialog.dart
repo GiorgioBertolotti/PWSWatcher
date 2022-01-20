@@ -10,7 +10,7 @@ class DeleteCustomDataDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text("Delete " + customData.name! + "?"),
+      title: Text("Delete " + customData.name + "?"),
       content: Text(
           "This operation is irreversible, if you press Yes this custom variable will be deleted. You really want to delete it?"),
       actions: <Widget>[

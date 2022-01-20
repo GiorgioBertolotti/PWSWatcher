@@ -40,7 +40,7 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
   @override
   void initState() {
     if (widget.mode == CustomDataDialogMode.EDIT) {
-      _nameController.text = widget.original!.name!;
+      _nameController.text = widget.original!.name;
       _unitController.text = widget.original!.unit!;
       _icon = widget.original!.icon;
     }

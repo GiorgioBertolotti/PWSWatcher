@@ -436,7 +436,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
       itemBuilder: (ctx, index) => ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 24.0),
         title: Text(
-          _customData[index].name!,
+          _customData[index].name,
           style: Theme.of(context).textTheme.subtitle1,
         ),
         trailing: Container(
