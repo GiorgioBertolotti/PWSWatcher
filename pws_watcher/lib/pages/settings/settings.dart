@@ -61,6 +61,8 @@ class _SettingsPageState extends State<SettingsPage> with TickerProviderStateMix
   _emptySourcesError() {
     showSimpleNotification(
       Text("You should add a PWS to monitor"),
+      background: Colors.grey[800],
+      foreground: Colors.white,
       trailing: Builder(builder: (context) {
         return TextButton(
           onPressed: () => _showShowcase(),

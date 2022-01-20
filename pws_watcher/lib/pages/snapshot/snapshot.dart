@@ -107,6 +107,8 @@ class _SnapshotPageState extends State<SnapshotPage> {
       if (!response.isGranted) {
         showSimpleNotification(
           Text("Please grant the permissions to download the image 🙏🏻"),
+          background: Colors.grey[800],
+          foreground: Colors.white,
           autoDismiss: true,
           duration: Duration(seconds: 2),
           position: NotificationPosition.bottom,

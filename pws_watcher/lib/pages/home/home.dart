@@ -182,6 +182,8 @@ class _HomePageState extends State<HomePage> {
       if (homepageCounter == _visitsBeforeReviewRequest) {
         showSimpleNotification(
           Text("Please leave a 5 star review ❤️"),
+          background: Colors.grey[800],
+          foreground: Colors.white,
           trailing: Builder(builder: (context) {
             return TextButton(
               onPressed: () {
