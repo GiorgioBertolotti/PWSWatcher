@@ -1,12 +1,11 @@
 class PWS {
-  int? id;
-  String? name;
-  String? url;
+  int id;
+  String name;
+  String url;
   String? snapshotUrl;
   int autoUpdateInterval;
 
-  PWS(this.id, this.name, this.url,
-      {this.snapshotUrl, this.autoUpdateInterval = 0});
+  PWS(this.id, this.name, this.url, {this.snapshotUrl, this.autoUpdateInterval = 0});
 
   toJson() {
     return {

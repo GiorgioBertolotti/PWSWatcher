@@ -44,10 +44,7 @@ class SnapshotPreview extends StatelessWidget {
             bottom: 10.0,
             child: Text(
               "Webcam Preview",
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText2!
-                  .copyWith(color: Colors.white),
+              style: Theme.of(context).textTheme.bodyText2!.copyWith(color: Colors.white),
             ),
           ),
           Material(
@@ -58,14 +55,13 @@ class SnapshotPreview extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (ctx) => provider.Provider<ApplicationState>.value(
-                      value: provider.Provider.of<ApplicationState>(context,
-                          listen: false),
+                      value: provider.Provider.of<ApplicationState>(context, listen: false),
                       child: SnapshotPage(
                         this.pws!.snapshotUrl,
                         this.pws!.name,
                         backgroundColor: Colors.black,
                         download: true,
-                        downloadName: "snapshot_" + this.pws!.name!,
+                        downloadName: "snapshot_" + this.pws!.name,
                       ),
                     ),
                   ),

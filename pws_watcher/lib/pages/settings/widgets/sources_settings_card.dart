@@ -50,13 +50,13 @@ class _SourcesSettingsCardState extends State<SourcesSettingsCard> {
                   right: 8.0,
                 ),
                 title: Text(
-                  widget.sources[position].name!,
+                  widget.sources[position].name,
                   style: Theme.of(context).textTheme.subtitle1,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 subtitle: Text(
-                  widget.sources[position].url!,
+                  widget.sources[position].url,
                   style: Theme.of(context).textTheme.caption,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

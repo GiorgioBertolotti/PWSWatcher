@@ -51,8 +51,8 @@ class _PWSDialogState extends State<PWSDialog> {
   @override
   void initState() {
     if (widget.mode == PWSDialogMode.EDIT) {
-      _nameController.text = widget.source!.name!;
-      _urlController.text = widget.source!.url!;
+      _nameController.text = widget.source!.name;
+      _urlController.text = widget.source!.url;
       _intervalController.text = widget.source!.autoUpdateInterval.toString();
       _snapshotUrlController.text = widget.source!.snapshotUrl ?? "";
     }
