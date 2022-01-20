@@ -9,12 +9,10 @@ import 'package:http/http.dart' as http;
 import 'package:pws_watcher/model/parsing_utilities.dart';
 
 class ParsingService {
-  BehaviorSubject<Map<String?, String>> allDataSubject =
-      BehaviorSubject<Map<String, String>>.seeded(Map());
-  BehaviorSubject<Map<String, String?>> interestVariablesSubject =
-      BehaviorSubject<Map<String, String>>.seeded(Map());
-  Stream<Map<String?, String>> get data$ => allDataSubject.stream;
-  Stream<Map<String, String?>> get variables$ => interestVariablesSubject.stream;
+  BehaviorSubject<Map<String, String>> allVariablesSubject = BehaviorSubject<Map<String, String>>.seeded(Map());
+  BehaviorSubject<Map<String, String?>> interestVariablesSubject = BehaviorSubject<Map<String, String>>.seeded(Map());
+  Stream<Map<String, String>> get allVariables$ => allVariablesSubject.stream;
+  Stream<Map<String, String?>> get interestVariables$ => interestVariablesSubject.stream;
   PWS? source;
   ApplicationState appState;
 
@@ -48,9 +46,9 @@ class ParsingService {
         // parsing and variables assignment with realtime.xml
         Map<String, String>? sourceData = await _parseRealtimeXML(url);
         if (sourceData != null) {
-          Map interestData = _valuesFromRealtimeXML(sourceData)!;
-          sourceData.addAll(beautifyConvertedValues(interestData as Map<String, String?>));
-          allDataSubject.add(sourceData);
+          Map<String, String?> interestData = _valuesFromRealtimeXML(sourceData)!;
+          sourceData.addAll(beautifyConvertedValues(interestData));
+          allVariablesSubject.add(sourceData);
           interestVariablesSubject.add(interestData);
         } else {
           if (!url.startsWith("http://") && !url.startsWith("https://")) {
@@ -66,9 +64,9 @@ class ParsingService {
             // parsing and variables assignment with clientraw.txt
             sourceData = await _parseRealtimeTXT(url);
             if (sourceData != null) {
-              Map interestData = _valuesFromRealtimeXML(sourceData)!;
-              sourceData.addAll(beautifyConvertedValues(interestData as Map<String, String?>));
-              allDataSubject.add(sourceData);
+              Map<String, String?> interestData = _valuesFromRealtimeXML(sourceData)!;
+              sourceData.addAll(beautifyConvertedValues(interestData));
+              allVariablesSubject.add(sourceData);
               interestVariablesSubject.add(interestData);
             } else {
               if (!url.startsWith("http://") && !url.startsWith("https://")) {
@@ -77,9 +75,9 @@ class ParsingService {
               }
             }
           } else {
-            Map interestData = _valuesFromClientRawTXT(sourceData)!;
-            sourceData.addAll(beautifyConvertedValues(interestData as Map<String, String?>));
-            allDataSubject.add(sourceData);
+            Map<String, String?> interestData = _valuesFromClientRawTXT(sourceData)!;
+            sourceData.addAll(beautifyConvertedValues(interestData));
+            allVariablesSubject.add(sourceData);
             interestVariablesSubject.add(interestData);
           }
         } else {
@@ -89,9 +87,9 @@ class ParsingService {
             // parsing and variables assignment with clientraw.txt
             sourceData = await _parseClientRawTXT(url);
             if (sourceData != null) {
-              Map interestData = _valuesFromClientRawTXT(sourceData)!;
-              sourceData.addAll(beautifyConvertedValues(interestData as Map<String, String?>));
-              allDataSubject.add(sourceData);
+              Map<String, String?> interestData = _valuesFromClientRawTXT(sourceData)!;
+              sourceData.addAll(beautifyConvertedValues(interestData));
+              allVariablesSubject.add(sourceData);
               interestVariablesSubject.add(interestData);
             } else {
               if (!url.startsWith("http://") && !url.startsWith("https://")) {
@@ -100,22 +98,22 @@ class ParsingService {
               }
             }
           } else {
-            Map interestData = _valuesFromRealtimeTXT(sourceData)!;
-            sourceData.addAll(beautifyConvertedValues(interestData as Map<String, String?>));
-            allDataSubject.add(sourceData);
+            Map<String, String?> interestData = _valuesFromRealtimeTXT(sourceData)!;
+            sourceData.addAll(beautifyConvertedValues(interestData));
+            allVariablesSubject.add(sourceData);
             interestVariablesSubject.add(interestData);
           }
         }
       } else if (url.endsWith("csv")) {
         // parsing and variables assignment with daily.csv
-        Map<String?, String>? sourceData = await _parseDailyCSV(url);
+        Map<String, String>? sourceData = await _parseDailyCSV(url);
         if (sourceData != null) {
-          Map? interestData = _valuesFromDailyCSV(sourceData);
+          Map<String, String?>? interestData = _valuesFromDailyCSV(sourceData);
           if (interestData != null) {
-            sourceData.addAll(beautifyConvertedValues(interestData as Map<String, String?>));
+            sourceData.addAll(beautifyConvertedValues(interestData));
             interestVariablesSubject.add(interestData);
           }
-          allDataSubject.add(sourceData);
+          allVariablesSubject.add(sourceData);
         } else {
           if (!url.startsWith("http://") && !url.startsWith("https://")) {
             await _updateData("http://" + url, force: true);
@@ -126,12 +124,14 @@ class ParsingService {
         await _updateData(url + "/realtime.xml", force: true);
         await _updateData(url + "/realtime.txt", force: true);
       }
-    } catch (e) {}
+    } catch (e) {
+      print(e);
+    }
     _isRetrieving = false;
   }
 
   Map<String, String> beautifyConvertedValues(Map<String, String?> map) {
-    Map<String, String> toReturn = Map();
+    Map<String, String> toReturn = <String, String>{};
     var windspeed = map["windspeed"] ?? "-";
     var press = map["press"] ?? "-";
     var temperature = map["temperature"] ?? "-";
@@ -159,11 +159,7 @@ class ParsingService {
       xml.XmlDocument document = xml.XmlDocument.parse(response);
       var pwsInfo = <String, String>{};
       document.findAllElements("misc").forEach((elem) {
-        if (elem.attributes
-                .where((attr) =>
-                    attr.name.toString() == "data" &&
-                    attr.value == "station_location")
-                .length >
+        if (elem.attributes.where((attr) => attr.name.toString() == "data" && attr.value == "station_location").length >
             0) {
           pwsInfo['station_location'] = elem.text;
         }
@@ -201,8 +197,7 @@ class ParsingService {
       List values = response.trim().split(' ');
       var pwsInfo = <String, String>{};
       for (var counter = 0; counter < properties.length; counter++) {
-        if (counter < values.length)
-          pwsInfo[properties[counter]] = values[counter];
+        if (counter < values.length) pwsInfo[properties[counter]] = values[counter];
       }
       return pwsInfo;
     } catch (Exception) {
@@ -230,15 +225,13 @@ class ParsingService {
 
       // try to fetch extra info from clientrawextra.txt
       try {
-        rawResponse = await http
-            .get(Uri.parse(url.replaceAll("clientraw.txt", "clientrawextra.txt")));
+        rawResponse = await http.get(Uri.parse(url.replaceAll("clientraw.txt", "clientrawextra.txt")));
         response = rawResponse.body;
         // split values by space
         properties = clientRawExtraProperties;
         values = response.trim().split(' ');
         for (var counter = 0; counter < properties.length; counter++) {
-          if (counter < values.length)
-            pwsInfo[properties[counter]] = values[counter];
+          if (counter < values.length) pwsInfo[properties[counter]] = values[counter];
         }
       } catch (e) {}
 
@@ -248,12 +241,12 @@ class ParsingService {
     }
   }
 
-  Future<Map<String?, String>?> _parseDailyCSV(String url) async {
+  Future<Map<String, String>?> _parseDailyCSV(String url) async {
     try {
       var rawResponse = await http.get(Uri.parse(url));
       var response = rawResponse.body;
       List lines = response.trim().split('\r\n');
-      var pwsInfo = <String?, String>{};
+      var pwsInfo = <String, String>{};
       pwsInfo["Date"] = lines[0];
       int? latestIndex;
       TimeOfDay? latestTimeOfDay;
@@ -276,8 +269,7 @@ class ParsingService {
           if (latestTimeOfDay == null)
             latestTimeOfDay = timeOfDay;
           else {
-            if (_timeOfDayToDouble(latestTimeOfDay) <
-                _timeOfDayToDouble(timeOfDay)) {
+            if (_timeOfDayToDouble(latestTimeOfDay) < _timeOfDayToDouble(timeOfDay)) {
               latestIndex = i;
               latestTimeOfDay = timeOfDay;
             }
@@ -303,7 +295,7 @@ class ParsingService {
 
   Map<String, String?>? _valuesFromRealtimeXML(Map<String, String> map) {
     try {
-      Map<String, String?> interestVariables = Map();
+      Map<String, String?> interestVariables = <String, String>{};
       if (map.containsKey("station_location"))
         interestVariables["location"] = map["station_location"];
       else if (map.containsKey("location"))
@@ -313,18 +305,12 @@ class ParsingService {
         var tmpDatetime = "";
         if (map.containsKey("station_date"))
           tmpDatetime += " " + map["station_date"]!;
-        else if (map.containsKey("refresh_time"))
-          tmpDatetime += " " + map["refresh_time"]!.substring(0, 10);
+        else if (map.containsKey("refresh_time")) tmpDatetime += " " + map["refresh_time"]!.substring(0, 10);
         if (map.containsKey("station_time"))
           tmpDatetime += " " + map["station_time"]!;
-        else if (map.containsKey("refresh_time"))
-          tmpDatetime += " " + map["refresh_time"]!.substring(12);
-        tmpDatetime =
-            tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
-        interestVariables["datetime"] = DateTime.parse(tmpDatetime)
-            .toLocal()
-            .toString()
-            .replaceAll(".000", "");
+        else if (map.containsKey("refresh_time")) tmpDatetime += " " + map["refresh_time"]!.substring(12);
+        tmpDatetime = tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
+        interestVariables["datetime"] = DateTime.parse(tmpDatetime).toLocal().toString().replaceAll(".000", "");
       } catch (Exception) {
         interestVariables["datetime"] = (((map.containsKey("station_date"))
                     ? map["station_date"]!.trim() + " "
@@ -333,43 +319,32 @@ class ParsingService {
                         : "--/--/-- ")) +
                 ((map.containsKey("station_time"))
                     ? map["station_time"]!.trim()
-                    : ((map.containsKey("refresh_time"))
-                        ? map["refresh_time"]!.substring(12).trim()
-                        : "--:--:--")))
+                    : ((map.containsKey("refresh_time")) ? map["refresh_time"]!.substring(12).trim() : "--:--:--")))
             .replaceAll("/", "-")
             .replaceAll(".", "-");
       }
       if (map.containsKey("windspeed"))
         interestVariables["windspeed"] = map["windspeed"];
-      else if (map.containsKey("avg_windspeed"))
-        interestVariables["windspeed"] = map["avg_windspeed"];
+      else if (map.containsKey("avg_windspeed")) interestVariables["windspeed"] = map["avg_windspeed"];
       if (map.containsKey("barometer"))
         interestVariables["press"] = map["barometer"];
       else if (map.containsKey("press")) {
         try {
           final doubleRegex = RegExp(r'(\d+\.\d+)+');
-          interestVariables["press"] =
-              doubleRegex.allMatches(map["press"]!).first.group(0);
-          interestVariables["pressUnit"] = map["press"]
-              .toString()
-              .replaceAll(interestVariables["press"]!, "")
-              .trim();
+          interestVariables["press"] = doubleRegex.allMatches(map["press"]!).first.group(0);
+          interestVariables["pressUnit"] = map["press"].toString().replaceAll(interestVariables["press"]!, "").trim();
         } catch (e) {
           interestVariables["press"] = map["press"];
         }
       }
-      if (map.containsKey("winddir"))
-        interestVariables["winddir"] = map["winddir"];
+      if (map.containsKey("winddir")) interestVariables["winddir"] = map["winddir"];
       if (map.containsKey("hum")) interestVariables["humidity"] = map["hum"];
       if (map.containsKey("temp")) {
         try {
           final doubleRegex = RegExp(r'(\d+\.\d+)+');
-          interestVariables["temperature"] =
-              doubleRegex.allMatches(map["temp"]!).first.group(0);
-          interestVariables["tempUnit"] = map["temp"]
-              .toString()
-              .replaceAll(interestVariables["temperature"]!, "")
-              .trim();
+          interestVariables["temperature"] = doubleRegex.allMatches(map["temp"]!).first.group(0);
+          interestVariables["tempUnit"] =
+              map["temp"].toString().replaceAll(interestVariables["temperature"]!, "").trim();
         } catch (e) {
           interestVariables["temperature"] = map["temp"];
         }
@@ -379,8 +354,7 @@ class ParsingService {
       else if (map.containsKey("wchill")) {
         try {
           final doubleRegex = RegExp(r'(\d+\.\d+)+');
-          interestVariables["windchill"] =
-              doubleRegex.allMatches(map["wchill"]!).first.group(0);
+          interestVariables["windchill"] = doubleRegex.allMatches(map["wchill"]!).first.group(0);
         } catch (e) {
           interestVariables["windchill"] = map["wchill"];
         }
@@ -390,12 +364,9 @@ class ParsingService {
       else if (map.containsKey("today_rainfall")) {
         try {
           final doubleRegex = RegExp(r'(\d+\.\d+)+');
-          interestVariables["rain"] =
-              doubleRegex.allMatches(map["today_rainfall"]!).first.group(0);
-          interestVariables["rainUnit"] = map["today_rainfall"]
-              .toString()
-              .replaceAll(interestVariables["rain"]!, "")
-              .trim();
+          interestVariables["rain"] = doubleRegex.allMatches(map["today_rainfall"]!).first.group(0);
+          interestVariables["rainUnit"] =
+              map["today_rainfall"].toString().replaceAll(interestVariables["rain"]!, "").trim();
         } catch (e) {
           interestVariables["rain"] = map["today_rainfall"];
         }
@@ -403,52 +374,37 @@ class ParsingService {
       if (map.containsKey("dew")) {
         try {
           final doubleRegex = RegExp(r'(\d+\.\d+)+');
-          interestVariables["dew"] =
-              doubleRegex.allMatches(map["dew"]!).first.group(0);
-          interestVariables["dewUnit"] = map["dew"]
-              .toString()
-              .replaceAll(interestVariables["dew"]!, "")
-              .trim();
+          interestVariables["dew"] = doubleRegex.allMatches(map["dew"]!).first.group(0);
+          interestVariables["dewUnit"] = map["dew"].toString().replaceAll(interestVariables["dew"]!, "").trim();
         } catch (e) {
           interestVariables["dew"] = map["dew"];
         }
       }
-      if (map.containsKey("sunrise"))
-        interestVariables["sunrise"] = map["sunrise"];
-      if (map.containsKey("sunset"))
-        interestVariables["sunset"] = map["sunset"];
-      if (map.containsKey("moonrise"))
-        interestVariables["moonrise"] = map["moonrise"];
-      if (map.containsKey("moonset"))
-        interestVariables["moonset"] = map["moonset"];
+      if (map.containsKey("sunrise")) interestVariables["sunrise"] = map["sunrise"];
+      if (map.containsKey("sunset")) interestVariables["sunset"] = map["sunset"];
+      if (map.containsKey("moonrise")) interestVariables["moonrise"] = map["moonrise"];
+      if (map.containsKey("moonset")) interestVariables["moonset"] = map["moonset"];
       if (_isNumeric(interestVariables["windspeed"])) {
-        if (map.containsKey("windunit"))
-          interestVariables["windUnit"] = map["windunit"];
+        if (map.containsKey("windunit")) interestVariables["windUnit"] = map["windunit"];
       } else
         interestVariables["windUnit"] = "";
       if (_isNumeric(interestVariables["rain"])) {
-        if (map.containsKey("rainunit"))
-          interestVariables["rainUnit"] = map["rainunit"];
+        if (map.containsKey("rainunit")) interestVariables["rainUnit"] = map["rainunit"];
       } else
         interestVariables["rainUnit"] = "";
       if (_isNumeric(interestVariables["press"])) {
-        if (map.containsKey("barunit"))
-          interestVariables["pressUnit"] = map["barunit"];
+        if (map.containsKey("barunit")) interestVariables["pressUnit"] = map["barunit"];
       } else
         interestVariables["pressUnit"] = "";
       if (_isNumeric(interestVariables["temperature"])) {
-        if (map.containsKey("tempunit"))
-          interestVariables["tempUnit"] = map["tempunit"];
+        if (map.containsKey("tempunit")) interestVariables["tempUnit"] = map["tempunit"];
       } else
         interestVariables["tempUnit"] = "";
       if (_isNumeric(interestVariables["humidity"])) {
-        if (map.containsKey("humunit"))
-          interestVariables["humUnit"] = map["humunit"];
+        if (map.containsKey("humunit")) interestVariables["humUnit"] = map["humunit"];
       } else
         interestVariables["humUnit"] = "";
-      interestVariables["dewUnit"] = (_isNumeric(interestVariables["dew"])
-          ? interestVariables["tempUnit"]
-          : "");
+      interestVariables["dewUnit"] = (_isNumeric(interestVariables["dew"]) ? interestVariables["tempUnit"] : "");
       interestVariables = _convertToPrefUnits(interestVariables);
       return interestVariables;
     } catch (e) {
@@ -458,18 +414,15 @@ class ParsingService {
 
   Map<String, String?>? _valuesFromRealtimeTXT(Map<String, String> map) {
     try {
-      Map<String, String?> interestVariables = Map();
+      Map<String, String?> interestVariables = <String, String>{};
       if (source != null) interestVariables["location"] = source!.name;
       try {
         var tmpDatetime = "";
         if (map.containsKey("date")) tmpDatetime += " " + map["date"]!;
-        if (map.containsKey("timehhmmss"))
-          tmpDatetime += " " + map["timehhmmss"]!;
+        if (map.containsKey("timehhmmss")) tmpDatetime += " " + map["timehhmmss"]!;
+        tmpDatetime = tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
         tmpDatetime =
-            tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
-        tmpDatetime = tmpDatetime.substring(0, 6) +
-            DateTime.now().year.toString().substring(0, 2) +
-            tmpDatetime.substring(6);
+            tmpDatetime.substring(0, 6) + DateTime.now().year.toString().substring(0, 2) + tmpDatetime.substring(6);
         tmpDatetime = tmpDatetime.substring(6, 10) +
             "-" +
             tmpDatetime.substring(3, 5) +
@@ -477,61 +430,43 @@ class ParsingService {
             tmpDatetime.substring(0, 2) +
             " " +
             tmpDatetime.substring(11);
-        interestVariables["datetime"] = DateTime.parse(tmpDatetime)
-            .toLocal()
-            .toString()
-            .replaceAll(".000", "");
+        interestVariables["datetime"] = DateTime.parse(tmpDatetime).toLocal().toString().replaceAll(".000", "");
       } catch (Exception) {
-        interestVariables["datetime"] = (((map.containsKey("date"))
-                    ? map["date"]!.trim() + " "
-                    : "--/--/-- ") +
-                ((map.containsKey("timehhmmss"))
-                    ? map["timehhmmss"]!.trim()
-                    : "--:--:--"))
+        interestVariables["datetime"] = (((map.containsKey("date")) ? map["date"]!.trim() + " " : "--/--/-- ") +
+                ((map.containsKey("timehhmmss")) ? map["timehhmmss"]!.trim() : "--:--:--"))
             .replaceAll("/", "-")
             .replaceAll(".", "-");
       }
-      if (map.containsKey("wspeed"))
-        interestVariables["windspeed"] = map["wspeed"];
+      if (map.containsKey("wspeed")) interestVariables["windspeed"] = map["wspeed"];
       if (map.containsKey("press")) interestVariables["press"] = map["press"];
-      if (map.containsKey("currentwdir"))
-        interestVariables["winddir"] = map["currentwdir"];
+      if (map.containsKey("currentwdir")) interestVariables["winddir"] = map["currentwdir"];
       if (map.containsKey("hum")) interestVariables["humidity"] = map["hum"];
-      if (map.containsKey("temp"))
-        interestVariables["temperature"] = map["temp"];
-      if (map.containsKey("wchill"))
-        interestVariables["windchill"] = map["wchill"];
+      if (map.containsKey("temp")) interestVariables["temperature"] = map["temp"];
+      if (map.containsKey("wchill")) interestVariables["windchill"] = map["wchill"];
       if (map.containsKey("rfall")) interestVariables["rain"] = map["rfall"];
       if (map.containsKey("dew")) interestVariables["dew"] = map["dew"];
       // data about sunrise, sunset, moonrise and moonset cannot be retrieved from realtime.txt
       if (_isNumeric(interestVariables["windspeed"])) {
-        if (map.containsKey("windunit"))
-          interestVariables["windUnit"] = map["windunit"];
+        if (map.containsKey("windunit")) interestVariables["windUnit"] = map["windunit"];
       } else
         interestVariables["windUnit"] = "";
       if (_isNumeric(interestVariables["rain"])) {
-        if (map.containsKey("rainunit"))
-          interestVariables["rainUnit"] = map["rainunit"];
+        if (map.containsKey("rainunit")) interestVariables["rainUnit"] = map["rainunit"];
       } else
         interestVariables["rainUnit"] = "";
       if (_isNumeric(interestVariables["press"])) {
-        if (map.containsKey("pressunit"))
-          interestVariables["pressUnit"] = map["pressunit"];
+        if (map.containsKey("pressunit")) interestVariables["pressUnit"] = map["pressunit"];
       } else
         interestVariables["pressUnit"] = "";
       if (_isNumeric(interestVariables["temperature"])) {
-        if (map.containsKey("tempunitnodeg"))
-          interestVariables["tempUnit"] = map["tempunitnodeg"];
+        if (map.containsKey("tempunitnodeg")) interestVariables["tempUnit"] = map["tempunitnodeg"];
       } else
         interestVariables["tempUnit"] = "";
       if (_isNumeric(interestVariables["humidity"])) {
-        if (map.containsKey("humunit"))
-          interestVariables["humUnit"] = map["humunit"];
+        if (map.containsKey("humunit")) interestVariables["humUnit"] = map["humunit"];
       } else
         interestVariables["humUnit"] = "";
-      interestVariables["dewUnit"] = (_isNumeric(interestVariables["dew"])
-          ? interestVariables["tempUnit"]
-          : "");
+      interestVariables["dewUnit"] = (_isNumeric(interestVariables["dew"]) ? interestVariables["tempUnit"] : "");
       interestVariables = _convertToPrefUnits(interestVariables);
       return interestVariables;
     } catch (e) {
@@ -542,53 +477,33 @@ class ParsingService {
 
   Map<String, String?>? _valuesFromClientRawTXT(Map<String, String> map) {
     try {
-      Map<String, String?> interestVariables = Map();
+      Map<String, String?> interestVariables = <String, String>{};
       if (source != null) interestVariables["location"] = source!.name;
       var tmpDatetime = "";
       if (map.containsKey("Date")) tmpDatetime += " " + map["Date"]!;
-      if (map.containsKey("Hour"))
-        tmpDatetime += " " + map["Hour"]!.padLeft(2, "0");
-      if (map.containsKey("Minute"))
-        tmpDatetime += ":" + map["Minute"]!.padLeft(2, "0");
-      if (map.containsKey("Seconds"))
-        tmpDatetime += ":" + map["Seconds"]!.padLeft(2, "0");
-      tmpDatetime =
-          tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
+      if (map.containsKey("Hour")) tmpDatetime += " " + map["Hour"]!.padLeft(2, "0");
+      if (map.containsKey("Minute")) tmpDatetime += ":" + map["Minute"]!.padLeft(2, "0");
+      if (map.containsKey("Seconds")) tmpDatetime += ":" + map["Seconds"]!.padLeft(2, "0");
+      tmpDatetime = tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
       try {
-        interestVariables["datetime"] = DateTime.parse(tmpDatetime)
-            .toLocal()
-            .toString()
-            .replaceAll(".000", "");
+        interestVariables["datetime"] = DateTime.parse(tmpDatetime).toLocal().toString().replaceAll(".000", "");
       } catch (e) {
         interestVariables["datetime"] = tmpDatetime;
       }
-      if (map.containsKey("CurrentWindspeed"))
-        interestVariables["windspeed"] = map["CurrentWindspeed"];
-      if (map.containsKey("Barometer"))
-        interestVariables["press"] = map["Barometer"];
-      if (map.containsKey("WindDirection"))
-        interestVariables["winddir"] = deg2WindDir(map["WindDirection"]!);
-      if (map.containsKey("OutsideHumidity"))
-        interestVariables["humidity"] = map["OutsideHumidity"];
-      if (map.containsKey("OutsideTemp"))
-        interestVariables["temperature"] = map["OutsideTemp"];
-      if (map.containsKey("WindChill"))
-        interestVariables["windchill"] = map["WindChill"];
-      if (map.containsKey("DailyRain"))
-        interestVariables["rain"] = map["DailyRain"];
-      if (map.containsKey("DewPointTemp"))
-        interestVariables["dew"] = map["DewPointTemp"];
-      if (map.containsKey("Sunrise"))
-        interestVariables["sunrise"] = map["Sunrise"];
-      if (map.containsKey("Sunset"))
-        interestVariables["sunset"] = map["Sunset"];
-      if (map.containsKey("Moonrise"))
-        interestVariables["moonrise"] = map["Moonrise"];
-      if (map.containsKey("Moonset"))
-        interestVariables["moonset"] = map["Moonset"];
+      if (map.containsKey("CurrentWindspeed")) interestVariables["windspeed"] = map["CurrentWindspeed"];
+      if (map.containsKey("Barometer")) interestVariables["press"] = map["Barometer"];
+      if (map.containsKey("WindDirection")) interestVariables["winddir"] = deg2WindDir(map["WindDirection"]!);
+      if (map.containsKey("OutsideHumidity")) interestVariables["humidity"] = map["OutsideHumidity"];
+      if (map.containsKey("OutsideTemp")) interestVariables["temperature"] = map["OutsideTemp"];
+      if (map.containsKey("WindChill")) interestVariables["windchill"] = map["WindChill"];
+      if (map.containsKey("DailyRain")) interestVariables["rain"] = map["DailyRain"];
+      if (map.containsKey("DewPointTemp")) interestVariables["dew"] = map["DewPointTemp"];
+      if (map.containsKey("Sunrise")) interestVariables["sunrise"] = map["Sunrise"];
+      if (map.containsKey("Sunset")) interestVariables["sunset"] = map["Sunset"];
+      if (map.containsKey("Moonrise")) interestVariables["moonrise"] = map["Moonrise"];
+      if (map.containsKey("Moonset")) interestVariables["moonset"] = map["Moonset"];
       if (map.containsKey("CurrentConditionIcon"))
-        interestVariables["currentConditionIndex"] =
-            map["CurrentConditionIcon"];
+        interestVariables["currentConditionIndex"] = map["CurrentConditionIcon"];
       interestVariables["windUnit"] = "kts";
       interestVariables["rainUnit"] = "mm";
       interestVariables["pressUnit"] = "hPa";
@@ -604,19 +519,15 @@ class ParsingService {
 
   Map<String, String?>? _valuesFromDailyCSV(Map<String?, String> map) {
     try {
-      Map<String, String?> interestVariables = Map();
+      Map<String, String?> interestVariables = <String, String>{};
       if (source != null) interestVariables["location"] = source!.name;
       var tmpDatetime = "";
       if (map.containsKey("Date")) {
         try {
-          if (map["Date"]!.substring(map["Date"]!.lastIndexOf("/") + 1).length !=
-              4) {
+          if (map["Date"]!.substring(map["Date"]!.lastIndexOf("/") + 1).length != 4) {
             List<String> vals = map["Date"]!.split("/");
             tmpDatetime += " " +
-                DateTime.now()
-                    .year
-                    .toString()
-                    .substring(0, (4 - vals[2].length)) +
+                DateTime.now().year.toString().substring(0, (4 - vals[2].length)) +
                 vals[2] +
                 "/" +
                 vals[0].padLeft(2, "0") +
@@ -637,66 +548,44 @@ class ParsingService {
         if (am) part1 = 0;
         if (pm) part1 = 12;
       }
-      tmpDatetime += " " +
-          part1.toString().padLeft(2, "0") +
-          ":" +
-          part2.toString().padLeft(2, "0") +
-          ":00";
-      tmpDatetime =
-          tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
+      tmpDatetime += " " + part1.toString().padLeft(2, "0") + ":" + part2.toString().padLeft(2, "0") + ":00";
+      tmpDatetime = tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
       try {
-        interestVariables["datetime"] = DateTime.parse(tmpDatetime)
-            .toLocal()
-            .toString()
-            .replaceAll(".000", "");
+        interestVariables["datetime"] = DateTime.parse(tmpDatetime).toLocal().toString().replaceAll(".000", "");
       } catch (e) {
         interestVariables["datetime"] = tmpDatetime;
       }
-      if (map.containsKey("Wind Spd"))
-        interestVariables["windspeed"] = map["Wind Spd"];
-      if (map.containsKey("Raw Barom"))
-        interestVariables["press"] = map["Raw Barom"];
-      if (map.containsKey("Wind Dir"))
-        interestVariables["winddir"] = deg2WindDir(map["Wind Dir"]!);
-      if (map.containsKey("Humidity"))
-        interestVariables["humidity"] = map["Humidity"];
-      if (map.containsKey("Temp"))
-        interestVariables["temperature"] = map["Temp"];
-      if (map.containsKey("Wind Chill"))
-        interestVariables["windchill"] = map["Wind Chill"];
-      if (map.containsKey("24HrRain"))
-        interestVariables["rain"] = map["24HrRain"];
-      if (map.containsKey("Dew Point"))
-        interestVariables["dew"] = map["Dew Point"];
+      if (map.containsKey("Wind Spd")) interestVariables["windspeed"] = map["Wind Spd"];
+      if (map.containsKey("Raw Barom")) interestVariables["press"] = map["Raw Barom"];
+      if (map.containsKey("Wind Dir")) interestVariables["winddir"] = deg2WindDir(map["Wind Dir"]!);
+      if (map.containsKey("Humidity")) interestVariables["humidity"] = map["Humidity"];
+      if (map.containsKey("Temp")) interestVariables["temperature"] = map["Temp"];
+      if (map.containsKey("Wind Chill")) interestVariables["windchill"] = map["Wind Chill"];
+      if (map.containsKey("24HrRain")) interestVariables["rain"] = map["24HrRain"];
+      if (map.containsKey("Dew Point")) interestVariables["dew"] = map["Dew Point"];
       // data about sunrise, sunset, moonrise and moonset cannot be retrieved from daily.csv
       if (_isNumeric(interestVariables["windspeed"])) {
-        if (map.containsKey("Wind Spd Unit"))
-          interestVariables["windUnit"] = map["Wind Spd Unit"];
+        if (map.containsKey("Wind Spd Unit")) interestVariables["windUnit"] = map["Wind Spd Unit"];
       } else
         interestVariables["windUnit"] = "";
       if (_isNumeric(interestVariables["rain"])) {
-        if (map.containsKey("24HrRain Unit"))
-          interestVariables["rainUnit"] = map["24HrRain Unit"];
+        if (map.containsKey("24HrRain Unit")) interestVariables["rainUnit"] = map["24HrRain Unit"];
       } else
         interestVariables["rainUnit"] = "";
       if (_isNumeric(interestVariables["press"])) {
-        if (map.containsKey("Raw Barom Unit"))
-          interestVariables["pressUnit"] = map["Raw Barom Unit"];
+        if (map.containsKey("Raw Barom Unit")) interestVariables["pressUnit"] = map["Raw Barom Unit"];
       } else
         interestVariables["pressUnit"] = "";
       if (_isNumeric(interestVariables["temperature"])) {
-        if (map.containsKey("Temp Unit"))
-          interestVariables["tempUnit"] = map["Temp Unit"];
+        if (map.containsKey("Temp Unit")) interestVariables["tempUnit"] = map["Temp Unit"];
       } else
         interestVariables["tempUnit"] = "";
       if (_isNumeric(interestVariables["humidity"])) {
-        if (map.containsKey("Humidity Unit"))
-          interestVariables["humUnit"] = map["Humidity Unit"];
+        if (map.containsKey("Humidity Unit")) interestVariables["humUnit"] = map["Humidity Unit"];
       } else
         interestVariables["humUnit"] = "";
       if (_isNumeric(interestVariables["dew"])) {
-        if (map.containsKey("Dew Point Unit"))
-          interestVariables["dewUnit"] = map["Dew Point Unit"];
+        if (map.containsKey("Dew Point Unit")) interestVariables["dewUnit"] = map["Dew Point Unit"];
       } else
         interestVariables["dewUnit"] = "";
       interestVariables = _convertToPrefUnits(interestVariables);
@@ -706,13 +595,11 @@ class ParsingService {
     }
   }
 
-  Map<String, String?> _convertToPrefUnits(
-      Map<String, String?> interestVariables) {
+  Map<String, String?> _convertToPrefUnits(Map<String, String?> interestVariables) {
     if (_isNumeric(interestVariables["windspeed"]) &&
         appState.prefWindUnit != null &&
         !unitEquals(interestVariables["windUnit"]!, appState.prefWindUnit!)) {
-      interestVariables =
-          convertWindSpeed(interestVariables, appState.prefWindUnit);
+      interestVariables = convertWindSpeed(interestVariables, appState.prefWindUnit);
     }
     if (_isNumeric(interestVariables["rain"]) &&
         appState.prefRainUnit != null &&
@@ -722,35 +609,28 @@ class ParsingService {
     if (_isNumeric(interestVariables["press"]) &&
         appState.prefPressUnit != null &&
         !unitEquals(interestVariables["pressUnit"]!, appState.prefPressUnit!)) {
-      interestVariables =
-          convertPressure(interestVariables, appState.prefPressUnit);
+      interestVariables = convertPressure(interestVariables, appState.prefPressUnit);
     }
-    if ((_isNumeric(interestVariables["windchill"]) ||
-            _isNumeric(interestVariables["temperature"])) &&
+    if ((_isNumeric(interestVariables["windchill"]) || _isNumeric(interestVariables["temperature"])) &&
         appState.prefTempUnit != null &&
         !unitEquals(interestVariables["tempUnit"]!, appState.prefTempUnit!)) {
       if (_isNumeric(interestVariables["windchill"]))
-        interestVariables =
-            convertWindChill(interestVariables, appState.prefTempUnit);
+        interestVariables = convertWindChill(interestVariables, appState.prefTempUnit);
       if (_isNumeric(interestVariables["temperature"]))
-        interestVariables =
-            convertTemperature(interestVariables, appState.prefTempUnit);
+        interestVariables = convertTemperature(interestVariables, appState.prefTempUnit);
     }
     if (_isNumeric(interestVariables["dew"]) &&
         appState.prefDewUnit != null &&
         !unitEquals(interestVariables["dewUnit"]!, appState.prefDewUnit!)) {
       interestVariables = convertDew(interestVariables, appState.prefDewUnit);
     }
-    if (_isNumeric(interestVariables["windspeed"]) &&
-        appState.prefWindUnit != null)
+    if (_isNumeric(interestVariables["windspeed"]) && appState.prefWindUnit != null)
       interestVariables["windUnit"] = appState.prefWindUnit;
     if (_isNumeric(interestVariables["rain"]) && appState.prefRainUnit != null)
       interestVariables["rainUnit"] = appState.prefRainUnit;
-    if (_isNumeric(interestVariables["press"]) &&
-        appState.prefPressUnit != null)
+    if (_isNumeric(interestVariables["press"]) && appState.prefPressUnit != null)
       interestVariables["pressUnit"] = appState.prefPressUnit;
-    if (_isNumeric(interestVariables["temperature"]) &&
-        appState.prefTempUnit != null)
+    if (_isNumeric(interestVariables["temperature"]) && appState.prefTempUnit != null)
       interestVariables["tempUnit"] = appState.prefTempUnit;
     if (_isNumeric(interestVariables["dew"]) && appState.prefDewUnit != null)
       interestVariables["dewUnit"] = appState.prefDewUnit;
@@ -764,10 +644,7 @@ class ParsingService {
 
   convertWindSpeed(Map<String, String?> interestVariables, String? preferred) {
     double kmh;
-    switch (interestVariables["windUnit"]!
-        .trim()
-        .replaceAll("/", "")
-        .toLowerCase()) {
+    switch (interestVariables["windUnit"]!.trim().replaceAll("/", "").toLowerCase()) {
       case "kts":
       case "kn":
         {
@@ -794,20 +671,17 @@ class ParsingService {
       case "kts":
       case "kn":
         {
-          interestVariables["windspeed"] =
-              roundToNthDecimal(kmhToKts(kmh), 1).toString();
+          interestVariables["windspeed"] = roundToNthDecimal(kmhToKts(kmh), 1).toString();
           break;
         }
       case "mph":
         {
-          interestVariables["windspeed"] =
-              roundToNthDecimal(kmhToMph(kmh), 1).toString();
+          interestVariables["windspeed"] = roundToNthDecimal(kmhToMph(kmh), 1).toString();
           break;
         }
       case "ms":
         {
-          interestVariables["windspeed"] =
-              roundToNthDecimal(kmhToMs(kmh), 1).toString();
+          interestVariables["windspeed"] = roundToNthDecimal(kmhToMs(kmh), 1).toString();
           break;
         }
       default:
@@ -820,28 +694,17 @@ class ParsingService {
   }
 
   convertRain(Map<String, String?> interestVariables, String? preferred) {
-    if (interestVariables["rainUnit"]!
-            .trim()
-            .replaceAll("/", "")
-            .toLowerCase() ==
-        "mm") {
-      interestVariables["rain"] =
-          roundToNthDecimal(mmToIn(double.parse(interestVariables["rain"]!)), 2)
-              .toString();
+    if (interestVariables["rainUnit"]!.trim().replaceAll("/", "").toLowerCase() == "mm") {
+      interestVariables["rain"] = roundToNthDecimal(mmToIn(double.parse(interestVariables["rain"]!)), 2).toString();
     } else {
-      interestVariables["rain"] =
-          roundToNthDecimal(inToMm(double.parse(interestVariables["rain"]!)), 2)
-              .toString();
+      interestVariables["rain"] = roundToNthDecimal(inToMm(double.parse(interestVariables["rain"]!)), 2).toString();
     }
     return interestVariables;
   }
 
   convertPressure(Map<String, String?> interestVariables, String? preferred) {
     double hPa;
-    switch (interestVariables["pressUnit"]!
-        .trim()
-        .replaceAll("/", "")
-        .toLowerCase()) {
+    switch (interestVariables["pressUnit"]!.trim().replaceAll("/", "").toLowerCase()) {
       case "in":
       case "inhg":
         {
@@ -863,14 +726,12 @@ class ParsingService {
       case "in":
       case "inhg":
         {
-          interestVariables["press"] =
-              roundToNthDecimal(hPaToInhg(hPa), 2).toString();
+          interestVariables["press"] = roundToNthDecimal(hPaToInhg(hPa), 2).toString();
           break;
         }
       case "mb":
         {
-          interestVariables["press"] =
-              roundToNthDecimal(hPaToMb(hPa), 3).toString();
+          interestVariables["press"] = roundToNthDecimal(hPaToMb(hPa), 3).toString();
           break;
         }
       default:
@@ -883,55 +744,32 @@ class ParsingService {
   }
 
   convertWindChill(Map<String, String?> interestVariables, String? preferred) {
-    if (interestVariables["tempUnit"]!
-            .trim()
-            .replaceAll("/", "")
-            .replaceAll("°", "")
-            .toLowerCase() ==
-        "f") {
-      interestVariables["windchill"] = roundToNthDecimal(
-              fToC(double.parse(interestVariables["windchill"]!)), 1)
-          .toString();
+    if (interestVariables["tempUnit"]!.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase() == "f") {
+      interestVariables["windchill"] =
+          roundToNthDecimal(fToC(double.parse(interestVariables["windchill"]!)), 1).toString();
     } else {
-      interestVariables["windchill"] = roundToNthDecimal(
-              cToF(double.parse(interestVariables["windchill"]!)), 1)
-          .toString();
+      interestVariables["windchill"] =
+          roundToNthDecimal(cToF(double.parse(interestVariables["windchill"]!)), 1).toString();
     }
     return interestVariables;
   }
 
   convertTemperature(Map<String, String?> interestVariables, String? preferred) {
-    if (interestVariables["tempUnit"]!
-            .trim()
-            .replaceAll("/", "")
-            .replaceAll("°", "")
-            .toLowerCase() ==
-        "f") {
-      interestVariables["temperature"] = roundToNthDecimal(
-              fToC(double.parse(interestVariables["temperature"]!)), 1)
-          .toString();
+    if (interestVariables["tempUnit"]!.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase() == "f") {
+      interestVariables["temperature"] =
+          roundToNthDecimal(fToC(double.parse(interestVariables["temperature"]!)), 1).toString();
     } else {
-      interestVariables["temperature"] = roundToNthDecimal(
-              cToF(double.parse(interestVariables["temperature"]!)), 1)
-          .toString();
+      interestVariables["temperature"] =
+          roundToNthDecimal(cToF(double.parse(interestVariables["temperature"]!)), 1).toString();
     }
     return interestVariables;
   }
 
   convertDew(Map<String, String?> interestVariables, String? preferred) {
-    if (interestVariables["dewUnit"]!
-            .trim()
-            .replaceAll("/", "")
-            .replaceAll("°", "")
-            .toLowerCase() ==
-        "f") {
-      interestVariables["dew"] =
-          roundToNthDecimal(fToC(double.parse(interestVariables["dew"]!)), 1)
-              .toString();
+    if (interestVariables["dewUnit"]!.trim().replaceAll("/", "").replaceAll("°", "").toLowerCase() == "f") {
+      interestVariables["dew"] = roundToNthDecimal(fToC(double.parse(interestVariables["dew"]!)), 1).toString();
     } else {
-      interestVariables["dew"] =
-          roundToNthDecimal(cToF(double.parse(interestVariables["dew"]!)), 1)
-              .toString();
+      interestVariables["dew"] = roundToNthDecimal(cToF(double.parse(interestVariables["dew"]!)), 1).toString();
     }
     return interestVariables;
   }

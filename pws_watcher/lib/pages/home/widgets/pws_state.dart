@@ -64,10 +64,10 @@ class _PWSStatePageState extends State<PWSStatePage> {
     _checkUpdatePreferences();
 
     return StreamBuilder<Object>(
-      stream: _parsingService.variables$,
+      stream: _parsingService.interestVariables$,
       builder: (context, snapshot) {
         return StreamBuilder(
-          stream: _parsingService.data$,
+          stream: _parsingService.allVariables$,
           builder: (context, dataSnapshot) {
             Widget emptyPage = _buildPage([
               SizedBox(height: 50.0),
@@ -176,7 +176,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
       MaterialPageRoute(
         builder: (ctx) => provider.Provider<ApplicationState>.value(
           value: provider.Provider.of<ApplicationState>(context, listen: false),
-          child: DetailPage(_parsingService.allDataSubject.value),
+          child: DetailPage(_parsingService.allVariablesSubject.value),
         ),
       ),
     );
