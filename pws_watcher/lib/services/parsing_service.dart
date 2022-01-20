@@ -177,13 +177,13 @@ class ParsingService {
                     "units",
                   ].contains(attr.name.toString()))
               .value;
-        } catch (Exception) {}
+        } catch (e) {}
         if (variable != null) {
           pwsInfo[variable] = elem.text;
         }
       });
       return pwsInfo;
-    } catch (Exception) {
+    } catch (e) {
       return null;
     }
   }
@@ -200,7 +200,7 @@ class ParsingService {
         if (counter < values.length) pwsInfo[properties[counter]] = values[counter];
       }
       return pwsInfo;
-    } catch (Exception) {
+    } catch (e) {
       return null;
     }
   }
@@ -236,7 +236,7 @@ class ParsingService {
       } catch (e) {}
 
       return pwsInfo;
-    } catch (Exception) {
+    } catch (e) {
       return null;
     }
   }
@@ -286,7 +286,7 @@ class ParsingService {
         }
       }
       return pwsInfo;
-    } catch (Exception) {
+    } catch (e) {
       return null;
     }
   }
@@ -313,7 +313,7 @@ class ParsingService {
         else if (map.containsKey("refresh_time")) tmpDatetime += " " + map["refresh_time"]!.substring(12);
         tmpDatetime = tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
         interestVariables["datetime"] = DateTime.parse(tmpDatetime).toLocal().toString().replaceAll(".000", "");
-      } catch (Exception) {
+      } catch (e) {
         interestVariables["datetime"] = (((map.containsKey("station_date"))
                     ? map["station_date"]!.trim() + " "
                     : ((map.containsKey("refresh_time"))
@@ -433,7 +433,7 @@ class ParsingService {
             " " +
             tmpDatetime.substring(11);
         interestVariables["datetime"] = DateTime.parse(tmpDatetime).toLocal().toString().replaceAll(".000", "");
-      } catch (Exception) {
+      } catch (e) {
         interestVariables["datetime"] = (((map.containsKey("date")) ? map["date"]!.trim() + " " : "--/--/-- ") +
                 ((map.containsKey("timehhmmss")) ? map["timehhmmss"]!.trim() : "--:--:--"))
             .replaceAll("/", "-")

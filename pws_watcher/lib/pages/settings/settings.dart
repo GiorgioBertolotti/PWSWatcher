@@ -166,7 +166,7 @@ class _SettingsPageState extends State<SettingsPage> with TickerProviderStateMix
             autoUpdateInterval: source["autoUpdateInterval"] ?? 0,
             snapshotUrl: source["snapshotUrl"],
           ));
-        } catch (Exception) {
+        } catch (e) {
           prefs.setStringList("sources", List.empty(growable: true));
         }
       }
