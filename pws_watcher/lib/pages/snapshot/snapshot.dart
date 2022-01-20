@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:image_downloader/image_downloader.dart';
@@ -16,13 +16,13 @@ class SnapshotPage extends StatefulWidget {
     this.backgroundColor,
   });
 
-  final String title;
-  final String urlImage;
-  final String description;
-  final EdgeInsetsGeometry padding;
-  final Color backgroundColor;
+  final String? title;
+  final String? urlImage;
+  final String? description;
+  final EdgeInsetsGeometry? padding;
+  final Color? backgroundColor;
   final bool download;
-  final String downloadName;
+  final String? downloadName;
 
   @override
   _SnapshotPageState createState() => _SnapshotPageState();
@@ -35,7 +35,7 @@ class _SnapshotPageState extends State<SnapshotPage> {
   @override
   void initState() {
     super.initState();
-    imageCache.clear();
+    imageCache!.clear();
   }
 
   @override
@@ -59,11 +59,8 @@ class _SnapshotPageState extends State<SnapshotPage> {
                 iconTheme: IconThemeData(color: Colors.white),
                 backgroundColor: Colors.black,
                 title: Text(
-                  widget.title,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline6
-                      .copyWith(color: Colors.white),
+                  widget.title!,
+                  style: Theme.of(context).textTheme.headline6!.copyWith(color: Colors.white),
                 ),
                 actions: <Widget>[
                   IconButton(
@@ -72,9 +69,7 @@ class _SnapshotPageState extends State<SnapshotPage> {
                             _requestCounter++;
                           })),
                   widget.download
-                      ? IconButton(
-                          icon: Icon(Icons.file_download),
-                          onPressed: () => _downloadImageFromUrl())
+                      ? IconButton(icon: Icon(Icons.file_download), onPressed: () => _downloadImageFromUrl())
                       : Container(),
                 ],
               )
@@ -90,12 +85,9 @@ class _SnapshotPageState extends State<SnapshotPage> {
                       color: Colors.black45,
                       padding: const EdgeInsets.all(10.0),
                       child: Text(
-                        widget.description,
+                        widget.description!,
                         textAlign: TextAlign.start,
-                        style: Theme.of(context)
-                            .textTheme
-                            .subtitle1
-                            .copyWith(color: Colors.white),
+                        style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Colors.white),
                       ),
                     ),
                   )
@@ -113,19 +105,20 @@ class _SnapshotPageState extends State<SnapshotPage> {
       PermissionStatus response = await Permission.storage.request();
 
       if (!response.isGranted) {
-        Flushbar(
-          message: "Please grant the permissions to download the image 🙏🏻",
+        showSimpleNotification(
+          Text("Please grant the permissions to download the image 🙏🏻"),
+          autoDismiss: true,
           duration: Duration(seconds: 2),
-          animationDuration: Duration(milliseconds: 350),
-        )..show(context);
+          position: NotificationPosition.bottom,
+          slideDismissDirection: DismissDirection.down,
+        );
         return;
       }
     }
     try {
-      var imageId = await ImageDownloader.downloadImage(widget.urlImage,
-          destination: AndroidDestinationType.custom(
-              directory: 'Download',
-              subDirectory: widget.downloadName + ".png"));
+      var imageId = await ImageDownloader.downloadImage(widget.urlImage!,
+          destination:
+              AndroidDestinationType.custom(directory: 'Download', subDirectory: widget.downloadName! + ".png"));
       if (imageId == null) {
         return;
       }
@@ -135,10 +128,8 @@ class _SnapshotPageState extends State<SnapshotPage> {
   }
 
   Widget _getPhotoView() {
-    String url = widget.urlImage +
-        (widget.urlImage.contains("?")
-            ? ("&n=" + _requestCounter.toString())
-            : ("?n=" + _requestCounter.toString()));
+    String url = widget.urlImage! +
+        (widget.urlImage!.contains("?") ? ("&n=" + _requestCounter.toString()) : ("?n=" + _requestCounter.toString()));
     return PhotoView.customChild(
       childSize: const Size(100, 100),
       backgroundDecoration: BoxDecoration(

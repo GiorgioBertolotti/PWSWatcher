@@ -28,9 +28,9 @@ class PWSStatePage extends StatefulWidget {
 
 class _PWSStatePageState extends State<PWSStatePage> {
   GlobalKey<RefreshIndicatorState> _refreshKey = GlobalKey();
-  ParsingService _parsingService;
+  late ParsingService _parsingService;
 
-  Map<String, bool> _visibilityMap = {};
+  Map<String?, bool?> _visibilityMap = {};
   bool _visibilityCurrentWeatherIcon = true;
   bool _visibilityUpdateTimer = true;
   List<CustomData> _customData = [];
@@ -64,10 +64,10 @@ class _PWSStatePageState extends State<PWSStatePage> {
     _checkUpdatePreferences();
 
     return StreamBuilder<Object>(
-      stream: _parsingService.variables$,
+      stream: _parsingService.interestVariables$,
       builder: (context, snapshot) {
         return StreamBuilder(
-          stream: _parsingService.data$,
+          stream: _parsingService.allVariables$,
           builder: (context, dataSnapshot) {
             Widget emptyPage = _buildPage([
               SizedBox(height: 50.0),
@@ -86,7 +86,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
             }
 
             Map<String, String> interestVariables = snapshot.data as Map<String, String>;
-            Map<String, String> fullData = dataSnapshot.data as Map<String, String>;
+            Map<String, String>? fullData = dataSnapshot.data as Map<String, String>?;
 
             // Retrieve significant data from parsing service
             var location = interestVariables["location"] ?? "Location";
@@ -95,7 +95,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
             var tempUnit = interestVariables["tempUnit"] ?? "°C";
 
             // Retrieve current condition icon
-            String currentConditionAsset;
+            String? currentConditionAsset;
             try {
               var currentConditionIndex = (int.parse(interestVariables["currentConditionIndex"] ?? "-1"));
               if (currentConditionIndex >= 0 &&
@@ -107,7 +107,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
               }
             } catch (e) {}
 
-            bool thereIsUrl = widget.source.snapshotUrl != null && widget.source.snapshotUrl.trim().isNotEmpty;
+            bool thereIsUrl = widget.source.snapshotUrl != null && widget.source.snapshotUrl!.trim().isNotEmpty;
 
             return FutureBuilder(
               future: _buildValuesTable(interestVariables),
@@ -133,7 +133,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
                     ),
                     SizedBox(height: 50.0),
                   ]
-                    ..addAll(snapshot.data)
+                    ..addAll(snapshot.data!)
                     ..addAll(_buildCustomDataValues(fullData))
                     ..addAll([
                       thereIsUrl ? SizedBox(height: 30) : Container(),
@@ -165,42 +165,21 @@ class _PWSStatePageState extends State<PWSStatePage> {
   }
 
   Future<void> _refresh() async {
-    _refreshKey.currentState.show();
+    _refreshKey.currentState!.show();
 
     await _parsingService.updateData(force: true);
   }
 
   _openDetailPage() async {
-    if (_parsingService.allDataSubject.value != null) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (ctx) => provider.Provider<ApplicationState>.value(
-            value: provider.Provider.of<ApplicationState>(context, listen: false),
-            child: DetailPage(_parsingService.allDataSubject.value),
-          ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (ctx) => provider.Provider<ApplicationState>.value(
+          value: provider.Provider.of<ApplicationState>(context, listen: false),
+          child: DetailPage(_parsingService.allVariablesSubject.value),
         ),
-      );
-    } else {
-      showDialog(
-        context: context,
-        builder: (ctx) {
-          return AlertDialog(
-            title: Text("Error"),
-            content: Text("Can't show more informations."),
-            actions: <Widget>[
-              FlatButton(
-                textColor: Colors.deepOrange,
-                child: Text("Close"),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
+      ),
+    );
   }
 
   Future<Null> _retrievePreferences() async {
@@ -224,14 +203,14 @@ class _PWSStatePageState extends State<PWSStatePage> {
       _visibilityMap.clear();
       for (ValueSetting setting in settings) {
         _visibilityMap[setting.visibilityVarName] =
-            prefs.getBool(setting.visibilityVarName) ?? setting.visibilityDefaultValue;
+            prefs.getBool(setting.visibilityVarName!) ?? setting.visibilityDefaultValue;
       }
     } catch (e) {
       _visibilityMap.clear();
 
       // If there's an exception clear the settings in preferences
       for (ValueSetting setting in settings) {
-        prefs.remove(setting.visibilityVarName);
+        prefs.remove(setting.visibilityVarName!);
       }
     }
 
@@ -242,7 +221,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
       // Populate CustomData list from a list of JSONs stored in shared prefs
       for (String dataJSON in customDataJSON) {
         dynamic data = jsonDecode(dataJSON);
-        IconData icon = data["icon"] != null
+        IconData? icon = data["icon"] != null
             ? IconData(
                 data["icon"]["codePoint"],
                 fontFamily: data["icon"]["fontFamily"],
@@ -295,38 +274,34 @@ class _PWSStatePageState extends State<PWSStatePage> {
   // WIDGETS
 
   Widget _buildUpdateIndicator(PWS source) {
-    if (source.autoUpdateInterval != null) {
-      if (source.autoUpdateInterval == 0) {
-        // Show the manual update button
-        return Align(
-          alignment: Alignment.topLeft,
-          child: IconButton(
-            tooltip: "Update",
-            icon: Icon(
-              Icons.refresh,
-              color: Theme.of(context).accentColor,
-            ),
-            padding: EdgeInsets.all(0),
-            onPressed: _refresh,
+    if (source.autoUpdateInterval == 0) {
+      // Show the manual update button
+      return Align(
+        alignment: Alignment.topLeft,
+        child: IconButton(
+          tooltip: "Update",
+          icon: Icon(
+            Icons.refresh,
+            color: Theme.of(context).colorScheme.secondary,
           ),
-        );
-      } else if (_visibilityUpdateTimer) {
-        // Show the circular timer indicator
-        return Align(
-          alignment: Alignment.topLeft,
-          child: Tooltip(
-            message: "Update timer",
-            child: UpdateTimer(
-              Duration(seconds: source.autoUpdateInterval),
-              () => _parsingService.setSource(widget.source),
-            ),
+          padding: EdgeInsets.all(0),
+          onPressed: _refresh,
+        ),
+      );
+    } else if (_visibilityUpdateTimer) {
+      // Show the circular timer indicator
+      return Align(
+        alignment: Alignment.topLeft,
+        child: Tooltip(
+          message: "Update timer",
+          child: UpdateTimer(
+            Duration(seconds: source.autoUpdateInterval),
+            () => _parsingService.setSource(widget.source),
           ),
-        );
-      } else {
-        // Show nothings
-        return Container(height: 40.0);
-      }
+        ),
+      );
     } else {
+      // Show nothings
       return Container(height: 40.0);
     }
   }
@@ -334,7 +309,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
   Widget _buildPage(List<Widget> children) {
     return RefreshIndicator(
       color: Theme.of(context).primaryColor,
-      backgroundColor: Theme.of(context).accentColor,
+      backgroundColor: Theme.of(context).colorScheme.secondary,
       key: _refreshKey,
       onRefresh: _refresh,
       child: ListView(
@@ -355,12 +330,12 @@ class _PWSStatePageState extends State<PWSStatePage> {
           Text(
             "SEE ALL",
             maxLines: 1,
-            style: Theme.of(context).textTheme.subtitle1.copyWith(color: Theme.of(context).accentColor),
+            style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Theme.of(context).colorScheme.secondary),
           ),
           IconButton(
             icon: Icon(
               Icons.keyboard_arrow_down,
-              color: Theme.of(context).accentColor,
+              color: Theme.of(context).colorScheme.secondary,
             ),
             onPressed: _openDetailPage,
           ),
@@ -377,24 +352,24 @@ class _PWSStatePageState extends State<PWSStatePage> {
     // Build the values table according to the settings and visibility map
     for (int i = 0; i < settings.length; i += 2) {
       ValueSetting leftSetting = settings[i];
-      ValueSetting rightSetting = i + 1 < settings.length ? settings[i + 1] : null;
+      ValueSetting? rightSetting = i + 1 < settings.length ? settings[i + 1] : null;
 
-      bool visibilityLeft = _visibilityMap[leftSetting.visibilityVarName];
-      bool visibilityRight = rightSetting != null ? _visibilityMap[rightSetting.visibilityVarName] : false;
+      bool visibilityLeft = _visibilityMap[leftSetting.visibilityVarName]!;
+      bool? visibilityRight = rightSetting != null ? _visibilityMap[rightSetting.visibilityVarName] : false;
 
-      if (visibilityLeft || visibilityRight) {
+      if (visibilityLeft || visibilityRight!) {
         toReturn.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: DoubleVariableRow(
               labelLeft: leftSetting.name,
               assetLeft: leftSetting.asset,
-              valueLeft: values[leftSetting.valueVarName] ?? leftSetting.valueDefaultValue,
-              unitLeft: values[leftSetting.unitVarName] ?? leftSetting.unitDefaultValue,
+              valueLeft: values[leftSetting.valueVarName!] ?? leftSetting.valueDefaultValue,
+              unitLeft: values[leftSetting.unitVarName!] ?? leftSetting.unitDefaultValue,
               labelRight: rightSetting?.name ?? "",
               assetRight: rightSetting?.asset ?? "",
-              valueRight: values[rightSetting?.valueVarName] ?? rightSetting.valueDefaultValue,
-              unitRight: values[rightSetting?.unitVarName] ?? rightSetting.unitDefaultValue,
+              valueRight: values[rightSetting?.valueVarName!] ?? rightSetting!.valueDefaultValue,
+              unitRight: values[rightSetting?.unitVarName!] ?? rightSetting!.unitDefaultValue,
               visibilityLeft: visibilityLeft,
               visibilityRight: visibilityRight,
             ),
@@ -413,13 +388,13 @@ class _PWSStatePageState extends State<PWSStatePage> {
     return toReturn;
   }
 
-  List<Widget> _buildCustomDataValues(Map<String, String> values) {
+  List<Widget> _buildCustomDataValues(Map<String, String>? values) {
     List<Widget> toReturn = _customData.isEmpty ? [] : [SizedBox(height: 20.0)];
 
     // Build the values table according to the settings and visibility map
     for (int i = 0; i < _customData.length; i += 2) {
       CustomData leftData = _customData[i];
-      CustomData rightData = i + 1 < _customData.length ? _customData[i + 1] : null;
+      CustomData? rightData = i + 1 < _customData.length ? _customData[i + 1] : null;
 
       toReturn.add(
         Padding(
@@ -428,14 +403,14 @@ class _PWSStatePageState extends State<PWSStatePage> {
             labelLeft: leftData.name,
             iconLeft: leftData.icon,
             assetLeft: "assets/images/settings.svg",
-            valueLeft: values[leftData.name] ?? "-",
+            valueLeft: values![leftData.name] ?? "-",
             unitLeft: leftData.unit ?? "",
             labelRight: rightData != null ? rightData.name : "",
             iconRight: rightData?.icon ?? null,
             assetRight: "assets/images/settings.svg",
             valueRight: values[rightData?.name] ?? "-",
             unitRight: rightData?.unit ?? "",
-            visibilityLeft: leftData != null,
+            visibilityLeft: true,
             visibilityRight: rightData != null,
           ),
         ),

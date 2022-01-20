@@ -3,29 +3,29 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class DoubleVariableRow extends StatelessWidget {
   final bool visibilityLeft;
-  final String labelLeft;
-  final String assetLeft;
-  final IconData iconLeft;
-  final String valueLeft;
-  final String unitLeft;
-  final bool visibilityRight;
-  final String labelRight;
-  final String assetRight;
-  final IconData iconRight;
-  final String valueRight;
-  final String unitRight;
+  final String? labelLeft;
+  final String? assetLeft;
+  final IconData? iconLeft;
+  final String? valueLeft;
+  final String? unitLeft;
+  final bool? visibilityRight;
+  final String? labelRight;
+  final String? assetRight;
+  final IconData? iconRight;
+  final String? valueRight;
+  final String? unitRight;
 
   DoubleVariableRow({
-    @required this.labelLeft,
+    required this.labelLeft,
     this.assetLeft,
     this.iconLeft,
-    @required this.valueLeft,
-    @required this.unitLeft,
-    @required this.labelRight,
+    required this.valueLeft,
+    required this.unitLeft,
+    required this.labelRight,
     this.assetRight,
     this.iconRight,
-    @required this.valueRight,
-    @required this.unitRight,
+    required this.valueRight,
+    required this.unitRight,
     this.visibilityLeft = true,
     this.visibilityRight = true,
   });
@@ -36,7 +36,7 @@ class DoubleVariableRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
         Tooltip(
-          message: labelLeft,
+          message: labelLeft!,
           child: visibilityLeft
               ? VariableRow(
                   value: valueLeft,
@@ -48,8 +48,8 @@ class DoubleVariableRow extends StatelessWidget {
               : Container(),
         ),
         Tooltip(
-          message: labelRight,
-          child: visibilityRight
+          message: labelRight!,
+          child: visibilityRight!
               ? VariableRow(
                   value: valueRight,
                   unit: unitRight,
@@ -66,19 +66,19 @@ class DoubleVariableRow extends StatelessWidget {
 }
 
 class VariableRow extends StatelessWidget {
-  final String value;
-  final String unit;
-  final IconData icon;
-  final String asset;
-  final String label;
+  final String? value;
+  final String? unit;
+  final IconData? icon;
+  final String? asset;
+  final String? label;
   final bool leftAlign;
 
   VariableRow({
-    @required this.value,
-    @required this.unit,
+    required this.value,
+    required this.unit,
     this.icon,
     this.asset,
-    @required this.label,
+    required this.label,
     this.leftAlign = true,
   });
 
@@ -94,31 +94,25 @@ class VariableRow extends StatelessWidget {
                 ? Icon(
                     icon,
                     size: 30,
-                    color: Theme.of(context).accentColor,
+                    color: Theme.of(context).colorScheme.secondary,
                   )
                 : SvgPicture.asset(
-                    asset,
+                    asset!,
                     width: 30,
                     height: 30,
                     semanticsLabel: label,
-                    color: Theme.of(context).accentColor,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
           ),
           Text(
-            value,
+            value!,
             maxLines: 1,
-            style: Theme.of(context)
-                .textTheme
-                .headline5
-                .copyWith(color: Theme.of(context).accentColor),
+            style: Theme.of(context).textTheme.headline5!.copyWith(color: Theme.of(context).colorScheme.secondary),
           ),
           Text(
-            unit,
+            unit!,
             maxLines: 1,
-            style: Theme.of(context)
-                .textTheme
-                .subtitle1
-                .copyWith(color: Theme.of(context).accentColor),
+            style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Theme.of(context).colorScheme.secondary),
           ),
         ],
       );
@@ -127,20 +121,14 @@ class VariableRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            value,
+            value!,
             maxLines: 1,
-            style: Theme.of(context)
-                .textTheme
-                .headline5
-                .copyWith(color: Theme.of(context).accentColor),
+            style: Theme.of(context).textTheme.headline5!.copyWith(color: Theme.of(context).colorScheme.secondary),
           ),
           Text(
-            unit,
+            unit!,
             maxLines: 1,
-            style: Theme.of(context)
-                .textTheme
-                .subtitle1
-                .copyWith(color: Theme.of(context).accentColor),
+            style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Theme.of(context).colorScheme.secondary),
           ),
           Padding(
             padding: EdgeInsets.only(left: 10),
@@ -148,14 +136,14 @@ class VariableRow extends StatelessWidget {
                 ? Icon(
                     icon,
                     size: 30,
-                    color: Theme.of(context).accentColor,
+                    color: Theme.of(context).colorScheme.secondary,
                   )
                 : SvgPicture.asset(
-                    asset,
+                    asset!,
                     width: 30,
                     height: 30,
                     semanticsLabel: label,
-                    color: Theme.of(context).accentColor,
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
           ),
         ],

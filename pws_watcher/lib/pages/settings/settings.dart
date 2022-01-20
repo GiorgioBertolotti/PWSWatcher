@@ -1,5 +1,6 @@
-import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/model/state\.dart';
@@ -17,20 +18,19 @@ import 'package:pws_watcher/model/pws.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 class SettingsPage extends StatefulWidget {
-  final ThemeService themeService = getIt<ThemeService>();
+  final ThemeService? themeService = getIt<ThemeService>();
 
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage>
-    with TickerProviderStateMixin {
+class _SettingsPageState extends State<SettingsPage> with TickerProviderStateMixin {
   final GlobalKey _fabKey = GlobalKey();
 
   List<PWS> _sources = [];
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
-  BuildContext _showCaseContext;
+  late BuildContext _showCaseContext;
 
   @override
   void initState() {
@@ -59,19 +59,19 @@ class _SettingsPageState extends State<SettingsPage>
   }
 
   _emptySourcesError() {
-    Flushbar(
-      title: "Wait a second",
-      message: "You should add a PWS to monitor",
+    showSimpleNotification(
+      Text("You should add a PWS to monitor"),
+      trailing: Builder(builder: (context) {
+        return TextButton(
+          onPressed: () => _showShowcase(),
+          child: Text('HELP', style: TextStyle(color: Colors.amber)),
+        );
+      }),
+      autoDismiss: true,
       duration: Duration(seconds: 3),
-      animationDuration: Duration(milliseconds: 350),
-      mainButton: FlatButton(
-        onPressed: () => _showShowcase(),
-        child: Text(
-          "HELP",
-          style: TextStyle(color: Colors.amber),
-        ),
-      ),
-    )..show(context);
+      position: NotificationPosition.bottom,
+      slideDismissDirection: DismissDirection.down,
+    );
   }
 
   @override
@@ -86,7 +86,7 @@ class _SettingsPageState extends State<SettingsPage>
               iconColor: Theme.of(context).iconTheme.color,
               child: Scaffold(
                 key: _scaffoldKey,
-                appBar: _buildAppBar(),
+                appBar: _buildAppBar() as PreferredSizeWidget?,
                 floatingActionButton: _buildFAB(),
                 body: _buildBody(),
               ),
@@ -100,7 +100,7 @@ class _SettingsPageState extends State<SettingsPage>
   // FUNCTIONS
 
   _addSource() async {
-    PWS source = await showDialog(
+    PWS? source = await showDialog(
       context: context,
       builder: (ctx) => provider.Provider<ApplicationState>.value(
         value: provider.Provider.of<ApplicationState>(context, listen: false),
@@ -130,7 +130,7 @@ class _SettingsPageState extends State<SettingsPage>
 
   // Populate sources list as a list of JSONS to be stored in shared prefs
   List<String> _encodeSources() {
-    List<String> sourcesJSON = List();
+    List<String> sourcesJSON = <String>[];
 
     for (PWS source in _sources) {
       String sourceJSON = jsonEncode(source);
@@ -144,14 +144,14 @@ class _SettingsPageState extends State<SettingsPage>
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     // Clear the list of sources before retrieving the new one
-    _sources = List();
+    _sources = List.empty(growable: true);
 
-    List<String> sources = prefs.getStringList("sources");
+    List<String>? sources = prefs.getStringList("sources");
 
     if (sources == null || sources.isEmpty) {
       _shouldShowcase().then((shouldShow) {
         if (shouldShow) {
-          ShowCaseWidget.of(_showCaseContext).startShowCase([_fabKey]);
+          ShowCaseWidget.of(_showCaseContext)!.startShowCase([_fabKey]);
         }
       });
     } else {
@@ -167,7 +167,7 @@ class _SettingsPageState extends State<SettingsPage>
             snapshotUrl: source["snapshotUrl"],
           ));
         } catch (Exception) {
-          prefs.setStringList("sources", null);
+          prefs.setStringList("sources", List.empty(growable: true));
         }
       }
     }
@@ -192,14 +192,14 @@ class _SettingsPageState extends State<SettingsPage>
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool("showcase_2", false);
 
-    ShowCaseWidget.of(_showCaseContext).startShowCase([_fabKey]);
+    ShowCaseWidget.of(_showCaseContext)!.startShowCase([_fabKey]);
   }
 
   // WIDGETS
 
   Widget _buildAppBar() {
     return AppBar(
-      brightness: Brightness.dark,
+      systemOverlayStyle: SystemUiOverlayStyle.light,
       leading: IconButton(
         icon: Icon(Icons.arrow_back, color: Colors.white),
         onPressed: () => _closeSettings(),
@@ -214,8 +214,7 @@ class _SettingsPageState extends State<SettingsPage>
       title: Text(
         "Settings",
         maxLines: 1,
-        style:
-            Theme.of(context).textTheme.headline5.copyWith(color: Colors.white),
+        style: Theme.of(context).textTheme.headline5!.copyWith(color: Colors.white),
       ),
       centerTitle: true,
     );
@@ -243,9 +242,7 @@ class _SettingsPageState extends State<SettingsPage>
       builder: (context) => ListView(
         addAutomaticKeepAlives: true,
         children: <Widget>[
-          _sources.isNotEmpty
-              ? SourcesSettingsCard(_sources, _retrieveSources)
-              : Container(),
+          _sources.isNotEmpty ? SourcesSettingsCard(_sources, _retrieveSources) : Container(),
           ThemeSettingsCard(),
           UnitSettingsCard(),
           VisibilitySettingsCard(),

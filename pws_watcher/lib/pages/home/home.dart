@@ -1,4 +1,3 @@
-import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:provider/provider.dart' as provider;
@@ -12,9 +11,10 @@ import 'dart:convert';
 import 'package:pws_watcher/services/connection_status\.dart';
 import 'dart:async';
 import 'package:flare_flutter/flare_actor.dart';
+import 'package:overlay_support/overlay_support.dart';
 
 class HomePage extends StatefulWidget {
-  HomePage({Key key}) : super(key: key);
+  HomePage({Key? key}) : super(key: key);
 
   final String title = "PWS Watcher";
 
@@ -31,7 +31,7 @@ class _HomePageState extends State<HomePage> {
   final _kDuration = const Duration(milliseconds: 300);
   final _kCurve = Curves.ease;
 
-  StreamSubscription _connectionChangeStream;
+  late StreamSubscription _connectionChangeStream;
   bool _isOffline = false;
 
   final GlobalKey _dotsIndicator = GlobalKey();
@@ -41,8 +41,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
 
     // Checks if the app has internet connection
-    ConnectionStatusSingleton connectionStatus =
-        ConnectionStatusSingleton.getInstance();
+    ConnectionStatusSingleton connectionStatus = ConnectionStatusSingleton.getInstance();
 
     setState(() {
       _isOffline = !connectionStatus.hasConnection;
@@ -60,12 +59,12 @@ class _HomePageState extends State<HomePage> {
     // Fetches the PWSs
     _populateSources().then((sources) {
       _pages.clear();
-      if (sources != null) {
-        for (PWS s in sources) {
-          _pages.add(PWSStatePage(s));
-        }
-        setState(() {});
+
+      for (PWS s in sources) {
+        _pages.add(PWSStatePage(s));
       }
+
+      setState(() {});
     });
   }
 
@@ -101,9 +100,7 @@ class _HomePageState extends State<HomePage> {
                 children: <Widget>[
                   _buildBody(),
                   _buildSettingsButton(),
-                  _pages.length > 1 && !_isOffline
-                      ? _buildDotsIndicator()
-                      : Container(),
+                  _pages.length > 1 && !_isOffline ? _buildDotsIndicator() : Container(),
                 ],
               ),
             ),
@@ -119,7 +116,7 @@ class _HomePageState extends State<HomePage> {
     List<PWS> toReturn = [];
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> sources = prefs.getStringList("sources");
+    List<String>? sources = prefs.getStringList("sources");
 
     if (sources == null || sources.isEmpty) {
       // If there are no sources to show, route the user to the settings page
@@ -142,10 +139,14 @@ class _HomePageState extends State<HomePage> {
     }
 
     // Populate PWS list from a list of JSONs stored in shared prefs
-    for (String sourceJSON in sources) {
+    for (String sourceJSON in sources!) {
       try {
         dynamic source = jsonDecode(sourceJSON);
-        toReturn.add(_parsePWS(source));
+        var parsed = _parsePWS(source);
+
+        if (parsed != null) {
+          toReturn.add(parsed);
+        }
       } catch (e) {
         print(e);
       }
@@ -154,8 +155,8 @@ class _HomePageState extends State<HomePage> {
     return toReturn;
   }
 
-  PWS _parsePWS(dynamic rawSource) {
-    int id = rawSource['id'];
+  PWS? _parsePWS(dynamic rawSource) {
+    int? id = rawSource['id'];
 
     if (id == null || id < 0) {
       // Invalid id
@@ -179,18 +180,22 @@ class _HomePageState extends State<HomePage> {
       await prefs.setInt("homepageCounter", ++homepageCounter);
 
       if (homepageCounter == _visitsBeforeReviewRequest) {
-        Flushbar(
-          message: "Please leave a 5 star review ❤️",
-          duration: null,
-          animationDuration: Duration(milliseconds: 350),
-          mainButton: FlatButton(
-            onPressed: () => LaunchReview.launch(),
-            child: Text(
-              "REVIEW",
-              style: TextStyle(color: Colors.amber),
-            ),
-          ),
-        )..show(context);
+        showSimpleNotification(
+          Text("Please leave a 5 star review ❤️"),
+          trailing: Builder(builder: (context) {
+            return TextButton(
+              onPressed: () {
+                LaunchReview.launch();
+                OverlaySupportEntry.of(context)!.dismiss();
+              },
+              child: Text('REVIEW', style: TextStyle(color: Colors.amber)),
+            );
+          }),
+          autoDismiss: true,
+          duration: Duration(seconds: 8),
+          position: NotificationPosition.bottom,
+          slideDismissDirection: DismissDirection.down,
+        );
       }
     }
   }
@@ -208,10 +213,7 @@ class _HomePageState extends State<HomePage> {
             Text(
               "You are offline.",
               textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .subtitle1
-                  .copyWith(color: Colors.white),
+              style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Colors.white),
             ),
             Container(
               height: (MediaQuery.of(context).size.height) - 200,
@@ -269,7 +271,7 @@ class _HomePageState extends State<HomePage> {
 
           _pages.clear();
 
-          if (sources != null && sources.isNotEmpty) {
+          if (sources.isNotEmpty) {
             for (PWS s in sources) {
               _pages.add(PWSStatePage(s));
             }

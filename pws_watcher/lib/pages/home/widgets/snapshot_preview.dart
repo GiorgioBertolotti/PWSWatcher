@@ -7,7 +7,7 @@ import 'package:pws_watcher/pages/snapshot/snapshot.dart';
 class SnapshotPreview extends StatelessWidget {
   SnapshotPreview(this.pws);
 
-  final PWS pws;
+  final PWS? pws;
   final double borderRadius = 15.0;
 
   @override
@@ -20,7 +20,7 @@ class SnapshotPreview extends StatelessWidget {
         color: Colors.transparent,
         image: DecorationImage(
           fit: BoxFit.cover,
-          image: NetworkImage(this.pws.snapshotUrl),
+          image: NetworkImage(this.pws!.snapshotUrl!),
         ),
       ),
       child: Stack(
@@ -44,10 +44,7 @@ class SnapshotPreview extends StatelessWidget {
             bottom: 10.0,
             child: Text(
               "Webcam Preview",
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText2
-                  .copyWith(color: Colors.white),
+              style: Theme.of(context).textTheme.bodyText2!.copyWith(color: Colors.white),
             ),
           ),
           Material(
@@ -58,14 +55,13 @@ class SnapshotPreview extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (ctx) => provider.Provider<ApplicationState>.value(
-                      value: provider.Provider.of<ApplicationState>(context,
-                          listen: false),
+                      value: provider.Provider.of<ApplicationState>(context, listen: false),
                       child: SnapshotPage(
-                        this.pws.snapshotUrl,
-                        this.pws.name,
+                        this.pws!.snapshotUrl,
+                        this.pws!.name,
                         backgroundColor: Colors.black,
                         download: true,
-                        downloadName: "snapshot_" + this.pws.name,
+                        downloadName: "snapshot_" + this.pws!.name,
                       ),
                     ),
                   ),

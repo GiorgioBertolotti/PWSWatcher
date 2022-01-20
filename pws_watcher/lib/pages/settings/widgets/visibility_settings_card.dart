@@ -11,7 +11,7 @@ import 'package:pws_watcher/services/theme_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class VisibilitySettingsCard extends StatefulWidget {
-  final ThemeService themeService = getIt<ThemeService>();
+  final ThemeService? themeService = getIt<ThemeService>();
 
   @override
   _VisibilitySettingsCardState createState() => _VisibilitySettingsCardState();
@@ -292,13 +292,11 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       setState(() {
-        _visibilityCurrentWeatherIcon =
-            prefs.getBool("visibilityCurrentWeatherIcon") ?? true;
+        _visibilityCurrentWeatherIcon = prefs.getBool("visibilityCurrentWeatherIcon") ?? true;
         _visibilityUpdateTimer = prefs.getBool("visibilityUpdateTimer") ?? true;
         _visibilityWindSpeed = prefs.getBool("visibilityWindSpeed") ?? true;
         _visibilityPressure = prefs.getBool("visibilityPressure") ?? true;
-        _visibilityWindDirection =
-            prefs.getBool("visibilityWindDirection") ?? true;
+        _visibilityWindDirection = prefs.getBool("visibilityWindDirection") ?? true;
         _visibilityHumidity = prefs.getBool("visibilityHumidity") ?? true;
         _visibilityTemperature = prefs.getBool("visibilityTemperature") ?? true;
         _visibilityWindChill = prefs.getBool("visibilityWindChill") ?? true;
@@ -316,7 +314,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
           // Populate CustomData list from a list of JSONs stored in shared prefs
           for (String dataJSON in customDataJSON) {
             dynamic data = jsonDecode(dataJSON);
-            IconData icon = data["icon"] != null
+            IconData? icon = data["icon"] != null
                 ? IconData(
                     data["icon"]["codePoint"],
                     fontFamily: data["icon"]["fontFamily"],
@@ -344,7 +342,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
   }
 
   _addCustomData() async {
-    CustomData customData = await showDialog(
+    CustomData? customData = await showDialog(
       context: context,
       builder: (ctx) => CustomDataDialog(
         mode: CustomDataDialogMode.ADD,
@@ -368,7 +366,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
   }
 
   _editCustomData(int index) async {
-    CustomData customData = await showDialog(
+    CustomData? customData = await showDialog(
       context: context,
       builder: (BuildContext ctx) => CustomDataDialog(
         mode: CustomDataDialogMode.EDIT,
@@ -395,7 +393,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
   }
 
   _removeCustomData(int index) async {
-    bool delete = await showDialog(
+    bool? delete = await showDialog(
       context: context,
       builder: (BuildContext ctx) => DeleteCustomDataDialog(
         _customData[index],
@@ -419,7 +417,7 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
   }
 
   List<String> _encodeCustomData() {
-    List<String> customDataJSON = List();
+    List<String> customDataJSON = <String>[];
 
     for (CustomData customData in _customData) {
       String dataJSON = jsonEncode(customData);
@@ -486,8 +484,8 @@ class _VisibilitySettingsCardState extends State<VisibilitySettingsCard> {
           child: Center(
             child: Text(
               'Add custom data',
-              style: Theme.of(context).textTheme.button.copyWith(
-                    color: Theme.of(context).accentColor,
+              style: Theme.of(context).textTheme.button!.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
                   ),
             ),
           ),

@@ -8,11 +8,11 @@ const double inputHeight = 59.0;
 
 class CustomDataDialog extends StatefulWidget {
   final CustomDataDialogMode mode;
-  final CustomData original;
-  final ThemeData theme;
+  final CustomData? original;
+  final ThemeData? theme;
 
   CustomDataDialog({
-    @required this.mode,
+    required this.mode,
     this.original,
     this.theme,
   }) {
@@ -32,7 +32,7 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
 
   final _nameController = TextEditingController();
   final _unitController = TextEditingController();
-  IconData _icon;
+  IconData? _icon;
 
   FocusNode _nameFocusNode = FocusNode();
   FocusNode _unitFocusNode = FocusNode();
@@ -40,9 +40,9 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
   @override
   void initState() {
     if (widget.mode == CustomDataDialogMode.EDIT) {
-      _nameController.text = widget.original.name;
-      _unitController.text = widget.original.unit;
-      _icon = widget.original.icon;
+      _nameController.text = widget.original!.name;
+      _unitController.text = widget.original!.unit!;
+      _icon = widget.original!.icon;
     }
 
     super.initState();
@@ -50,13 +50,12 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
 
   @override
   Widget build(BuildContext context) {
+    print(Theme.of(context).buttonTheme.colorScheme);
     final double screenWidth = MediaQuery.of(context).size.width;
     final CustomDataDialogMode mode = widget.mode;
 
     return AlertDialog(
-      title: Text(mode == CustomDataDialogMode.ADD
-          ? "Add custom data"
-          : "Edit ${widget.original.name}"),
+      title: Text(mode == CustomDataDialogMode.ADD ? "Add custom data" : "Edit ${widget.original!.name}"),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -74,8 +73,7 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
                 child: TextFormField(
                   controller: _nameController,
                   validator: (value) {
-                    if (value == null || value.isEmpty)
-                      return "You must set the variable name.";
+                    if (value == null || value.isEmpty) return "You must set the variable name.";
                     return null;
                   },
                   decoration: InputDecoration(
@@ -85,8 +83,7 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
                   maxLines: 1,
                   focusNode: _nameFocusNode,
                   textInputAction: TextInputAction.next,
-                  onFieldSubmitted: (value) =>
-                      FocusScope.of(context).requestFocus(_unitFocusNode),
+                  onFieldSubmitted: (value) => FocusScope.of(context).requestFocus(_unitFocusNode),
                 ),
               ),
               Container(
@@ -106,17 +103,24 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
                 ),
               ),
               _icon != null
-                  ? FlatButton.icon(
-                      icon: Icon(_icon),
-                      textColor: Colors.white,
-                      color: widget.theme.primaryColor,
-                      label: Text("Change icon"),
+                  ? TextButton.icon(
+                      icon: Icon(
+                        _icon,
+                        color: Colors.white,
+                      ),
+                      style: TextButton.styleFrom(backgroundColor: Theme.of(context).primaryColor),
+                      label: Text(
+                        "Change icon",
+                        style: TextStyle(color: Colors.white),
+                      ),
                       onPressed: _pickIcon,
                     )
-                  : FlatButton(
-                      textColor: Colors.white,
-                      color: widget.theme.primaryColor,
-                      child: Text("Add an icon"),
+                  : TextButton(
+                      style: TextButton.styleFrom(backgroundColor: Theme.of(context).primaryColor),
+                      child: Text(
+                        "Add an icon",
+                        style: TextStyle(color: Colors.white),
+                      ),
                       onPressed: _pickIcon,
                     ),
             ],
@@ -124,15 +128,20 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
         ),
       ),
       actions: <Widget>[
-        FlatButton(
-          textColor: widget.theme.buttonColor,
+        TextButton(
+          style: TextButton.styleFrom(
+            backgroundColor: Theme.of(context).buttonTheme.colorScheme?.background,
+            primary: Theme.of(context).buttonTheme.colorScheme?.primary,
+          ),
           child: Text("Close"),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        FlatButton(
-          textColor: Colors.white,
-          color: widget.theme.primaryColor,
-          child: Text(mode == CustomDataDialogMode.ADD ? "Add" : "Edit"),
+        TextButton(
+          style: TextButton.styleFrom(backgroundColor: Theme.of(context).primaryColor),
+          child: Text(
+            mode == CustomDataDialogMode.ADD ? "Add" : "Edit",
+            style: TextStyle(color: Colors.white),
+          ),
           onPressed: _save,
         ),
       ],
@@ -142,9 +151,9 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
   // FUNCTIONS
 
   _pickIcon() async {
-    IconData icon = await FlutterIconPicker.showIconPicker(
+    IconData? icon = await FlutterIconPicker.showIconPicker(
       context,
-      iconPackMode: IconPack.lineAwesomeIcons,
+      iconPackModes: [IconPack.lineAwesomeIcons],
       iconColor: Colors.black,
       showTooltips: true,
     );
@@ -157,10 +166,10 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
     // Closes keyboard
     FocusScope.of(context).requestFocus(FocusNode());
 
-    if (_formKey.currentState.validate()) {
-      _formKey.currentState.save();
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
 
-      CustomData customData;
+      CustomData? customData;
 
       if (widget.mode == CustomDataDialogMode.ADD) {
         customData = CustomData(
@@ -171,7 +180,7 @@ class _CustomDataDialogState extends State<CustomDataDialog> {
       } else {
         customData = widget.original;
 
-        customData.name = _nameController.text;
+        customData!.name = _nameController.text;
         customData.unit = _unitController.text;
         customData.icon = _icon;
       }

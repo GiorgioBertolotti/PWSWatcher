@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:overlay_support/overlay_support.dart';
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/services/theme_service.dart';
 import 'package:pws_watcher/splash.dart';
@@ -11,8 +12,7 @@ void main() async {
   await setupGetIt();
 
   // Initialize connection status singleton
-  ConnectionStatusSingleton connectionStatus =
-      ConnectionStatusSingleton.getInstance();
+  ConnectionStatusSingleton connectionStatus = ConnectionStatusSingleton.getInstance();
   connectionStatus.initialize();
 
   runApp(PWSWatcher());
@@ -26,11 +26,13 @@ class PWSWatcher extends StatelessWidget {
     return StreamBuilder<Object>(
         stream: getIt<ThemeService>().theme$,
         builder: (context, snapshot) {
-          return MaterialApp(
-            title: 'PWS Watcher',
-            theme: snapshot.data,
-            home: SplashPage(),
-            navigatorKey: navigatorKey,
+          return OverlaySupport.global(
+            child: MaterialApp(
+              title: 'PWS Watcher',
+              theme: snapshot.data as ThemeData?,
+              home: SplashPage(),
+              navigatorKey: navigatorKey,
+            ),
           );
         });
   }

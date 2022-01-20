@@ -11,9 +11,9 @@ class ApplicationState {
 
   bool updatePreferences;
   int countID;
-  String prefWindUnit;
-  String prefRainUnit;
-  String prefPressUnit;
-  String prefTempUnit;
-  String prefDewUnit;
+  String? prefWindUnit;
+  String? prefRainUnit;
+  String? prefPressUnit;
+  String? prefTempUnit;
+  String? prefDewUnit;
 }

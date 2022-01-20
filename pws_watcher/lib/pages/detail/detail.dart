@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/services/theme_service.dart';
 
 class DetailPage extends StatefulWidget {
   DetailPage(this.data);
 
-  final Map<String, String> data;
-  final ThemeService themeService = getIt<ThemeService>();
+  final Map<String?, String> data;
+  final ThemeService? themeService = getIt<ThemeService>();
 
   @override
   _DetailPageState createState() => _DetailPageState();
@@ -14,7 +15,7 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   final TextEditingController controller = TextEditingController();
-  String filter;
+  String? filter;
 
   @override
   void initState() {
@@ -40,7 +41,7 @@ class _DetailPageState extends State<DetailPage> {
         data: data,
         child: Scaffold(
           appBar: AppBar(
-            brightness: Brightness.dark,
+            systemOverlayStyle: SystemUiOverlayStyle.light,
             leading: IconButton(
               icon: Icon(Icons.arrow_back, color: Colors.white),
               onPressed: () => Navigator.of(context).pop(false),
@@ -48,10 +49,7 @@ class _DetailPageState extends State<DetailPage> {
             title: Text(
               "Detail page",
               maxLines: 1,
-              style: Theme.of(context)
-                  .textTheme
-                  .headline5
-                  .copyWith(color: Colors.white),
+              style: Theme.of(context).textTheme.headline5!.copyWith(color: Colors.white),
             ),
             centerTitle: true,
           ),
@@ -63,12 +61,12 @@ class _DetailPageState extends State<DetailPage> {
                   decoration: InputDecoration(
                     labelText: "Search",
                     labelStyle: TextStyle(
-                      fontSize: Theme.of(context).textTheme.headline6.fontSize,
+                      fontSize: Theme.of(context).textTheme.headline6!.fontSize,
                     ),
                   ),
                   controller: controller,
                   style: TextStyle(
-                    fontSize: Theme.of(context).textTheme.headline6.fontSize,
+                    fontSize: Theme.of(context).textTheme.headline6!.fontSize,
                   ),
                 ),
               ),
@@ -77,20 +75,15 @@ class _DetailPageState extends State<DetailPage> {
                   shrinkWrap: true,
                   itemCount: widget.data.length,
                   itemBuilder: (context, position) {
-                    String key = widget.data.entries.elementAt(position).key;
-                    if ((filter == null || filter.trim().isEmpty) ||
+                    String? key = widget.data.entries.elementAt(position).key;
+                    if ((filter == null || filter!.trim().isEmpty) ||
                         (filter != null &&
-                            filter.trim().isNotEmpty &&
-                            key
-                                .toLowerCase()
-                                .contains(filter.trim().toLowerCase())))
+                            filter!.trim().isNotEmpty &&
+                            key!.toLowerCase().contains(filter!.trim().toLowerCase())))
                       return ListTile(
                         title: Text(
-                          key,
-                          style: Theme.of(context)
-                              .textTheme
-                              .headline6
-                              .copyWith(fontWeight: FontWeight.normal),
+                          key!,
+                          style: Theme.of(context).textTheme.headline6!.copyWith(fontWeight: FontWeight.normal),
                         ),
                         subtitle: Text(
                           widget.data.entries.elementAt(position).value,

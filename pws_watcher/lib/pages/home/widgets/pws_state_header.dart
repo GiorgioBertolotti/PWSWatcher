@@ -7,7 +7,7 @@ class PWSStateHeader extends StatelessWidget {
 
   final String name;
   final String datetime;
-  final String asset;
+  final String? asset;
 
   @override
   Widget build(BuildContext context) {
@@ -37,23 +37,21 @@ class PWSStateHeader extends StatelessWidget {
                   maxFontSize: 40.0,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context)
-                      .textTheme
-                      .headline3
-                      .copyWith(color: Theme.of(context).accentColor),
+                  style:
+                      Theme.of(context).textTheme.headline3!.copyWith(color: Theme.of(context).colorScheme.secondary),
                 ),
                 Text(
                   this.datetime,
                   maxLines: 1,
-                  style: Theme.of(context).textTheme.bodyText2.copyWith(
-                        color: Theme.of(context).accentColor.withOpacity(0.8),
+                  style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.8),
                       ),
                 ),
               ],
             ),
           ),
           SvgPicture.asset(
-            asset,
+            asset!,
             width: 50.0,
             height: 50.0,
           ),
@@ -76,16 +74,13 @@ class PWSStateHeader extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
-            style: Theme.of(context)
-                .textTheme
-                .headline3
-                .copyWith(color: Theme.of(context).accentColor),
+            style: Theme.of(context).textTheme.headline3!.copyWith(color: Theme.of(context).colorScheme.secondary),
           ),
           Text(
             this.datetime,
             maxLines: 1,
-            style: Theme.of(context).textTheme.bodyText2.copyWith(
-                  color: Theme.of(context).accentColor.withOpacity(0.8),
+            style: Theme.of(context).textTheme.bodyText2!.copyWith(
+                  color: Theme.of(context).colorScheme.secondary.withOpacity(0.8),
                 ),
           ),
         ],

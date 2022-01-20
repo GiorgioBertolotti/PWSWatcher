@@ -91,7 +91,7 @@ class _SourcesSettingsCardState extends State<SourcesSettingsCard> {
   }
 
   _editSource(int position) async {
-    PWS source = await showDialog(
+    PWS? source = await showDialog(
       context: context,
       builder: (BuildContext ctx) => PWSDialog(
         mode: PWSDialogMode.EDIT,
@@ -109,14 +109,12 @@ class _SourcesSettingsCardState extends State<SourcesSettingsCard> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setStringList("sources", _encodeSources());
 
-      if (widget.updateCallback != null) {
-        widget.updateCallback();
-      }
+      widget.updateCallback();
     }
   }
 
   _deleteSource(int position) async {
-    bool delete = await showDialog(
+    bool? delete = await showDialog(
       context: context,
       builder: (BuildContext ctx) => DeletePWSDialog(
         widget.sources[position],
@@ -130,15 +128,13 @@ class _SourcesSettingsCardState extends State<SourcesSettingsCard> {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setStringList("sources", _encodeSources());
 
-      if (widget.updateCallback != null) {
-        widget.updateCallback();
-      }
+      widget.updateCallback();
     }
   }
 
   // Populate sources list as a list of JSONS to be stored in shared prefs
   List<String> _encodeSources() {
-    List<String> sourcesJSON = List();
+    List<String> sourcesJSON = <String>[];
 
     for (PWS source in widget.sources) {
       String sourceJSON = jsonEncode(source);
