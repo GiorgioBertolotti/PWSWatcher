@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> {
     _populateSources().then((sources) {
       _pages.clear();
 
-      for (PWS? s in sources) {
+      for (PWS s in sources) {
         _pages.add(PWSStatePage(s));
       }
 
@@ -112,8 +112,8 @@ class _HomePageState extends State<HomePage> {
 
   // FUNCTIONS
 
-  Future<List<PWS?>> _populateSources() async {
-    List<PWS?> toReturn = [];
+  Future<List<PWS>> _populateSources() async {
+    List<PWS> toReturn = [];
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     List<String>? sources = prefs.getStringList("sources");
@@ -142,7 +142,11 @@ class _HomePageState extends State<HomePage> {
     for (String sourceJSON in sources!) {
       try {
         dynamic source = jsonDecode(sourceJSON);
-        toReturn.add(_parsePWS(source));
+        var parsed = _parsePWS(source);
+
+        if (parsed != null) {
+          toReturn.add(parsed);
+        }
       } catch (e) {
         print(e);
       }
@@ -263,12 +267,12 @@ class _HomePageState extends State<HomePage> {
           );
 
           // Fetches the PWSs
-          List<PWS?> sources = await _populateSources();
+          List<PWS> sources = await _populateSources();
 
           _pages.clear();
 
           if (sources.isNotEmpty) {
-            for (PWS? s in sources) {
+            for (PWS s in sources) {
               _pages.add(PWSStatePage(s));
             }
           }

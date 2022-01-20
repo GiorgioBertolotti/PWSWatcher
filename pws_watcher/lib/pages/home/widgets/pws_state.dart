@@ -20,7 +20,7 @@ import 'snapshot_preview.dart';
 class PWSStatePage extends StatefulWidget {
   PWSStatePage(this.source);
 
-  final PWS? source;
+  final PWS source;
 
   @override
   _PWSStatePageState createState() => _PWSStatePageState();
@@ -107,7 +107,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
               }
             } catch (e) {}
 
-            bool thereIsUrl = widget.source!.snapshotUrl != null && widget.source!.snapshotUrl!.trim().isNotEmpty;
+            bool thereIsUrl = widget.source.snapshotUrl != null && widget.source.snapshotUrl!.trim().isNotEmpty;
 
             return FutureBuilder(
               future: _buildValuesTable(interestVariables),
@@ -317,7 +317,7 @@ class _PWSStatePageState extends State<PWSStatePage> {
           parent: BouncingScrollPhysics(),
         ),
         shrinkWrap: true,
-        children: [_buildUpdateIndicator(widget.source!)]..addAll(children),
+        children: [_buildUpdateIndicator(widget.source)]..addAll(children),
       ),
     );
   }

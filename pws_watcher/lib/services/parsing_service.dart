@@ -13,10 +13,10 @@ class ParsingService {
   BehaviorSubject<Map<String, String?>> interestVariablesSubject = BehaviorSubject<Map<String, String>>.seeded(Map());
   Stream<Map<String, String>> get allVariables$ => allVariablesSubject.stream;
   Stream<Map<String, String?>> get interestVariables$ => interestVariablesSubject.stream;
-  PWS? source;
+  PWS source;
   ApplicationState appState;
 
-  setSource(PWS? source) {
+  setSource(PWS source) {
     this.source = source;
     updateData();
   }
@@ -33,7 +33,7 @@ class ParsingService {
   bool _isRetrieving = false;
 
   Future<Null> updateData({bool force = false}) async {
-    String? url = this.source!.url;
+    String? url = this.source.url;
     await _updateData(url);
   }
 
@@ -300,7 +300,9 @@ class ParsingService {
         interestVariables["location"] = map["station_location"];
       else if (map.containsKey("location"))
         interestVariables["location"] = map["location"];
-      else if (source != null) interestVariables["location"] = source!.name;
+      else
+        interestVariables["location"] = source.name;
+
       try {
         var tmpDatetime = "";
         if (map.containsKey("station_date"))
@@ -415,7 +417,7 @@ class ParsingService {
   Map<String, String?>? _valuesFromRealtimeTXT(Map<String, String> map) {
     try {
       Map<String, String?> interestVariables = <String, String>{};
-      if (source != null) interestVariables["location"] = source!.name;
+      interestVariables["location"] = source.name;
       try {
         var tmpDatetime = "";
         if (map.containsKey("date")) tmpDatetime += " " + map["date"]!;
@@ -478,7 +480,7 @@ class ParsingService {
   Map<String, String?>? _valuesFromClientRawTXT(Map<String, String> map) {
     try {
       Map<String, String?> interestVariables = <String, String>{};
-      if (source != null) interestVariables["location"] = source!.name;
+      interestVariables["location"] = source.name;
       var tmpDatetime = "";
       if (map.containsKey("Date")) tmpDatetime += " " + map["Date"]!;
       if (map.containsKey("Hour")) tmpDatetime += " " + map["Hour"]!.padLeft(2, "0");
@@ -520,7 +522,7 @@ class ParsingService {
   Map<String, String?>? _valuesFromDailyCSV(Map<String?, String> map) {
     try {
       Map<String, String?> interestVariables = <String, String>{};
-      if (source != null) interestVariables["location"] = source!.name;
+      interestVariables["location"] = source.name;
       var tmpDatetime = "";
       if (map.containsKey("Date")) {
         try {
