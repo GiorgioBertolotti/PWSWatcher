@@ -4,7 +4,6 @@ import 'package:overlay_support/overlay_support.dart';
 import 'package:provider/provider.dart' as provider;
 import 'package:pws_watcher/get_it_setup.dart';
 import 'package:pws_watcher/model/state\.dart';
-import 'package:pws_watcher/pages/settings/widgets/date_settings_card.dart';
 import 'package:pws_watcher/pages/settings/widgets/pws_dialog.dart';
 import 'package:pws_watcher/pages/settings/widgets/sources_settings_card.dart';
 import 'package:pws_watcher/pages/settings/widgets/theme_settings_card.dart';
@@ -168,6 +167,7 @@ class _SettingsPageState extends State<SettingsPage> with TickerProviderStateMix
             source["url"],
             autoUpdateInterval: source["autoUpdateInterval"] ?? 0,
             snapshotUrl: source["snapshotUrl"],
+            parsingDateFormat: source["parsingDateFormat"],
           ));
         } catch (e) {
           prefs.setStringList("sources", List.empty(growable: true));
@@ -248,7 +248,6 @@ class _SettingsPageState extends State<SettingsPage> with TickerProviderStateMix
           _sources.isNotEmpty ? SourcesSettingsCard(_sources, _retrieveSources) : Container(),
           ThemeSettingsCard(),
           UnitSettingsCard(),
-          DateSettingsCard(),
           VisibilitySettingsCard(),
           WidgetSettingsCard(),
           SizedBox(height: 65.0),

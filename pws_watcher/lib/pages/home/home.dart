@@ -169,6 +169,7 @@ class _HomePageState extends State<HomePage> {
       rawSource["url"],
       autoUpdateInterval: rawSource["autoUpdateInterval"] ?? 0,
       snapshotUrl: rawSource["snapshotUrl"],
+      parsingDateFormat: rawSource["parsingDateFormat"],
     );
   }
 

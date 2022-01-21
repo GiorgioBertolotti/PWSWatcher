@@ -48,7 +48,6 @@ public class WidgetMedium extends AppWidgetProvider {
     static String prefPressUnit = "mb";
     static String prefTempUnit = "°C";
     static String prefDewUnit = "°C";
-    static String parsingDateFormat = null;
     private float fontSizeMultiplier = 1.0f;
     private boolean humidityVisible = true;
     private boolean pressureVisible = true;
@@ -82,8 +81,6 @@ public class WidgetMedium extends AppWidgetProvider {
                 WidgetMedium.prefPressUnit= sharedPrefs.getString("flutter.prefPressUnit", "mb");
                 WidgetMedium.prefTempUnit= sharedPrefs.getString("flutter.prefTempUnit", "°C");
                 WidgetMedium.prefDewUnit= sharedPrefs.getString("flutter.prefDewUnit", "°C");
-                WidgetMedium.parsingDateFormat= sharedPrefs.getString("flutter.parsingDateFormat", null);
-                Log.d("PWSWatcher", "parsingDateFormat: " + Widget.parsingDateFormat);
                 if (sourceJSON != null) {
                     Source source = null;
                     try {
@@ -147,8 +144,6 @@ public class WidgetMedium extends AppWidgetProvider {
                 WidgetMedium.prefPressUnit= sharedPrefs.getString("flutter.prefPressUnit", "mb");
                 WidgetMedium.prefTempUnit= sharedPrefs.getString("flutter.prefTempUnit", "°C");
                 WidgetMedium.prefDewUnit= sharedPrefs.getString("flutter.prefDewUnit", "°C");
-                WidgetMedium.parsingDateFormat= sharedPrefs.getString("flutter.parsingDateFormat", null);
-                Log.d("PWSWatcher", "parsingDateFormat: " + Widget.parsingDateFormat);
                 if (sourceJSON != null) {
                     Source source = null;
                     try {
@@ -296,9 +291,9 @@ public class WidgetMedium extends AppWidgetProvider {
 
         private String formatDateTime(String rawDateTime, String defaultFormat, String timeFormat) throws ParseException {
             try {
-                if (WidgetMedium.parsingDateFormat != null) {
+                if (this.source.parsingDateFormat != null) {
                     String sanifiedDateTime = rawDateTime.trim().toUpperCase();
-                    SimpleDateFormat format = new SimpleDateFormat(WidgetMedium.parsingDateFormat + " " + timeFormat);
+                    SimpleDateFormat format = new SimpleDateFormat(this.source.parsingDateFormat + " " + timeFormat);
                     Date newDate = format.parse(sanifiedDateTime);
                     return android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
                 } else {

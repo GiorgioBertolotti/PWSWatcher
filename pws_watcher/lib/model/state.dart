@@ -7,7 +7,6 @@ class ApplicationState {
     this.prefPressUnit = "mb",
     this.prefTempUnit = "°C",
     this.prefDewUnit = "°C",
-    this.parsingDateFormat,
   });
 
   bool updatePreferences;
@@ -17,5 +16,4 @@ class ApplicationState {
   String? prefPressUnit;
   String? prefTempUnit;
   String? prefDewUnit;
-  String? parsingDateFormat;
 }

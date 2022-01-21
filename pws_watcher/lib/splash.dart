@@ -56,7 +56,6 @@ class _SplashPageState extends State<SplashPage> {
       prefPressUnit: prefs.getString("prefPressUnit"),
       prefTempUnit: prefs.getString("prefTempUnit"),
       prefDewUnit: prefs.getString("prefDewUnit"),
-      parsingDateFormat: prefs.getString("parsingDateFormat"),
     );
 
     // Route to home page

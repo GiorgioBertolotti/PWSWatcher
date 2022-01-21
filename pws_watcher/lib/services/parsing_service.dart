@@ -300,8 +300,8 @@ class ParsingService {
     String timeFormat = "hh:mm:ss",
   }) {
     try {
-      if (appState.parsingDateFormat != null) {
-        var parsingDateTimeFormat = '${appState.parsingDateFormat} $timeFormat';
+      if (source.parsingDateFormat != null) {
+        var parsingDateTimeFormat = '${source.parsingDateFormat} $timeFormat';
         var sanifiedDateTime = rawDateTime.trim();
         return new DateFormat(parsingDateTimeFormat)
             .parse(sanifiedDateTime)
