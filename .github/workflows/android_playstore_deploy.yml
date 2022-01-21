@@ -100,6 +100,6 @@ jobs:
       with:
         serviceAccountJsonPlainText: ${{ secrets.PLAYSTORE_ACCOUNT_KEY }}
         packageName: com.zem.pwswatcher
-        releaseFiles: app.aab
+        releaseFiles: app-release.aab
         track: internal
         whatsNewDirectory: whatsNew
