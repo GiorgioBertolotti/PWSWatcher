@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pws_watcher/model/pws.dart';
 import 'package:pws_watcher/model/state.dart';
 import 'package:rxdart/subjects.dart';
@@ -293,6 +294,50 @@ class ParsingService {
 
   double _timeOfDayToDouble(TimeOfDay tod) => tod.hour + tod.minute / 60.0;
 
+  String _formatDateTime(
+    String rawDateTime, {
+    String? defaultFormat,
+    String timeFormat = "hh:mm:ss",
+  }) {
+    try {
+      if (source.parsingDateFormat != null) {
+        var parsingDateTimeFormat = '${source.parsingDateFormat} $timeFormat';
+        var sanifiedDateTime = rawDateTime.trim();
+        return new DateFormat(parsingDateTimeFormat)
+            .parse(sanifiedDateTime)
+            .toLocal()
+            .toString()
+            .replaceAll(".000", "");
+      } else {
+        if (defaultFormat != null) {
+          var parsingDateTimeFormat = '$defaultFormat $timeFormat';
+          var sanifiedDateTime = rawDateTime.trim();
+          return new DateFormat(parsingDateTimeFormat)
+              .parse(sanifiedDateTime)
+              .toLocal()
+              .toString()
+              .replaceAll(".000", "");
+        } else {
+          var sanifiedDateTime = rawDateTime.trim().replaceAll("/", "-").replaceAll(".", "-");
+          return DateTime.parse(sanifiedDateTime).toLocal().toString().replaceAll(".000", "");
+        }
+      }
+    } catch (e) {
+      if (defaultFormat != null) {
+        var parsingDateTimeFormat = '$defaultFormat $timeFormat';
+        var sanifiedDateTime = rawDateTime.trim();
+        return new DateFormat(parsingDateTimeFormat)
+            .parse(sanifiedDateTime)
+            .toLocal()
+            .toString()
+            .replaceAll(".000", "");
+      } else {
+        var sanifiedDateTime = rawDateTime.trim().replaceAll("/", "-").replaceAll(".", "-");
+        return DateTime.parse(sanifiedDateTime).toLocal().toString().replaceAll(".000", "");
+      }
+    }
+  }
+
   Map<String, String?>? _valuesFromRealtimeXML(Map<String, String> map) {
     try {
       Map<String, String?> interestVariables = <String, String>{};
@@ -311,8 +356,7 @@ class ParsingService {
         if (map.containsKey("station_time"))
           tmpDatetime += " " + map["station_time"]!;
         else if (map.containsKey("refresh_time")) tmpDatetime += " " + map["refresh_time"]!.substring(12);
-        tmpDatetime = tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
-        interestVariables["datetime"] = DateTime.parse(tmpDatetime).toLocal().toString().replaceAll(".000", "");
+        interestVariables["datetime"] = _formatDateTime(tmpDatetime);
       } catch (e) {
         interestVariables["datetime"] = (((map.containsKey("station_date"))
                     ? map["station_date"]!.trim() + " "
@@ -422,17 +466,7 @@ class ParsingService {
         var tmpDatetime = "";
         if (map.containsKey("date")) tmpDatetime += " " + map["date"]!;
         if (map.containsKey("timehhmmss")) tmpDatetime += " " + map["timehhmmss"]!;
-        tmpDatetime = tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
-        tmpDatetime =
-            tmpDatetime.substring(0, 6) + DateTime.now().year.toString().substring(0, 2) + tmpDatetime.substring(6);
-        tmpDatetime = tmpDatetime.substring(6, 10) +
-            "-" +
-            tmpDatetime.substring(3, 5) +
-            "-" +
-            tmpDatetime.substring(0, 2) +
-            " " +
-            tmpDatetime.substring(11);
-        interestVariables["datetime"] = DateTime.parse(tmpDatetime).toLocal().toString().replaceAll(".000", "");
+        interestVariables["datetime"] = _formatDateTime(tmpDatetime, defaultFormat: "dd/MM/yy");
       } catch (e) {
         interestVariables["datetime"] = (((map.containsKey("date")) ? map["date"]!.trim() + " " : "--/--/-- ") +
                 ((map.containsKey("timehhmmss")) ? map["timehhmmss"]!.trim() : "--:--:--"))
@@ -486,9 +520,8 @@ class ParsingService {
       if (map.containsKey("Hour")) tmpDatetime += " " + map["Hour"]!.padLeft(2, "0");
       if (map.containsKey("Minute")) tmpDatetime += ":" + map["Minute"]!.padLeft(2, "0");
       if (map.containsKey("Seconds")) tmpDatetime += ":" + map["Seconds"]!.padLeft(2, "0");
-      tmpDatetime = tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
       try {
-        interestVariables["datetime"] = DateTime.parse(tmpDatetime).toLocal().toString().replaceAll(".000", "");
+        interestVariables["datetime"] = _formatDateTime(tmpDatetime);
       } catch (e) {
         interestVariables["datetime"] = tmpDatetime;
       }
@@ -551,9 +584,8 @@ class ParsingService {
         if (pm) part1 = 12;
       }
       tmpDatetime += " " + part1.toString().padLeft(2, "0") + ":" + part2.toString().padLeft(2, "0") + ":00";
-      tmpDatetime = tmpDatetime.trim().replaceAll("/", "-").replaceAll(".", "-");
       try {
-        interestVariables["datetime"] = DateTime.parse(tmpDatetime).toLocal().toString().replaceAll(".000", "");
+        interestVariables["datetime"] = _formatDateTime(tmpDatetime);
       } catch (e) {
         interestVariables["datetime"] = tmpDatetime;
       }

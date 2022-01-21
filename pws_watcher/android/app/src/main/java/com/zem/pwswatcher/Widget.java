@@ -27,6 +27,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import java.math.BigDecimal;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -86,7 +87,7 @@ public class Widget extends AppWidgetProvider {
                     try {
                         JSONObject rootObj = new JSONObject(sourceJSON);
                         JSONObject sourceObj = rootObj.getJSONObject("source");
-                        source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"));
+                        source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"), sourceObj.optString("parsingDateFormat"));
                         this.fontSizeMultiplier = BigDecimal.valueOf(rootObj.getDouble("fontSizeMultiplier")).floatValue();
                         this.humidityVisible = rootObj.getBoolean("humidityVisible");
                         this.pressureVisible = rootObj.getBoolean("pressureVisible");
@@ -149,7 +150,7 @@ public class Widget extends AppWidgetProvider {
                     try {
                         JSONObject rootObj = new JSONObject(sourceJSON);
                         JSONObject sourceObj = rootObj.getJSONObject("source");
-                        source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"));
+                        source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"), sourceObj.optString("parsingDateFormat"));
                         this.fontSizeMultiplier = BigDecimal.valueOf(rootObj.getDouble("fontSizeMultiplier")).floatValue();
                         this.humidityVisible = rootObj.getBoolean("humidityVisible");
                         this.pressureVisible = rootObj.getBoolean("pressureVisible");
@@ -289,6 +290,27 @@ public class Widget extends AppWidgetProvider {
             }
         }
 
+        private String formatDateTime(String rawDateTime, String defaultFormat, String timeFormat) throws ParseException {
+            try {
+                if (this.source.getParsingDateFormat() != null) {
+                    String sanifiedDateTime = rawDateTime.trim().toUpperCase();
+                    SimpleDateFormat format = new SimpleDateFormat(this.source.getParsingDateFormat() + " " + timeFormat);
+                    Date newDate = format.parse(sanifiedDateTime);
+                    return android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                } else {
+                    String sanifiedDateTime = rawDateTime.trim().replace("/", "-").replace(".", "-").toUpperCase();
+                    SimpleDateFormat format = new SimpleDateFormat(defaultFormat);
+                    Date newDate = format.parse(sanifiedDateTime);
+                    return android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                }
+            } catch (Exception e) {
+                    String sanifiedDateTime = rawDateTime.trim().replace("/", "-").replace(".", "-").toUpperCase();
+                SimpleDateFormat format = new SimpleDateFormat(defaultFormat);
+                Date newDate = format.parse(sanifiedDateTime);
+                return android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+            }
+        }
+
         private boolean visualizeDailyCSV(String resp, RemoteViews view) {
             try {
                 String[] lines = resp.split("\r\n");
@@ -304,10 +326,7 @@ public class Widget extends AppWidgetProvider {
                 String stringDate = null;
                 try {
                     String date = lines[0] + " " + values[0];
-                    date = date.trim().replace("/", "-").replace(".", "-").toUpperCase();
-                    SimpleDateFormat format = new SimpleDateFormat("MM-dd-yy hh:mma");
-                    Date newDate = format.parse(date);
-                    stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                    stringDate = formatDateTime(date, "MM-dd-yy hh:mma", "HH:mma");
                 } catch (Exception e) {
                     String date = lines[0] + " " + values[0];
                     stringDate = date.trim().replace("/", "-").replace(".", "-");
@@ -336,10 +355,7 @@ public class Widget extends AppWidgetProvider {
                 String stringDate = null;
                 try {
                     String date = values[74] + " " + values[29]+ ":" + values[30]+ ":" + values[31];
-                    date = date.trim().replace("/", "-").replace(".", "-");
-                    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-                    Date newDate = format.parse(date);
-                    stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                    stringDate = formatDateTime(date, "dd-MM-yyyy HH:mm:ss", "HH:mm:ss");
                 } catch (Exception e) {
                     String date = values[74] + " " + values[29]+ ":" + values[30]+ ":" + values[31];
                     stringDate = date.trim().replace("/", "-").replace(".", "-");
@@ -364,15 +380,7 @@ public class Widget extends AppWidgetProvider {
                 String stringDate = null;
                 try {
                     String date = values[0] + " " + values[1];
-                    date = date.trim().replace("/", "-").replace(".", "-");
-                    int year = Calendar.getInstance().get(Calendar.YEAR);
-                    date = date.substring(0, 6) +
-                            Integer.toString(year).substring(0, 2) +
-                            date.substring(6);
-                    date = date.substring(6, 10) + "-" + date.substring(3, 5) + "-" + date.substring(0, 2) + " " + date.substring(11);
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date newDate = format.parse(date);
-                    stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                    stringDate = formatDateTime(date, "dd/MM/yy HH:mm:ss", "HH:mm:ss");
                 } catch (Exception e) {
                     stringDate = values[0].trim() + " " + values[1].trim();
                 }
@@ -455,10 +463,7 @@ public class Widget extends AppWidgetProvider {
                 String stringDate = null;
                 try {
                     String tmpDatetime = date.trim() + " " + time.trim();
-                    tmpDatetime = tmpDatetime.trim().replace("/", "-").replace(".", "-");
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date newDate = format.parse(tmpDatetime);
-                    stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                    stringDate = formatDateTime(date, "yyyy-MM-dd HH:mm:ss", "HH:mm:ss");
                 } catch (Exception e) {
                     stringDate = ((date != null) ? (date.trim() + " ") : "") + ((time != null) ? time.trim() : "");
                 }

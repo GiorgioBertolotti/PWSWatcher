@@ -24,8 +24,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          widget.themeService!.themeSubject.value.scaffoldBackgroundColor,
+      backgroundColor: widget.themeService!.themeSubject.value.scaffoldBackgroundColor,
       body: Builder(
         builder: (context) => SafeArea(
           child: Center(

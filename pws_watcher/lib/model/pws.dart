@@ -2,18 +2,27 @@ class PWS {
   int id;
   String name;
   String url;
-  String? snapshotUrl;
   int autoUpdateInterval;
+  String? snapshotUrl;
+  String? parsingDateFormat;
 
-  PWS(this.id, this.name, this.url, {this.snapshotUrl, this.autoUpdateInterval = 0});
+  PWS(
+    this.id,
+    this.name,
+    this.url, {
+    this.autoUpdateInterval = 0,
+    this.snapshotUrl,
+    this.parsingDateFormat,
+  });
 
   toJson() {
     return {
       'id': this.id,
       'name': this.name,
       'url': this.url,
+      'autoUpdateInterval': this.autoUpdateInterval,
       'snapshotUrl': this.snapshotUrl,
-      'autoUpdateInterval': this.autoUpdateInterval
+      'parsingDateFormat': this.parsingDateFormat
     };
   }
 

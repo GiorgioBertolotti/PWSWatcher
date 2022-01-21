@@ -40,11 +40,13 @@ class _PWSDialogState extends State<PWSDialog> {
   final _urlController = TextEditingController();
   final _intervalController = TextEditingController();
   final _snapshotUrlController = TextEditingController();
+  final _parsingDateFormatController = TextEditingController();
 
   FocusNode _nameFocusNode = FocusNode();
   FocusNode _urlFocusNode = FocusNode();
   FocusNode _intervalFocusNode = FocusNode();
   FocusNode _snapshotUrlFocusNode = FocusNode();
+  FocusNode _parsingDateFormatFocusNode = FocusNode();
 
   late BuildContext _showCaseContext;
 
@@ -55,6 +57,7 @@ class _PWSDialogState extends State<PWSDialog> {
       _urlController.text = widget.source!.url;
       _intervalController.text = widget.source!.autoUpdateInterval.toString();
       _snapshotUrlController.text = widget.source!.snapshotUrl ?? "";
+      _parsingDateFormatController.text = widget.source!.parsingDateFormat ?? "";
     }
 
     _shouldShowcase().then((shouldShow) {
@@ -159,6 +162,7 @@ class _PWSDialogState extends State<PWSDialog> {
                   Container(
                     height: inputHeight,
                     width: screenWidth,
+                    margin: const EdgeInsets.only(bottom: 12.0),
                     child: Showcase(
                       key: _snapshotUrlKey,
                       title: "Webcam snapshot",
@@ -172,10 +176,32 @@ class _PWSDialogState extends State<PWSDialog> {
                         ),
                         maxLines: 1,
                         focusNode: _snapshotUrlFocusNode,
-                        textInputAction: TextInputAction.done,
-                        onFieldSubmitted: (text) => _save(),
+                        textInputAction: TextInputAction.next,
+                        onFieldSubmitted: (value) => FocusScope.of(context).requestFocus(_parsingDateFormatFocusNode),
                       ),
                     ),
+                  ),
+                  Container(
+                    height: inputHeight,
+                    width: screenWidth,
+                    margin: const EdgeInsets.only(bottom: 6.0),
+                    child: TextFormField(
+                      keyboardType: TextInputType.text,
+                      controller: _parsingDateFormatController,
+                      decoration: InputDecoration(
+                        labelText: "Date format",
+                        border: OutlineInputBorder(),
+                        hintText: "dd/MM/yyyy",
+                      ),
+                      maxLines: 1,
+                      focusNode: _parsingDateFormatFocusNode,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (text) => _save(),
+                    ),
+                  ),
+                  Text(
+                    "You can specify which date format to use to improve date parsing in app and widget.\ndd = day of month\nMM = month\nyyyy = year\nyy = year (short)",
+                    style: Theme.of(context).textTheme.caption,
                   ),
                 ],
               ),
@@ -231,6 +257,7 @@ class _PWSDialogState extends State<PWSDialog> {
           _urlController.text,
           autoUpdateInterval: int.parse(_intervalController.text),
           snapshotUrl: _snapshotUrlController.text,
+          parsingDateFormat: _parsingDateFormatController.text,
         );
       } else {
         source = widget.source;
@@ -239,6 +266,7 @@ class _PWSDialogState extends State<PWSDialog> {
         source.url = _urlController.text;
         source.autoUpdateInterval = int.parse(_intervalController.text);
         source.snapshotUrl = _snapshotUrlController.text;
+        source.parsingDateFormat = _parsingDateFormatController.text;
       }
 
       Navigator.of(context).pop(source);

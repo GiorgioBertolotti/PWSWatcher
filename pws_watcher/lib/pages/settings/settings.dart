@@ -167,6 +167,7 @@ class _SettingsPageState extends State<SettingsPage> with TickerProviderStateMix
             source["url"],
             autoUpdateInterval: source["autoUpdateInterval"] ?? 0,
             snapshotUrl: source["snapshotUrl"],
+            parsingDateFormat: source["parsingDateFormat"],
           ));
         } catch (e) {
           prefs.setStringList("sources", List.empty(growable: true));
