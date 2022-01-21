@@ -112,7 +112,7 @@ public class WidgetSmallConfigurationActivity extends Activity {
             for (String sourceJSON : sourcesJSON) {
                 try {
                     JSONObject obj = new JSONObject(sourceJSON);
-                    sources.add(new Source(obj.getInt("id"), obj.getString("name"), obj.getString("url")));
+                    sources.add(new Source(obj.getInt("id"), obj.getString("name"), obj.getString("url"), obj.optString("parsingDateFormat")));
                 } catch (JSONException e) {
                 }
             }

@@ -67,7 +67,7 @@ public class WidgetSmall extends AppWidgetProvider {
                     try {
                         JSONObject rootObj = new JSONObject(sourceJSON);
                         JSONObject sourceObj = rootObj.getJSONObject("source");
-                        source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"));
+                        source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"), sourceObj.optString("parsingDateFormat"));
                         this.fontSizeMultiplier = BigDecimal.valueOf(rootObj.getDouble("fontSizeMultiplier")).floatValue();
                         this.bgColor = rootObj.getInt("bgColor");
                         this.textColor = rootObj.getInt("textColor");
@@ -118,7 +118,7 @@ public class WidgetSmall extends AppWidgetProvider {
                     try {
                         JSONObject rootObj = new JSONObject(sourceJSON);
                         JSONObject sourceObj = rootObj.getJSONObject("source");
-                        source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"));
+                        source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"), sourceObj.optString("parsingDateFormat"));
                         this.fontSizeMultiplier = BigDecimal.valueOf(rootObj.getDouble("fontSizeMultiplier")).floatValue();
                         this.bgColor = rootObj.getInt("bgColor");
                         this.textColor = rootObj.getInt("textColor");

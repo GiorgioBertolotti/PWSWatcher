@@ -86,7 +86,7 @@ public class WidgetMedium extends AppWidgetProvider {
                     try {
                         JSONObject rootObj = new JSONObject(sourceJSON);
                         JSONObject sourceObj = rootObj.getJSONObject("source");
-                        source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"));
+                        source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"), sourceObj.optString("parsingDateFormat"));
                         this.fontSizeMultiplier = BigDecimal.valueOf(rootObj.getDouble("fontSizeMultiplier")).floatValue();
                         this.humidityVisible = rootObj.getBoolean("humidityVisible");
                         this.pressureVisible = rootObj.getBoolean("pressureVisible");
@@ -149,7 +149,7 @@ public class WidgetMedium extends AppWidgetProvider {
                     try {
                         JSONObject rootObj = new JSONObject(sourceJSON);
                         JSONObject sourceObj = rootObj.getJSONObject("source");
-                        source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"));
+                        source = new Source(sourceObj.getInt("id"), sourceObj.getString("name"), sourceObj.getString("url"), sourceObj.optString("parsingDateFormat"));
                         this.fontSizeMultiplier = BigDecimal.valueOf(rootObj.getDouble("fontSizeMultiplier")).floatValue();
                         this.humidityVisible = rootObj.getBoolean("humidityVisible");
                         this.pressureVisible = rootObj.getBoolean("pressureVisible");
@@ -291,9 +291,9 @@ public class WidgetMedium extends AppWidgetProvider {
 
         private String formatDateTime(String rawDateTime, String defaultFormat, String timeFormat) throws ParseException {
             try {
-                if (this.source.parsingDateFormat != null) {
+                if (this.source.getParsingDateFormat() != null) {
                     String sanifiedDateTime = rawDateTime.trim().toUpperCase();
-                    SimpleDateFormat format = new SimpleDateFormat(this.source.parsingDateFormat + " " + timeFormat);
+                    SimpleDateFormat format = new SimpleDateFormat(this.source.getParsingDateFormat() + " " + timeFormat);
                     Date newDate = format.parse(sanifiedDateTime);
                     return android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
                 } else {
