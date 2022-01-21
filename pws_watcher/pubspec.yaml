@@ -19,6 +19,7 @@ dependencies:
   hive_flutter: ^1.1.0
   http: ^0.13.4
   image_downloader: ^0.31.0
+  intl: ^0.17.0
   launch_review: ^3.0.1
   overlay_support: ^1.2.1
   path_provider: ^2.0.8

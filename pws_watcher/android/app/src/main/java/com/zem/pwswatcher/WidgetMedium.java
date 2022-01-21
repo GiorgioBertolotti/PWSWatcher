@@ -27,6 +27,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 import java.math.BigDecimal;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -47,6 +48,7 @@ public class WidgetMedium extends AppWidgetProvider {
     static String prefPressUnit = "mb";
     static String prefTempUnit = "°C";
     static String prefDewUnit = "°C";
+    static String parsingDateFormat = null;
     private float fontSizeMultiplier = 1.0f;
     private boolean humidityVisible = true;
     private boolean pressureVisible = true;
@@ -75,11 +77,13 @@ public class WidgetMedium extends AppWidgetProvider {
             SharedPreferences sharedPrefs = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
             for (int i = 0; i < widgetNum; i++) {
                 String sourceJSON = sharedPrefs.getString("widget_" + widgetId[i], null);
-                Widget.prefWindUnit = sharedPrefs.getString("flutter.prefWindUnit", "km/h");
-                Widget.prefRainUnit= sharedPrefs.getString("flutter.prefRainUnit", "mm");
-                Widget.prefPressUnit= sharedPrefs.getString("flutter.prefPressUnit", "mb");
-                Widget.prefTempUnit= sharedPrefs.getString("flutter.prefTempUnit", "°C");
-                Widget.prefDewUnit= sharedPrefs.getString("flutter.prefDewUnit", "°C");
+                WidgetMedium.prefWindUnit = sharedPrefs.getString("flutter.prefWindUnit", "km/h");
+                WidgetMedium.prefRainUnit= sharedPrefs.getString("flutter.prefRainUnit", "mm");
+                WidgetMedium.prefPressUnit= sharedPrefs.getString("flutter.prefPressUnit", "mb");
+                WidgetMedium.prefTempUnit= sharedPrefs.getString("flutter.prefTempUnit", "°C");
+                WidgetMedium.prefDewUnit= sharedPrefs.getString("flutter.prefDewUnit", "°C");
+                WidgetMedium.parsingDateFormat= sharedPrefs.getString("flutter.parsingDateFormat", null);
+                Log.d("PWSWatcher", "parsingDateFormat: " + Widget.parsingDateFormat);
                 if (sourceJSON != null) {
                     Source source = null;
                     try {
@@ -138,11 +142,13 @@ public class WidgetMedium extends AppWidgetProvider {
             SharedPreferences sharedPrefs = context.getSharedPreferences(SHARED_PREFERENCES_NAME, Context.MODE_PRIVATE);
             for (int i = 0; i < widgetNum; i++) {
                 String sourceJSON = sharedPrefs.getString("widget_" + widgetId[i], null);
-                Widget.prefWindUnit = sharedPrefs.getString("flutter.prefWindUnit", "km/h");
-                Widget.prefRainUnit= sharedPrefs.getString("flutter.prefRainUnit", "mm");
-                Widget.prefPressUnit= sharedPrefs.getString("flutter.prefPressUnit", "mb");
-                Widget.prefTempUnit= sharedPrefs.getString("flutter.prefTempUnit", "°C");
-                Widget.prefDewUnit= sharedPrefs.getString("flutter.prefDewUnit", "°C");
+                WidgetMedium.prefWindUnit = sharedPrefs.getString("flutter.prefWindUnit", "km/h");
+                WidgetMedium.prefRainUnit= sharedPrefs.getString("flutter.prefRainUnit", "mm");
+                WidgetMedium.prefPressUnit= sharedPrefs.getString("flutter.prefPressUnit", "mb");
+                WidgetMedium.prefTempUnit= sharedPrefs.getString("flutter.prefTempUnit", "°C");
+                WidgetMedium.prefDewUnit= sharedPrefs.getString("flutter.prefDewUnit", "°C");
+                WidgetMedium.parsingDateFormat= sharedPrefs.getString("flutter.parsingDateFormat", null);
+                Log.d("PWSWatcher", "parsingDateFormat: " + Widget.parsingDateFormat);
                 if (sourceJSON != null) {
                     Source source = null;
                     try {
@@ -288,25 +294,43 @@ public class WidgetMedium extends AppWidgetProvider {
             }
         }
 
+        private String formatDateTime(String rawDateTime, String defaultFormat, String timeFormat) throws ParseException {
+            try {
+                if (WidgetMedium.parsingDateFormat != null) {
+                    String sanifiedDateTime = rawDateTime.trim().toUpperCase();
+                    SimpleDateFormat format = new SimpleDateFormat(WidgetMedium.parsingDateFormat + " " + timeFormat);
+                    Date newDate = format.parse(sanifiedDateTime);
+                    return android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                } else {
+                    String sanifiedDateTime = rawDateTime.trim().replace("/", "-").replace(".", "-").toUpperCase();
+                    SimpleDateFormat format = new SimpleDateFormat(defaultFormat);
+                    Date newDate = format.parse(sanifiedDateTime);
+                    return android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                }
+            } catch (Exception e) {
+                    String sanifiedDateTime = rawDateTime.trim().replace("/", "-").replace(".", "-").toUpperCase();
+                SimpleDateFormat format = new SimpleDateFormat(defaultFormat);
+                Date newDate = format.parse(sanifiedDateTime);
+                return android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+            }
+        }
+
         private boolean visualizeDailyCSV(String resp, RemoteViews view) {
             try {
                 String[] lines = resp.split("\r\n");
                 String[] units = lines[2].split(",");
                 String[] values = lines[lines.length - 1].split(",");
                 view.setTextViewText(R.id.tv_location, this.source.getName());
-                view.setTextViewText(R.id.tv_temperature, convertTemperature(Double.parseDouble(values[7]), units[7], Widget.prefTempUnit) + Widget.prefTempUnit);
-                view.setTextViewText(R.id.tv_temperature_left, convertTemperature(Double.parseDouble(values[7]), units[7], Widget.prefTempUnit) + Widget.prefTempUnit);
+                view.setTextViewText(R.id.tv_temperature, convertTemperature(Double.parseDouble(values[7]), units[7], WidgetMedium.prefTempUnit) + WidgetMedium.prefTempUnit);
+                view.setTextViewText(R.id.tv_temperature_left, convertTemperature(Double.parseDouble(values[7]), units[7], WidgetMedium.prefTempUnit) + WidgetMedium.prefTempUnit);
                 view.setTextViewText(R.id.tv_humidity, values[5] + "%");
-                view.setTextViewText(R.id.tv_pressure, convertPressure(Double.parseDouble(values[8]), units[8], Widget.prefPressUnit) + Widget.prefPressUnit);
-                view.setTextViewText(R.id.tv_rain, convertRain(Double.parseDouble(values[52]), units[52], Widget.prefRainUnit) + Widget.prefRainUnit);
-                view.setTextViewText(R.id.tv_windspeed, convertWindSpeed(Double.parseDouble(values[2]), units[2], Widget.prefWindUnit) + Widget.prefWindUnit);
+                view.setTextViewText(R.id.tv_pressure, convertPressure(Double.parseDouble(values[8]), units[8], WidgetMedium.prefPressUnit) + WidgetMedium.prefPressUnit);
+                view.setTextViewText(R.id.tv_rain, convertRain(Double.parseDouble(values[52]), units[52], WidgetMedium.prefRainUnit) + WidgetMedium.prefRainUnit);
+                view.setTextViewText(R.id.tv_windspeed, convertWindSpeed(Double.parseDouble(values[2]), units[2], WidgetMedium.prefWindUnit) + WidgetMedium.prefWindUnit);
                 String stringDate = null;
                 try {
                     String date = lines[0] + " " + values[0];
-                    date = date.trim().replace("/", "-").replace(".", "-").toUpperCase();
-                    SimpleDateFormat format = new SimpleDateFormat("MM-dd-yy hh:mma");
-                    Date newDate = format.parse(date);
-                    stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                    stringDate = formatDateTime(date, "MM-dd-yy hh:mma", "HH:mma");
                 } catch (Exception e) {
                     String date = lines[0] + " " + values[0];
                     stringDate = date.trim().replace("/", "-").replace(".", "-");
@@ -322,12 +346,12 @@ public class WidgetMedium extends AppWidgetProvider {
             try {
                 String[] values = resp.split(" ");
                 view.setTextViewText(R.id.tv_location, this.source.getName());
-                view.setTextViewText(R.id.tv_temperature, convertTemperature(Double.parseDouble(values[4]), "°C", Widget.prefTempUnit) + Widget.prefTempUnit);
-                view.setTextViewText(R.id.tv_temperature_left, convertTemperature(Double.parseDouble(values[4]), "°C", Widget.prefTempUnit) + Widget.prefTempUnit);
+                view.setTextViewText(R.id.tv_temperature, convertTemperature(Double.parseDouble(values[4]), "°C", WidgetMedium.prefTempUnit) + WidgetMedium.prefTempUnit);
+                view.setTextViewText(R.id.tv_temperature_left, convertTemperature(Double.parseDouble(values[4]), "°C", WidgetMedium.prefTempUnit) + WidgetMedium.prefTempUnit);
                 view.setTextViewText(R.id.tv_humidity, values[5] + "%");
-                view.setTextViewText(R.id.tv_pressure, convertPressure(Double.parseDouble(values[6]), "hPa", Widget.prefPressUnit) + Widget.prefPressUnit);
-                view.setTextViewText(R.id.tv_rain, convertRain(Double.parseDouble(values[7]), "mm", Widget.prefRainUnit) + Widget.prefRainUnit);
-                view.setTextViewText(R.id.tv_windspeed, convertWindSpeed(Double.parseDouble(values[2]), "kts", Widget.prefWindUnit) + Widget.prefWindUnit);
+                view.setTextViewText(R.id.tv_pressure, convertPressure(Double.parseDouble(values[6]), "hPa", WidgetMedium.prefPressUnit) + WidgetMedium.prefPressUnit);
+                view.setTextViewText(R.id.tv_rain, convertRain(Double.parseDouble(values[7]), "mm", WidgetMedium.prefRainUnit) + WidgetMedium.prefRainUnit);
+                view.setTextViewText(R.id.tv_windspeed, convertWindSpeed(Double.parseDouble(values[2]), "kts", WidgetMedium.prefWindUnit) + WidgetMedium.prefWindUnit);
                 int currentConditionIcon = Integer.parseInt(values[48]);
                 int[] currentConditionMapping = {R.drawable.sunny, R.drawable.clear_night, R.drawable.cloudy, R.drawable.cloudy, R.drawable.cloudy_night, R.drawable.sunny, R.drawable.fog, R.drawable.fog, R.drawable.heavy_rain, R.drawable.sunny, R.drawable.fog, R.drawable.fog_night, R.drawable.heavy_rain, R.drawable.cloudy_night, R.drawable.rain, R.drawable.heavy_rain, R.drawable.snow, R.drawable.storm, R.drawable.partly_cloudy, R.drawable.partly_cloudy, R.drawable.rain, R.drawable.heavy_rain, R.drawable.heavy_rain, R.drawable.snow, R.drawable.snow, R.drawable.snow, R.drawable.snow_melt, R.drawable.snow, R.drawable.sunny, R.drawable.storm, R.drawable.storm, R.drawable.storm, R.drawable.windy, R.drawable.windy, R.drawable.stopped_raining, R.drawable.rain, R.drawable.sunrise, R.drawable.sunset};
                 int currentConditionAsset = currentConditionMapping[currentConditionIcon];
@@ -335,10 +359,7 @@ public class WidgetMedium extends AppWidgetProvider {
                 String stringDate = null;
                 try {
                     String date = values[74] + " " + values[29]+ ":" + values[30]+ ":" + values[31];
-                    date = date.trim().replace("/", "-").replace(".", "-");
-                    SimpleDateFormat format = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-                    Date newDate = format.parse(date);
-                    stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                    stringDate = formatDateTime(date, "dd-MM-yyyy HH:mm:ss", "HH:mm:ss");
                 } catch (Exception e) {
                     String date = values[74] + " " + values[29]+ ":" + values[30]+ ":" + values[31];
                     stringDate = date.trim().replace("/", "-").replace(".", "-");
@@ -363,15 +384,12 @@ public class WidgetMedium extends AppWidgetProvider {
                 String stringDate = null;
                 try {
                     String date = values[0] + " " + values[1];
-                    date = date.trim().replace("/", "-").replace(".", "-");
                     int year = Calendar.getInstance().get(Calendar.YEAR);
                     date = date.substring(0, 6) +
                             Integer.toString(year).substring(0, 2) +
                             date.substring(6);
                     date = date.substring(6, 10) + "-" + date.substring(3, 5) + "-" + date.substring(0, 2) + " " + date.substring(11);
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date newDate = format.parse(date);
-                    stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                    stringDate = formatDateTime(date, "yyyy-MM-dd HH:mm:ss", "HH:mm:ss");
                 } catch (Exception e) {
                     stringDate = values[0].trim() + " " + values[1].trim();
                 }
@@ -454,10 +472,7 @@ public class WidgetMedium extends AppWidgetProvider {
                 String stringDate = null;
                 try {
                     String tmpDatetime = date.trim() + " " + time.trim();
-                    tmpDatetime = tmpDatetime.trim().replace("/", "-").replace(".", "-");
-                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Date newDate = format.parse(tmpDatetime);
-                    stringDate = android.text.format.DateFormat.getDateFormat(context).format(newDate) + " " + android.text.format.DateFormat.getTimeFormat(context).format(newDate).replace(".000", "");
+                    stringDate = formatDateTime(date, "yyyy-MM-dd HH:mm:ss", "HH:mm:ss");
                 } catch (Exception e) {
                     stringDate = ((date != null) ? (date.trim() + " ") : "") + ((time != null) ? time.trim() : "");
                 }

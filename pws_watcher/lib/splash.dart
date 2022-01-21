@@ -24,8 +24,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:
-          widget.themeService!.themeSubject.value.scaffoldBackgroundColor,
+      backgroundColor: widget.themeService!.themeSubject.value.scaffoldBackgroundColor,
       body: Builder(
         builder: (context) => SafeArea(
           child: Center(
@@ -57,6 +56,7 @@ class _SplashPageState extends State<SplashPage> {
       prefPressUnit: prefs.getString("prefPressUnit"),
       prefTempUnit: prefs.getString("prefTempUnit"),
       prefDewUnit: prefs.getString("prefDewUnit"),
+      parsingDateFormat: prefs.getString("parsingDateFormat"),
     );
 
     // Route to home page
