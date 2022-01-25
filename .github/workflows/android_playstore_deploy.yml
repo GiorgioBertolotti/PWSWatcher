@@ -96,7 +96,7 @@ jobs:
       with:
         name: appbundle
     - name: Release app to internal track
-      uses: r0adkll/upload-google-play@v1
+      uses: r0adkll/upload-google-play@v1.0.15
       with:
         serviceAccountJsonPlainText: ${{ secrets.PLAYSTORE_ACCOUNT_KEY }}
         packageName: com.zem.pwswatcher
