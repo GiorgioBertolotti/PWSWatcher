@@ -40,7 +40,7 @@ android {
     defaultConfig {
         applicationId "com.zem.pwswatcher"
         minSdkVersion 19
-        targetSdkVersion 29
+        targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
